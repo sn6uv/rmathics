@@ -4,7 +4,7 @@ from rmathics.definition import Definitions
 
 
 def entry_point(argv):
-    a = Expression(Symbol("Length"), String("abc"))
+    a = Expression("Length", String("abc"))
     print(a.format())
 
     definitions = Definitions()

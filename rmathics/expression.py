@@ -30,8 +30,9 @@ class BaseExpression(object):
 
 class Expression(BaseExpression):
     def __init__(self, head, *leaves):
-        self.head = head
-        # assert isinstance(head, Symbol)
+        assert isinstance(head, str)
+        # assert all(isinstance(leaf, BaseExpression) for leaf in leaves)
+        self.head = Symbol(head)
         self.leaves = leaves
 
     def get_head(self):
@@ -54,7 +55,7 @@ class Atom(BaseExpression):
 class String(Atom):
     def __init__(self, value):
         Atom.__init__(self)
-        # assert isinstance(value, basestring)
+        assert isinstance(value, str)
         self.value = value
 
     def format(self, format="FullForm"):
@@ -67,7 +68,7 @@ class String(Atom):
 class Symbol(Atom):
     def __init__(self, name):
         Atom.__init__(self)
-        # assert isinstance(name, basestring)
+        assert isinstance(name, str)
         self.name = name
 
     def format(self, format="FullForm"):
@@ -91,20 +92,20 @@ class Integer(Number):
 
 class Real(Number):
     def __init__(self, value):
+        Number.__init__(self)
         # TODO
         self.value = value
-        Number.__init__(self)
 
 
 class Complex(Number):
     def __init__(self, value):
+        Number.__init__(self)
         # TODO
         self.value = value
-        Number.__init__(self)
 
 
 class Rational(Number):
     def __init__(self, value):
+        Number.__init__(self)
         # TODO
         self.value = value
-        Number.__init__(self)

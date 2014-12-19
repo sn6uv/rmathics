@@ -22,7 +22,7 @@ class Definitions(object):
         builtin = self.builtin.get(name, None)
         if builtin is None:
             return self.user.get(name, None)
-        
+
     def lookup_name(self, name):
         """
         Determine the full name (with context) for a symbol name.
@@ -51,3 +51,20 @@ class Definition(object):
         self.nvalues = []
         self.defaultvalues = []
         self.messages = []
+
+
+def fully_qualified_symbol_name(name):
+    return (isinstance(name, basestring)
+            and '`' in name
+            and not name.startswith('`')
+            and not name.endswith('`')
+            and '``' not in name)
+
+
+def ensure_context(name):
+    if '`' in name:
+        if fully_qualified_symbol_name(name):
+            return name
+        else:
+            raise ValueError("abc")
+    return 'System`' + name
