@@ -85,7 +85,7 @@ class Number(Atom):
 
 class Integer(Number):
     def __init__(self, value):
-        # TODO
+        # assert isinstance(value, mpz)
         self.value = value
         Number.__init__(self)
 
@@ -93,19 +93,19 @@ class Integer(Number):
 class Real(Number):
     def __init__(self, value):
         Number.__init__(self)
-        # TODO
+        # assert isinstance(value, mpfr)
         self.value = value
 
 
 class Complex(Number):
     def __init__(self, value):
         Number.__init__(self)
-        # TODO
+        # assert isinstance(value, mpc)
         self.value = value
 
 
 class Rational(Number):
     def __init__(self, value):
         Number.__init__(self)
-        # TODO
+        # assert isinstance(value, mpq)
         self.value = value
