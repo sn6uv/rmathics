@@ -77,10 +77,34 @@ class Symbol(Atom):
         return True
 
 
-class Integer(Atom):
-    def __init__(self, value):
-        self.value = value
-        Atom.__init__(self)
-
+class Number(Atom):
     def is_number(self):
         return True
+
+
+class Integer(Number):
+    def __init__(self, value):
+        # TODO
+        self.value = value
+        Number.__init__(self)
+
+
+class Real(Number):
+    def __init__(self, value):
+        # TODO
+        self.value = value
+        Number.__init__(self)
+
+
+class Complex(Number):
+    def __init__(self, value):
+        # TODO
+        self.value = value
+        Number.__init__(self)
+
+
+class Rational(Number):
+    def __init__(self, value):
+        # TODO
+        self.value = value
+        Number.__init__(self)

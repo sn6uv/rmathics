@@ -1,10 +1,14 @@
 import sys
-from expression import Expression, Symbol, String
+from rmathics.expression import Expression, Symbol, String
+from rmathics.definition import Definitions
 
 
 def entry_point(argv):
     a = Expression(Symbol("Length"), String("abc"))
     print(a.format())
+
+    definitions = Definitions()
+    print(definitions.get_definition("$Context"))
     return 0
 
 
