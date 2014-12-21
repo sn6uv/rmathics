@@ -1,24 +1,18 @@
 from rply import ParserGenerator, LexerGenerator
-
-import re
 from math import log10
 
-from rmathics.expression import (BaseExpression, Expression, Integer,
-                                     Real, Symbol, String, Rational,
-                                     ensure_context)
+from rmathics.expression import (
+    BaseExpression, Expression, Integer, Real, Symbol, String, Rational,
+    ensure_context)
 # from mathics.core.numbers import dps
 from rmathics.characters import letters, letterlikes, named_characters
 
 # from mathics.builtin.numeric import machine_precision
 machine_precision = 18
 
-
 # Symbols can be any letters
 base_symb = ur'((?![0-9])([0-9${0}{1}])+)'.format(letters, letterlikes)
 full_symb = ur'(`?{0}(`{0})*)'.format(base_symb)
-
-# symbol_re = re.compile(full_symb)
-
 
 tokens = (
     ('number', r'((\d+\^\^([a-zA-Z0-9]+\.?[a-zA-Z0-9]*|[a-zA-Z0-9]*\.?[a-zA-Z0-9]+))|(\d+\.?\d*|\d*\.?\d+))(``?(\+|-)?(\d+\.?\d*|\d*\.?\d+)|`)?(\*\^(\+|-)?\d+)?'),
@@ -272,118 +266,114 @@ class ParseError(TranslateError):
     def __unicode__(self):
         return u"Parse error at or near token %s." % str(self.token)
 
-
-# def is_symbol_name(text):
-#     return symbol_re.sub('', text) == ''
-
 prefix_operators = {
-    'Del': 'Del',
-    'Square': 'Square',
-    'ForAll': 'ForAll',
-    'Exists': 'Exists',
-    'NotExists': 'NotExists',
+    'Del': ['Del'],
+    'Square': ['Square'],
+    'ForAll': ['ForAll'],
+    'Exists': ['Exists'],
+    'NotExists': ['NotExists'],
 }
 
 infix_operators = {
-    'PatternTest': 'PatternTest',
-    'Apply': 'Apply1',
-    'Map': 'Map',
-    'MapAll': 'MapAll',
-    'PlusMinus': 'PlusMinus',
-    'MinusPlus': 'MinusPlus',
-    'RightTee': 'RightTee',
-    'DoubleRightTee': 'DoubleRightTee',
-    'Power': 'Power',
-    'LeftTee': 'LeftTee',
-    'DoubleLeftTee': 'DoubleLeftTee',
-    'Implies': 'Implies',
-    'SuchThat': 'SuchThat',
-    'Condition': 'Condition',
+    'PatternTest': ['PatternTest'],
+    'Apply': ['Apply1'],
+    'Map': ['Map'],
+    'MapAll': ['MapAll'],
+    'PlusMinus': ['PlusMinus'],
+    'MinusPlus': ['MinusPlus'],
+    'RightTee': ['RightTee'],
+    'DoubleRightTee': ['DoubleRightTee'],
+    'Power': ['Power'],
+    'LeftTee': ['LeftTee'],
+    'DoubleLeftTee': ['DoubleLeftTee'],
+    'Implies': ['Implies'],
+    'SuchThat': ['SuchThat'],
+    'Condition': ['Condition'],
     'Rule': ['op_Rule', 'Rule'],
     'RuleDelayed': ['op_RuleDelayed', 'RuleDelayed'],
-    'ReplaceAll': 'ReplaceAll',
-    'ReplaceRepeated': 'ReplaceRepeated',
-    'AddTo': 'AddTo',
-    'SubtractFrom': 'SubtractFrom',
-    'TimesBy': 'TimesBy',
-    'DivideBy': 'DivideBy',
-    'Therefore': 'Therefore',
-    'Because': 'Because',
-    'UpSet': 'UpSet',
-    'UpSetDelayed': 'UpSetDelayed',
+    'ReplaceAll': ['ReplaceAll'],
+    'ReplaceRepeated': ['ReplaceRepeated'],
+    'AddTo': ['AddTo'],
+    'SubtractFrom': ['SubtractFrom'],
+    'TimesBy': ['TimesBy'],
+    'DivideBy': ['DivideBy'],
+    'Therefore': ['Therefore'],
+    'Because': ['Because'],
+    'UpSet': ['UpSet'],
+    'UpSetDelayed': ['UpSetDelayed'],
 }
 
 flat_infix_operators = {
-    'StringJoin': 'StringJoin',
-    'SmallCircle': 'SmallCircle',
-    'CircleDot': 'CircleDot',
-    'NonCommutativeMultiply': 'NonCommutativeMultiply',
-    'Cross': 'Cross',
-    'Dot': 'RawDot',
-    'Plus': 'Plus',
-    'Intersection': 'Intersection',
-    'Union': 'Union',
-    'Diamond': 'Diamond',
-    'Wedge': 'Wedge',
-    'Vee': 'Vee',
-    'CircleTimes': 'CircleTimes',
-    'CirclePlus': 'CirclePlus',
-    'CircleMinus': 'CircleMinus',
-    'CenterDot': 'CenterDot',
-    'VerticalTilde': 'VerticalTilde',
-    'Coproduct': 'Coproduct',
-    'Cap': 'Cap',
-    'Cup': 'Cup',
-    'Star': 'Star',
-    'Backslash': 'RawBackslash',
-    'VerticalBar': 'VerticalBar',
-    'NotVerticalBar': 'NotVerticalBar',
-    'DoubleVerticalBar': 'DoubleVerticalBar',
-    'NotDoubleVerticalBar': 'NotDoubleVerticalBar',
-    'SameQ': 'SameQ',
-    'UnsameQ': 'UnsameQ',
-    'Element': 'Element',
-    'NotElement': 'NotElement',
-    'Subset': 'Subset',
-    'Superset': 'Superset',
+    'StringJoin': ['StringJoin'],
+    'SmallCircle': ['SmallCircle'],
+    'CircleDot': ['CircleDot'],
+    'NonCommutativeMultiply': ['NonCommutativeMultiply'],
+    'Cross': ['Cross'],
+    'Dot': ['RawDot'],
+    'Plus': ['Plus'],
+    'Intersection': ['Intersection'],
+    'Union': ['Union'],
+    'Diamond': ['Diamond'],
+    'Wedge': ['Wedge'],
+    'Vee': ['Vee'],
+    'CircleTimes': ['CircleTimes'],
+    'CirclePlus': ['CirclePlus'],
+    'CircleMinus': ['CircleMinus'],
+    'CenterDot': ['CenterDot'],
+    'VerticalTilde': ['VerticalTilde'],
+    'Coproduct': ['Coproduct'],
+    'Cap': ['Cap'],
+    'Cup': ['Cup'],
+    'Star': ['Star'],
+    'Backslash': ['RawBackslash'],
+    'VerticalBar': ['VerticalBar'],
+    'NotVerticalBar': ['NotVerticalBar'],
+    'DoubleVerticalBar': ['DoubleVerticalBar'],
+    'NotDoubleVerticalBar': ['NotDoubleVerticalBar'],
+    'SameQ': ['SameQ'],
+    'UnsameQ': ['UnsameQ'],
+    'Element': ['Element'],
+    'NotElement': ['NotElement'],
+    'Subset': ['Subset'],
+    'Superset': ['Superset'],
     'And': ['And', 'op_And'],
-    'Nand': 'Nand',
-    'Xor': 'Xor',
-    'Xnor': 'Xnor',
+    'Nand': ['Nand'],
+    'Xor': ['Xor'],
+    'Xnor': ['Xnor'],
     'Or': ['op_Or', 'Or'],
-    'Nor': 'Nor',
-    'Equivalent': 'Equivalent',
-    'Alternatives': 'Alternatives',
-    'StringExpression': 'StringExpression',
-    'Colon': 'Colon',
-    'VerticalSeparator': 'VerticalSeparator',
+    'Nor': ['Nor'],
+    'Equivalent': ['Equivalent'],
+    'Alternatives': ['Alternatives'],
+    'StringExpression': ['StringExpression'],
+    'Colon': ['Colon'],
+    'VerticalSeparator': ['VerticalSeparator'],
 }
 
 postfix_operators = {
-    'Increment': 'Increment',
-    'Decrement': 'Decrement',
-    'Factorial': 'Factorial',
-    'Factorial2': 'Factorial2',
-    'Conjugate': 'Conjugate',
-    'Transpose': 'Transpose',
+    'Increment': ['Increment'],
+    'Decrement': ['Decrement'],
+    'Factorial': ['Factorial'],
+    'Factorial2': ['Factorial2'],
+    'Conjugate': ['Conjugate'],
+    'Transpose': ['Transpose'],
     'ConjugateTranspose': ['ConjugateTranspose', 'HermitianConjugate'],
-    'Repeated': 'Repeated',
-    'RepeatedNull': 'RepeatedNull',
-    'Function': 'RawAmpersand',
+    'Repeated': ['Repeated'],
+    'RepeatedNull': ['RepeatedNull'],
+    'Function': ['RawAmpersand'],
 }
 
-innequality_operators = {
+inequality_operators = {
     'Equal': ['op_Equal', 'LongEqual', 'Equal'],
     'Unequal': ['op_Unequal', 'NotEqual'],
-    'Greater': 'Greater',
-    'Less': 'Less',
+    'Greater': ['Greater'],
+    'Less': ['Less'],
     'GreaterEqual': ['op_GreaterEqual', 'GreaterEqual', 'GreaterSlantEqual'],
     'LessEqual': ['op_LessEqual', 'LessEqual', 'LessSlantEqual'],
 }
 
 all_operator_names = (prefix_operators.keys() + infix_operators.keys() +
                       flat_infix_operators.keys() + postfix_operators.keys() +
-                      innequality_operators.keys())
+                      inequality_operators.keys())
 
 precedence = (
     ('right', ['FormBox']),
@@ -435,8 +425,8 @@ precedence = (
     # This is a hack to get implicit times working properly:
     ('left', ['Times', 'RawStar', 'blanks', 'blankdefault', 'out',
               'slotsingle1', 'slotsingle2', 'slotseq1', 'slotseq2',
-               'string', 'symbol', 'number', 'RawLeftBrace',
-               'RawLeftParenthesis']),  # flat,
+              'string', 'symbol', 'number', 'RawLeftBrace',
+              'RawLeftParenthesis']),  # flat,
     ('left', ['CenterDot']),                  # flat
     ('left', ['CircleTimes']),                # flat
     ('left', ['Vee']),                        # flat
@@ -481,7 +471,7 @@ precedence = (
 
 pg = ParserGenerator(
     [token[0] for token in tokens],
-    precedence=precedence,
+    precedence=reversed(precedence),
     cache_id="mathics")
 
 @pg.production('main : expr')
@@ -492,12 +482,12 @@ def main(p):
     elif len(p) == 1:
         return p[0]
 
-
 @pg.production('expr : number')
 def number(p):
     """
     NOT_RPYTHON
     """
+    import re
     s = p[0].getstr()
     # Look for base
     s = s.split('^^')
@@ -667,98 +657,71 @@ def out_2(p):
 ##         return t
 ##
 ##     def __init__(self):
-##         for prefix_op in prefix_operators:
-##             @ONEARG
-##             def tmp(args, op=prefix_op):
-##                 args[0] = Expression(op, args[2])
-##             tokens = prefix_operators[prefix_op]
-##             if not isinstance(tokens, list):
-##                 tokens = [tokens]
-##             tmp.__doc__ = 'expr : ' + '\n     | '.join(
-##                 ['{0} expr'.format(token) for token in tokens])
-##             setattr(self, 'p_{0}_prefix'.format(prefix_op), tmp)
-##
-##         for infix_op in infix_operators:
-##             tokens = infix_operators[infix_op]
-##             if not isinstance(tokens, list):
-##                 tokens = [tokens]
-##
-##             @ONEARG
-##             def tmp(args, op=infix_op):
-##                 args[0] = Expression(op, args[1], args[3])
-##             tmp.__doc__ = 'expr : ' + '\n     | '.join(
-##                 ['expr {0} expr'.format(token) for token in tokens])
-##             setattr(self, 'p_{0}_infix'.format(infix_op), tmp)
-##
-##         for flat_infix_op in flat_infix_operators:
-##             tokens = flat_infix_operators[flat_infix_op]
-##             if not isinstance(tokens, list):
-##                 tokens = [tokens]
-##
-##             @ONEARG
-##             def tmp(args, op=flat_infix_op):
-##                 op = ensure_context(op)
-##                 if args[1].get_head_name() == op:
-##                     args[1].leaves.append(args[3])
-##                     args[0] = args[1]
-##                 else:
-##                     args[0] = Expression(op, args[1], args[3])
-##             tmp.__doc__ = 'expr : ' + '\n     | '.join(
-##                 ['expr {0} expr'.format(token) for token in tokens])
-##             setattr(self, 'p_{0}_infix'.format(flat_infix_op), tmp)
-##
-##         for postfix_op in postfix_operators:
-##             @ONEARG
-##             def tmp(args, op=postfix_op):
-##                 args[0] = Expression(op, args[1])
-##             tokens = postfix_operators[postfix_op]
-##             if not isinstance(tokens, list):
-##                 tokens = [tokens]
-##             tmp.__doc__ = 'expr : ' + '\n     | '.join(
-##                 ['expr {0}'.format(token) for token in tokens])
-##             setattr(self, 'p_{0}_postfix'.format(postfix_op), tmp)
-##
-##         for innequality_op in innequality_operators:
-##             @ONEARG
-##             def tmp(args, op=innequality_op):
-##                 head = args[1].get_head_name()
-##                 if head == ensure_context(op):
-##                     args[1].leaves.append(args[3])
-##                     args[0] = args[1]
-##                 elif head == 'System`Inequality':
-##                     args[1].leaves.append(Symbol(op))
-##                     args[1].leaves.append(args[3])
-##                     args[0] = args[1]
-##                 elif head in [ensure_context(k)
-##                               for k in innequality_operators.keys()]:
-##                     leaves = []
-##                     for i, leaf in enumerate(args[1].leaves):
-##                         if i != 0:
-##                             leaves.append(Symbol(head))
-##                         leaves.append(leaf)
-##                     leaves.append(Symbol(op))
-##                     leaves.append(args[3])
-##                     args[0] = Expression('Inequality', *leaves)
-##                 else:
-##                     args[0] = Expression(op, args[1], args[3])
-##             tokens = innequality_operators[innequality_op]
-##             if not isinstance(tokens, list):
-##                 tokens = [tokens]
-##             tmp.__doc__ = 'expr : ' + '\n     | '.join(
-##                 ['expr {0} expr'.format(token) for token in tokens])
-##             setattr(self, 'p_{0}_innequality'.format(innequality_op), tmp)
-##
-##     def build(self, **kwargs):
-##         self.parser = yacc.yacc(
-##             module=self,
-##             debug=False,
-##             tabmodule='mathics.core.parsetab',  # where to look for parsetab
-##             outputdir='mathics/core/',          # where to store parsetab
-##             **kwargs)
-##
-##     def user_symbol(self, name):
-##         return Symbol(self.definitions.lookup_name(name))
-##
+
+for prefix_op in prefix_operators:
+    code = """def %s_prefix(p):
+    return Expression('%s', p[1])""" % (prefix_op, prefix_op)
+    for token in prefix_operators[prefix_op]:
+        code = ("@pg.production('expr : %s expr')\n" % token) + code
+    exec code
+
+for infix_op in infix_operators:
+    code = """def %s_infix(p):
+    return Expression('%s', p[0], p[2])""" % (infix_op, infix_op)
+    for token in infix_operators[infix_op]:
+        code = ("@pg.production('expr : expr %s expr')\n" % token) + code
+    exec code
+
+for flat_infix_op in flat_infix_operators:
+    code = """def %s_flat_infix(p):
+    args = []
+    if p[0].get_head_name() == '%s':
+        args.extend(p[0].leaves)
+    else:
+        args.append(p[0])
+    if p[2].get_head_name() == '%s':
+        args.extend(p[2].leaves)
+    else:
+        args.append(p[2])
+    return Expression('%s', *args)""" % (flat_infix_op, flat_infix_op, flat_infix_op, flat_infix_op)
+    for token in flat_infix_operators[flat_infix_op]:
+        code = ("@pg.production('expr : expr %s expr')\n" % token) + code
+    exec code
+
+for postfix_op in postfix_operators:
+    code = """def %s_postfix(p):
+    return Expression('%s', p[0])""" % (postfix_op, postfix_op)
+    for token in postfix_operators[postfix_op]:
+        code = ("@pg.production('expr : expr %s')\n" % token) + code
+    exec code
+    
+for ineq_op in inequality_operators:
+    code = """def %s_inequality(p):
+        head = p[0].get_head_name()
+        ineq_op = '%s'
+        if head == ensure_context(ineq_op):
+            p[0].leaves.append(p[2])
+            return p[0]
+        elif head == 'System`Inequality':
+            p[0].leaves.append(Symbol(ineq_op))
+            p[0].leaves.append(p[2])
+            return p[0]
+        elif head in [ensure_context(k)
+                      for k in inequality_operators.keys()]:
+            leaves = []
+            for i, leaf in enumerate(p[0].leaves):
+                if i != 0:
+                    leaves.append(Symbol(head))
+                leaves.append(leaf)
+            leaves.append(Symbol(ineq_op))
+            leaves.append(p[0])
+            return Expression('Inequality', *leaves)
+        else:
+            return Expression(ineq_op, p[0], p[2])""" % (ineq_op, ineq_op)
+    for token in inequality_operators[ineq_op]:
+        code = ("@pg.production('expr : expr %s')\n" % token) + code
+    exec code
+
 @pg.error
 def error_handler(token):
     sourcepos = token.getsourcepos()
@@ -770,10 +733,6 @@ def error_handler(token):
         # TODO raise: Syntax:sntxf
         pass
     raise ParseError(token.gettokentype())
-
-##     def p_Empty(self, args):
-##         'Expression :'
-##         args[0] = None
 
 @pg.production('expr : RawLeftParenthesis expr RawRightParenthesis')
 def parenthesis(p):
@@ -886,7 +845,7 @@ def PreDecrement(p):
 
 @pg.production('expr : expr Prefix expr')
 def Prefix(p):
-    return Expression(p[0], p[1])
+    return Expression(p[0], p[2])
 
 @pg.production('expr : expr Infix expr Infix expr')
 def p_Infix(p):
