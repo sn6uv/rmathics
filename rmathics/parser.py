@@ -4,11 +4,12 @@ from math import log10
 from rmathics.expression import (
     BaseExpression, Expression, Integer, Real, Symbol, String, Rational,
     ensure_context)
-# from mathics.core.numbers import dps
 from rmathics.characters import letters, letterlikes, named_characters
 
+# from mathics.core.numbers import dps
 # from mathics.builtin.numeric import machine_precision
 machine_precision = 18
+
 
 # Symbols can be any letters
 base_symb = ur'((?![0-9])([0-9${0}{1}])+)'.format(letters, letterlikes)
@@ -202,7 +203,7 @@ def prelex(s):
                     replacements.append(        # int expects str (not unicode)
                         (i, i+6, unichr(int(str(s[i+2:i+6]), 16))))
                 else:
-                    #TODO Raise Syntax:snthex
+                    # TODO Raise Syntax:snthex
                     pass
             elif s[i+1] == u'.':        # 2 digit hex code
                 if (i + 3 >= len(s) and
@@ -211,7 +212,7 @@ def prelex(s):
                     replacements.append(        # int expects str (not unicode)
                         (i, i+4, unichr(int(str(s[i+2:i+4]), 16))))
                 else:
-                    #TODO Raise Syntax:sntoct2
+                    # TODO Raise Syntax:sntoct2
                     pass
             elif s[i+1] == u'[':        # longname
                 for j in range(i+2, len(s)):
@@ -408,25 +409,25 @@ precedence = (
     ('left', ['Element', 'NotElement', 'Subset', 'Superset']),    # flat
     ('left', ['SameQ', 'UnsameQ']),           # flat
     ('left', ['Equal', 'op_Equal', 'LongEqual', 'op_Unequal', 'NotEqual',
-     'Greater', 'Less', 'GreaterEqual', 'op_GreaterEqual', 'GreaterSlantEqual',
-     'LessEqual', 'op_LessEqual', 'LessSlantEqual', 'VerticalBar',
-     'NotVerticalBar', 'DoubleVerticalBar', 'NotDoubleVerticalBar']),
+              'Greater', 'Less', 'GreaterEqual', 'op_GreaterEqual', 'GreaterSlantEqual',
+              'LessEqual', 'op_LessEqual', 'LessSlantEqual', 'VerticalBar',
+              'NotVerticalBar', 'DoubleVerticalBar', 'NotDoubleVerticalBar']),
     ('nonassoc', ['Span']),
     ('left', ['Union']),                      # flat
     ('left', ['Intersection']),               # flat
     ('left', ['Plus', 'Minus', 'PlusMinus', 'MinusPlus']),  # flat
-    #('left', ['Sum']),                       # flat
+    # ('left', ['Sum']),                      # flat
     ('left', ['CirclePlus', 'CircleMinus']),  # flat
     ('left', ['Cap', 'Cup']),                 # flat
     ('left', ['Coproduct']),                  # flat
     ('left', ['VerticalTilde']),              # flat
-    #('left', ['Product']),
+    # ('left', ['Product']),
     ('left', ['Star']),                       # flat
     # This is a hack to get implicit times working properly:
     ('left', ['Times', 'RawStar', 'blanks', 'blankdefault', 'out',
               'slotsingle1', 'slotsingle2', 'slotseq1', 'slotseq2',
               'string', 'symbol', 'number', 'RawLeftBrace',
-              'RawLeftParenthesis']),  # flat,
+              'RawLeftParenthesis']),         # flat,
     ('left', ['CenterDot']),                  # flat
     ('left', ['CircleTimes']),                # flat
     ('left', ['Vee']),                        # flat
@@ -460,13 +461,13 @@ precedence = (
     ('right', ['Subscript']),
     ('right', ['Overscript', 'Underscript']),
     ('nonassoc', ['Get']),
-    #('nonassoc', ['blanks', 'blankdefault']),
-    #('nonassoc', ['out']),
-    #('nonassoc', ['slotsingle', 'slotseq']),
+    # ('nonassoc', ['blanks', 'blankdefault']),
+    # ('nonassoc', ['out']),
+    # ('nonassoc', ['slotsingle', 'slotseq']),
     ('nonassoc', ['MessageName']),
-    #('nonassoc', ['string']),
-    #('nonassoc', ['symbol']),
-    #('nonassoc', ['number']),
+    # ('nonassoc', ['string']),
+    # ('nonassoc', ['symbol']),
+    # ('nonassoc', ['number']),
 )
 
 pg = ParserGenerator(
@@ -626,37 +627,35 @@ def out_2(p):
     else:
         return Expression('Out', Integer(value))
 
-##     def t_PutAppend(self, t):
-##         r' \>\>\> '
-##         t.lexer.begin('file')
-##         return t
-##
-##     def t_Put(self, t):
-##         r' \>\> '
-##         t.lexer.begin('file')
-##         return t
-##
-##     def t_Get(self, t):
-##         r' \<\< '
-##         t.lexer.begin('file')
-##         return t
-##
-##     def t_file_filename(self, t):
-##         r'''
-##         (?P<quote>\"?)                              (?# Opening quotation mark)
-##             [a-zA-Z0-9\`/\.\\\!\-\:\_\$\*\~\?]+     (?# Literal characters)
-##         (?P=quote)                                  (?# Closing quotation mark)
-##         '''
-##         s = t.value
-##         if s.startswith('"'):
-##             s = s[1:-1]
-##         s = self.string_escape(s)
-##         s = s.replace('\\', '\\\\')
-##         t.value = String(s)
-##         t.lexer.begin('INITIAL')
-##         return t
-##
-##     def __init__(self):
+# def t_PutAppend(self, t):
+#     r' \>\>\> '
+#     t.lexer.begin('file')
+#     return t
+#
+# def t_Put(self, t):
+#     r' \>\> '
+#     t.lexer.begin('file')
+#     return t
+#
+# def t_Get(self, t):
+#     r' \<\< '
+#     t.lexer.begin('file')
+#     return t
+#
+# def t_file_filename(self, t):
+#     r'''
+#     (?P<quote>\"?)                              (?# Opening quotation mark)
+#         [a-zA-Z0-9\`/\.\\\!\-\:\_\$\*\~\?]+     (?# Literal characters)
+#     (?P=quote)                                  (?# Closing quotation mark)
+#     '''
+#     s = t.value
+#     if s.startswith('"'):
+#         s = s[1:-1]
+#     s = self.string_escape(s)
+#     s = s.replace('\\', '\\\\')
+#     t.value = String(s)
+#     t.lexer.begin('INITIAL')
+#     return t
 
 for prefix_op in prefix_operators:
     code = """def %s_prefix(p):
@@ -694,7 +693,7 @@ for postfix_op in postfix_operators:
     for token in postfix_operators[postfix_op]:
         code = ("@pg.production('expr : expr %s')\n" % token) + code
     exec code
-    
+
 for ineq_op in inequality_operators:
     code = """def %s_inequality(p):
         head = p[0].get_head_name()
@@ -820,20 +819,19 @@ def blankdefault(p):
 def pattern(p):
     return p[0]
 
-##def p_Get(self, args):
-##    'expr : Get filename'
-##    args[0] = Expression('Get', args[2])
-##
+# def p_Get(self, args):
+#     'expr : Get filename'
+#     args[0] = Expression('Get', args[2])
 
 @pg.production('expr : expr MessageName string MessageName string')
 @pg.production('expr : expr MessageName symbol MessageName string')
 @pg.production('expr : expr MessageName symbol')
 @pg.production('expr : expr MessageName string')
 def MessageName(p):
-   if len(p) == 4:
-       return Expression('MessageName', p[0], String(p[2]))
-   elif len(p) == 6:
-       return Expression('MessageName', p[0], String(p[2]), String(p[4]))
+    if len(p) == 4:
+        return Expression('MessageName', p[0], String(p[2]))
+    elif len(p) == 6:
+        return Expression('MessageName', p[0], String(p[2]), String(p[4]))
 
 @pg.production('expr : Increment expr')
 def PreIncrement(p):
@@ -938,8 +936,7 @@ def Span(p):
         if isinstance(p[0], BaseExpression):
             return Expression('Span', p[0], p[2])
         else:
-            return Expression('Span', Integer(1), Symbol('All'),
-                                 p[2])
+            return Expression('Span', Integer(1), Symbol('All'), p[2])
     elif len(p) == 2:
         if isinstance(p[0], BaseExpression):
             return Expression('Span', args[1], Symbol('All'))
@@ -1008,13 +1005,13 @@ def p_Unset(p):
 def Function(p):
     return Expression('Function', Expression('List', p[0]), p[2])
 
-##def p_Put(self, args):
-##    'expr : expr Put filename'
-##    args[0] = Expression('Put', args[1], args[3])
-##
-##def p_PutAppend(self, args):
-##    'expr : expr PutAppend filename'
-##    args[0] = Expression('PutAppend', args[1], args[3])
+# def p_Put(self, args):
+#     'expr : expr Put filename'
+#     args[0] = Expression('Put', args[1], args[3])
+#
+# def p_PutAppend(self, args):
+#     'expr : expr PutAppend filename'
+#     args[0] = Expression('PutAppend', args[1], args[3])
 
 @pg.production('expr : expr Semicolon expr')
 @pg.production('expr : expr Semicolon')
@@ -1029,102 +1026,6 @@ def p_Compound(self, args):
         p[0].leaves.append(Symbol('Null'))
     return p[0]
 
-##def p_box_to_expr(self, args):
-##    '''expr : LeftBoxParenthesis boxes RightBoxParenthesis
-##            | InterpretedBox LeftBoxParenthesis boxes RightBoxParenthesis %prec InterpretedBox'''   # nopep8
-##    if len(args) == 4:
-##        args[0] = args[2]
-##    else:
-##        result = Expression('MakeExpression', args[3])
-##        args[0] = Expression('ReleaseHold', result)  # remove HoldComplete
-##
-##def p_box(self, args):
-##    'box : expr'
-##    args[0] = Expression('MakeBoxes', args[1])
-##
-##def p_form(self, args):
-##    'form : expr'
-##    if args[1].get_head_name() == 'System`Symbol':
-##        args[0] = args[1]
-##    else:
-##        args[0] = Expression('Removed', String("$$Failure"))
-##
-##def p_boxes(self, args):
-##    '''boxTOKEN : box
-##                | boxTOKEN box
-##          boxes : boxTOKEN
-##                |'''
-##    if len(args) == 1:
-##        args[0] = String("")
-##    if len(args) == 2:
-##        if isinstance(args[1], list):
-##            if len(args[1]) > 1:
-##                args[0] = Expression('RowBox', *args[1])
-##            else:
-##                args[0] = args[1][0]
-##        else:
-##            args[0] = [args[1]]
-##    elif len(args) == 3:
-##        args[1].append(args[2])
-##        args[0] = args[1]
-##
-##def p_RowBox(self, args):       # used for grouping raw boxes
-##    'box : LeftBoxParenthesisInternal boxes RightBoxParenthesisInternal'
-##    args[2].parenthesized = True
-##    args[0] = args[2]
-##
-##def p_SuperscriptBox(self, args):
-##    '''box : box Superscript box Otherscript box %prec Superscript
-##           | box Superscript box'''
-##    if len(args) == 4:
-##        args[0] = Expression('SuperscriptBox', args[1], args[3])
-##    elif len(args) == 6:
-##        args[0] = Expression(
-##            'SubsuperscriptBox', args[1], args[5], args[3])
-##
-##def p_Subscript(self, args):
-##    '''box : box Subscript box Otherscript box %prec Subscript
-##           | box Subscript box'''
-##    if len(args) == 4:
-##        args[0] = Expression('SubscriptBox', args[1], args[3])
-##    elif len(args) == 6:
-##        args[0] = Expression(
-##            'SubsuperscriptBox', args[1], args[3], args[5])
-##
-##def p_OverscriptBox(self, args):
-##    '''box : box Overscript box Otherscript box %prec Overscript
-##           | box Overscript box'''
-##    if len(args) == 4:
-##        args[0] = Expression('OverscriptBox', args[1], args[3])
-##    elif len(args) == 6:
-##        args[0] = Expression(
-##            'UnderoverscriptBox', args[1], args[5], args[3])
-##
-##def p_UnderscriptBox(self, args):
-##    '''box : box Underscript box Otherscript box %prec Underscript
-##           | box Underscript box'''
-##    if len(args) == 4:
-##        args[0] = Expression('UnderscriptBox', args[1], args[3])
-##    elif len(args) == 6:
-##        args[0] = Expression(
-##            'UnderoverscriptBox', args[1], args[3], args[5])
-##
-##def p_FractionBox(self, args):
-##    'box : box Fraction box'
-##    args[0] = Expression('FractionBox', args[1], args[3])
-##
-##def p_SqrtBox(self, args):
-##    '''box : Sqrt box Otherscript box %prec Sqrt
-##           | Sqrt box'''
-##    if len(args) == 3:
-##        args[0] = Expression('SqrtBox', args[2])
-##    elif len(args) == 5:
-##        args[0] = Expression('RadicalBox', args[2], args[4])
-##
-##def p_FormBox(self, args):
-##    'box : form FormBox box'
-##    args[0] = Expression('FormBox', args[3], args[1])
-
 # Construct lexer
 lg = LexerGenerator()
 for token, regex in tokens:
@@ -1134,5 +1035,4 @@ lexer = lg.build()
 
 # Construct parser
 parser = pg.build()
-def parse(string):
-    return parser.parse(lexer.lex(prelex(string)))
+parse = lambda string: parser.parse(lexer.lex(prelex(string)))
