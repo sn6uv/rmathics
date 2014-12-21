@@ -33,10 +33,10 @@ class BaseExpression(object):
 
 class Expression(BaseExpression):
     def __init__(self, head, *leaves):
-        assert isinstance(head, basestring)
+        assert isinstance(head, BaseExpression)
         # assert all(isinstance(leaf, BaseExpression) for leaf in leaves)
-        self.head = Symbol(head)
-        self.leaves = leaves
+        self.head = head
+        self.leaves = list(leaves)
 
     def get_head(self):
         return self.head

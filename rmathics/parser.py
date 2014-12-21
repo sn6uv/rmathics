@@ -600,14 +600,14 @@ def string(p):
 def slotseq(p):
     s = p[0].getstr()
     value = 1 if len(s) == 2 else int(s[2:])
-    return Expression('SlotSequence', value)
+    return Expression(Symbol('System`SlotSequence'), value)
 
 @pg.production('expr : slotsingle_1')
 @pg.production('expr : slotsingle_2')
 def slotsingle(p):
     s = p[0].getstr()
     value = 1 if len(s) == 1 else int(s[1:])
-    return Expression('Slot', value)
+    return Expression(Symbol('System`Slot'), value)
 
 @pg.production('expr : out_1')
 def out_1(p):
@@ -616,7 +616,7 @@ def out_1(p):
     if value == -1:
         return Expresion('Out')
     else:
-        return Expression('Out', Integer(value))
+        return Expression(Symbol('System`Out'), Integer(value))
 
 @pg.production('expr : out_2')
 def out_2(p):
@@ -625,7 +625,7 @@ def out_2(p):
     if value == -1:
         return Expresion('Out')
     else:
-        return Expression('Out', Integer(value))
+        return Expression(Symbol('System`Out'), Integer(value))
 
 # def t_PutAppend(self, t):
 #     r' \>\>\> '
@@ -659,14 +659,14 @@ def out_2(p):
 
 for prefix_op in prefix_operators:
     code = """def %s_prefix(p):
-    return Expression('%s', p[1])""" % (prefix_op, prefix_op)
+    return Expression(Symbol('System`%s'), p[1])""" % (prefix_op, prefix_op)
     for token in prefix_operators[prefix_op]:
         code = ("@pg.production('expr : %s expr')\n" % token) + code
     exec code
 
 for infix_op in infix_operators:
     code = """def %s_infix(p):
-    return Expression('%s', p[0], p[2])""" % (infix_op, infix_op)
+    return Expression(Symbol('System`%s'), p[0], p[2])""" % (infix_op, infix_op)
     for token in infix_operators[infix_op]:
         code = ("@pg.production('expr : expr %s expr')\n" % token) + code
     exec code
@@ -682,14 +682,14 @@ for flat_infix_op in flat_infix_operators:
         args.extend(p[2].leaves)
     else:
         args.append(p[2])
-    return Expression('%s', *args)""" % (flat_infix_op, flat_infix_op, flat_infix_op, flat_infix_op)
+    return Expression(Symbol('System`%s'), *args)""" % (flat_infix_op, flat_infix_op, flat_infix_op, flat_infix_op)
     for token in flat_infix_operators[flat_infix_op]:
         code = ("@pg.production('expr : expr %s expr')\n" % token) + code
     exec code
 
 for postfix_op in postfix_operators:
     code = """def %s_postfix(p):
-    return Expression('%s', p[0])""" % (postfix_op, postfix_op)
+    return Expression(Symbol('System`%s'), p[0])""" % (postfix_op, postfix_op)
     for token in postfix_operators[postfix_op]:
         code = ("@pg.production('expr : expr %s')\n" % token) + code
     exec code
@@ -697,8 +697,8 @@ for postfix_op in postfix_operators:
 for ineq_op in inequality_operators:
     code = """def %s_inequality(p):
         head = p[0].get_head_name()
-        ineq_op = '%s'
-        if head == ensure_context(ineq_op):
+        ineq_op = ensure_context('%s')
+        if head == ineq_op:
             p[0].leaves.append(p[2])
             return p[0]
         elif head == 'System`Inequality':
@@ -714,11 +714,11 @@ for ineq_op in inequality_operators:
                 leaves.append(leaf)
             leaves.append(Symbol(ineq_op))
             leaves.append(p[0])
-            return Expression('Inequality', *leaves)
+            return Expression(Symbol('System`Inequality'), *leaves)
         else:
-            return Expression(ineq_op, p[0], p[2])""" % (ineq_op, ineq_op)
+            return Expression(Symbol(ineq_op), p[0], p[2])""" % (ineq_op, ineq_op)
     for token in inequality_operators[ineq_op]:
-        code = ("@pg.production('expr : expr %s')\n" % token) + code
+        code = ("@pg.production('expr : expr %s expr')\n" % token) + code
     exec code
 
 @pg.error
@@ -742,13 +742,13 @@ def parenthesis(p):
 
 @pg.production('expr : expr args')
 def call(p):
-    expr = Expression(p[0], *args[1])
+    expr = Expression(p[0], *p[1])
     expr.parenthesized = True  # to handle e.g. Power[a,b]^c correctly
     return expr
 
 @pg.production('expr : expr position')
 def part(p):
-    expr = Expression('Part', *args[2])
+    expr = Expression(Symbol('System`Part'), *p[1])
     expr.parenthesized = True  # to handle e.g. Power[a,b]^c correctly
     return expr
 
@@ -758,11 +758,11 @@ def args(p):
 
 @pg.production('expr : RawLeftBrace sequence RawRightBrace')
 def list(p):
-    return Expression('List', *p[1])
+    return Expression(Symbol('System`List'), *p[1])
 
 @pg.production('position : RawLeftBracket RawLeftBracket sequence RawRightBracket RawRightBracket')
 def position(p):
-    return p[3]
+    return p[2]
 
 @pg.production('sequence :')
 @pg.production('sequence : expr')
@@ -793,17 +793,17 @@ def blanks(p):
     pieces = p[0].getstr().split('_')
     count = len(pieces) - 1
     if count == 1:
-        name = 'Blank'
+        name = 'System`Blank'
     elif count == 2:
-        name = 'BlankSequence'
+        name = 'System`BlankSequence'
     elif count == 3:
-        name = 'BlankNullSequence'
+        name = 'System`BlankNullSequence'
     if pieces[-1]:
-        blank = Expression(name, self.user_symbol(pieces[-1]))
+        blank = Expression(Symbol(ensure_context(name)), self.user_symbol(pieces[-1]))
     else:
-        blank = Expression(name)
+        blank = Expression(Symbol(ensure_context(name)))
     if pieces[0]:
-        return Expression('Pattern', Symbol(pieces[0]), blank)
+        return Expression(Symbol('System`Pattern'), Symbol(pieces[0]), blank)
     else:
         return blank
 
@@ -811,10 +811,10 @@ def blanks(p):
 def blankdefault(p):
     name = p[0][:-2]
     if name:
-        return Expression('Optional', Expression(
-            'Pattern', self.user_symbol(name), Expression('Blank')))
+        return Expression(Symbol('System`Optional'), Expression(
+            'Pattern', self.user_symbol(name), Expression(Symbol('System`Blank'))))
     else:
-        return Expression('Optional', Expression('Blank'))
+        return Expression(Symbol('System`Optional'), Expression(Symbol('System`Blank')))
 
 @pg.production('expr : pattern')
 def pattern(p):
@@ -822,7 +822,7 @@ def pattern(p):
 
 # def p_Get(self, args):
 #     'expr : Get filename'
-#     args[0] = Expression('Get', args[2])
+#     args[0] = Expression(Symbol('System`Get'), args[2])
 
 @pg.production('expr : expr MessageName string MessageName string')
 @pg.production('expr : expr MessageName symbol MessageName string')
@@ -830,17 +830,17 @@ def pattern(p):
 @pg.production('expr : expr MessageName string')
 def MessageName(p):
     if len(p) == 4:
-        return Expression('MessageName', p[0], String(p[2]))
+        return Expression(Symbol('System`MessageName'), p[0], String(p[2]))
     elif len(p) == 6:
-        return Expression('MessageName', p[0], String(p[2]), String(p[4]))
+        return Expression(Symbol('System`MessageName'), p[0], String(p[2]), String(p[4]))
 
 @pg.production('expr : Increment expr')
 def PreIncrement(p):
-    return Expression('PreIncrement', p[1])
+    return Expression(Symbol('System`PreIncrement'), p[1])
 
 @pg.production('expr : Decrement expr')
 def PreDecrement(p):
-    return Expression('PreDecrement', p[1])
+    return Expression(Symbol('System`PreDecrement'), p[1])
 
 @pg.production('expr : expr Prefix expr')
 def Prefix(p):
@@ -852,26 +852,26 @@ def p_Infix(p):
 
 @pg.production('expr : expr Apply2 expr')
 def p_Apply2(p):
-    return Expression('Apply', p[0], p[2], Expression('List', Integer(1)))
+    return Expression(Symbol('System`Apply'), p[0], p[2], Expression(Symbol('System`List'), Integer(1)))
 
 @pg.production('expr : expr Derivative')
 def Derivative(p):
-    n = len(p[1])
+    n = len(p[1].getstr())
     if (isinstance(p[0], Expression) and
         isinstance(p[0].head, Expression) and
         p[0].head.get_head_name() == 'System`Derivative' and
         p[0].head.leaves[0].get_int_value() is not None):
         n += p[0].head.leaves[0].get_int_value()
         p[0] = p[0].leaves[0]
-    return Expression(Expression('Derivative', Integer(n)), p[0])
+    return Expression(Expression(Symbol('System`Derivative'), Integer(n)), p[0])
 
 @pg.production('expr : Integral expr DifferentialD expr')
 def Integrate(p):
-    return Expression('Integrate', p[1], p[3])
+    return Expression(Symbol('System`Integrate'), p[1], p[3])
 
 @pg.production('expr : expr Minus expr')
 def Minus(p):
-    return Expression('Plus', p[0], Expression('Times', Integer(-1), p[2]))
+    return Expression(Symbol('System`Plus'), p[0], Expression(Symbol('System`Times'), Integer(-1), p[2]))
 
 @pg.production('expr : Plus expr')
 def UPlus(p):
@@ -881,20 +881,20 @@ def UPlus(p):
 def UMinus(p):
     # if p[1].get_head_name() in ['System`Integer', 'System`Real']:
     # TODO
-    return Expression('Times', Integer(-1), p[1])
+    return Expression(Symbol('System`Times'), Integer(-1), p[1])
 
 @pg.production('expr : PlusMinus expr')
 def UPlusMinus(p):
-    return Expression('PlusMinus', p[1])
+    return Expression(Symbol('System`PlusMinus'), p[1])
 
 @pg.production('expr : MinusPlus expr')
 def UMinusPlus(p):
-    return Expression('MinusPlus', p[1])
+    return Expression(Symbol('System`MinusPlus'), p[1])
 
 @pg.production('expr : expr RawSlash expr')
 @pg.production('expr : expr Divide expr')
 def Divide(p):
-    return Expression('Times', p[0], Expression('Power', p[2], Integer(-1)))
+    return Expression(Symbol('System`Times'), p[0], Expression(Symbol('System`Power'), p[2], Integer(-1)))
 
 @pg.production('expr : expr Times expr')
 @pg.production('expr : expr RawStar expr')
@@ -915,7 +915,7 @@ def p_Times(p):
         args.extend(arg2.leaves)
     else:
         args.append(arg2)
-    return Expression('System`Times', *args)
+    return Expression(Symbol('System`System`Times'), *args)
 
 @pg.production('expr : expr Span expr Span expr')
 @pg.production('expr : expr Span      Span expr')
@@ -927,52 +927,52 @@ def p_Times(p):
 @pg.production('expr :      Span')
 def Span(p):
     if len(p) == 5:
-        return Expression('Span', p[0], p[2], p[4])
+        return Expression(Symbol('System`Span'), p[0], p[2], p[4])
     elif len(p) == 4:
         if isinstance(p[0], BaseExpression):
-            return Expression('Span', p[0], Symbol('All'), p[3])
+            return Expression(Symbol('System`Span'), p[0], Symbol('All'), p[3])
         elif isinstance(p[1], BaseExpression):
-            return Expression('Span', Integer(1), p[1], p[3])
+            return Expression(Symbol('System`Span'), Integer(1), p[1], p[3])
     elif len(p) == 3:
         if isinstance(p[0], BaseExpression):
-            return Expression('Span', p[0], p[2])
+            return Expression(Symbol('System`Span'), p[0], p[2])
         else:
-            return Expression('Span', Integer(1), Symbol('All'), p[2])
+            return Expression(Symbol('System`Span'), Integer(1), Symbol('All'), p[2])
     elif len(p) == 2:
         if isinstance(p[0], BaseExpression):
-            return Expression('Span', args[1], Symbol('All'))
+            return Expression(Symbol('System`Span'), args[1], Symbol('All'))
         elif isinstance(p[1], BaseExpression):
-            return Expression('Span', Integer(1), p[1])
+            return Expression(Symbol('System`Span'), Integer(1), p[1])
     elif len(p) == 1:
-            return Expression('Span', Integer(1), Symbol('All'))
+            return Expression(Symbol('System`Span'), Integer(1), Symbol('All'))
 
 @pg.production('expr : Not expr')
 @pg.production('expr : Factorial2 expr')
 @pg.production('expr : Factorial expr')
 def Not(p):
     if p[0].getstr() == '!!':
-        return Expression('Not', Expression('Not', p[1]))
+        return Expression(Symbol('System`Not'), Expression(Symbol('System`Not'), p[1]))
     else:
-        return Expression('Not', p[1])
+        return Expression(Symbol('System`Not'), p[1])
 
 @pg.production('expr : symbol RawColon pattern RawColon expr')
 @pg.production('expr : symbol RawColon expr')
 def Pattern(p):
     if len(p) == 5:
         return Expression(
-            'Optional', Expression('Pattern', Symbol(p[0]), p[2]), p[4])
+            'Optional', Expression(Symbol('System`Pattern'), p[0], p[2]), p[4])
     elif len(p) == 3:
         if p[2].get_head_name() == 'System`Pattern':
             return Expression(
                 'Optional',
-                Expression('Pattern', Symbol(p[0]), p[2].leaves[0]),
+                Expression(Symbol('System`Pattern'), p[0], p[2].leaves[0]),
                 p[2].leaves[1])
         else:
-            return Expression('Pattern', Symbol(p[0]), p[2])
+            return Expression(Symbol('System`Pattern'), p[0], p[2])
 
 @pg.production('expr : pattern RawColon expr')
 def Optional(p):
-    return Expression('Optional', p[0], p[2])
+    return Expression(Symbol('System`Optional'), p[0], p[2])
 
 @pg.production('expr : expr Postfix expr')
 def Postfix(p):
@@ -982,49 +982,50 @@ def Postfix(p):
 @pg.production('expr : expr Set expr')
 def Set(p):
     if len(p) == 3:
-        return Expression('Set', p[0], p[2])
+        return Expression(Symbol('System`Set'), p[0], p[2])
     elif len(p) == 5:
-        return Expression('TagSet', p[0], p[2], p[4])
+        return Expression(Symbol('System`TagSet'), p[0], p[2], p[4])
 
 @pg.production('expr : expr TagSet expr SetDelayed expr')
 @pg.production('expr : expr SetDelayed expr')
 def SetDelayed(p):
     if len(p) == 3:
-        return Expression('SetDelayed', p[0], p[2])
+        return Expression(Symbol('System`SetDelayed'), p[0], p[2])
     elif len(p) == 5:
-        return Expression('TagSetDelayed', p[0], p[2], p[4])
+        return Expression(Symbol('System`TagSetDelayed'), p[0], p[2], p[4])
 
 @pg.production('expr : expr TagSet expr Unset')
 @pg.production('expr : expr Unset')
 def p_Unset(p):
     if len(p) == 2:
-        return Expression('Unset', args[1])
+        return Expression(Symbol('System`Unset'), args[1])
     elif len(p) == 4:
-        return Expression('TagUnset', args[1], args[3])
+        return Expression(Symbol('System`TagUnset'), args[1], args[3])
 
 @pg.production('expr : expr Function expr')
 def Function(p):
-    return Expression('Function', Expression('List', p[0]), p[2])
+    return Expression(Symbol('System`Function'), Expression(Symbol('System`List'), p[0]), p[2])
 
 # def p_Put(self, args):
 #     'expr : expr Put filename'
-#     args[0] = Expression('Put', args[1], args[3])
+#     args[0] = Expression(Symbol('System`Put'), args[1], args[3])
 #
 # def p_PutAppend(self, args):
 #     'expr : expr PutAppend filename'
-#     args[0] = Expression('PutAppend', args[1], args[3])
+#     args[0] = Expression(Symbol('System`PutAppend'), args[1], args[3])
 
 @pg.production('expr : expr Semicolon expr')
 @pg.production('expr : expr Semicolon')
-def p_Compound(self, args):
+def Compound(p):
     if p[0].get_head_name() == 'System`CompoundExpression':
+        # TODO?
         pass
     else:
-        p[0] = Expression('CompoundExpression', p[0])
+        p[0] = Expression(Symbol('System`CompoundExpression'), p[0])
     if len(p) == 3:
         p[0].leaves.append(p[2])
     else:
-        p[0].leaves.append(Symbol('Null'))
+        p[0].leaves.append(Symbol('System`Null'))
     return p[0]
 
 # Construct lexer
