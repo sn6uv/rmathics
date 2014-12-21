@@ -485,17 +485,13 @@ pg = ParserGenerator(
     cache_id="mathics")
 
 @pg.production('main : expr')
+@pg.production('main : ')
 def main(p):
-    return p[0]
+    if len(p) == 0:
+        return None
+    elif len(p) == 1:
+        return p[0]
 
-
-# Lex '1..' as [1, RepeatedNull]. MMA fails when base given e.g. '8^^1..'
-# @pg.production('expr : intRepeated')
-# def intRepeated(p):
-#     r' (\d+\^\^[a-zA-Z0-9]+|\d+)(?=\.\.) '
-#     t = self.t_number(t)
-#     t.type = 'number'
-#     return Expression('Repeated'
 
 @pg.production('expr : number')
 def number(p):
@@ -1169,33 +1165,6 @@ def p_Compound(self, args):
 ##def p_FormBox(self, args):
 ##    'box : form FormBox box'
 ##    args[0] = Expression('FormBox', args[3], args[1])
-##
-## # Parse input (from the frontend, -e, input files, ToExpression etc).
-## # Look up symbols according to the Definitions instance supplied.
-## def parse(string, definitions):
-##     scanner.lexer.begin('INITIAL')      # Reset the lexer state (known lex bug)
-##
-##     string = scanner.convert_unicode_longnames(string)
-##     string = scanner.convert_character_codes(string)
-##
-##     return parser.parse(string, definitions)
-##
-##
-## class SystemDefinitions(object):
-##     """
-##     Dummy Definitions object that puts every unqualified symbol in
-##     System`.
-##     """
-##     def lookup_name(self, name):
-##         assert isinstance(name, basestring)
-##         return ensure_context(name)
-##
-##
-## # Parse rules specified in builtin docstrings/attributes. Every symbol
-## # in the input is created in the System` context.
-## def parse_builtin_rule(string):
-##     return parse(string, SystemDefinitions())
-
 
 # Construct lexer
 lg = LexerGenerator()
