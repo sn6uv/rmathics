@@ -725,12 +725,13 @@ for ineq_op in inequality_operators:
 def error_handler(token):
     sourcepos = token.getsourcepos()
     print token.gettokentype()
-    if sourcepos.idx == 0:
-        # TODO raise: Syntax:sntxb
-        pass
-    else:
-        # TODO raise: Syntax:sntxf
-        pass
+    if sourcepos is not None:
+        if sourcepos.idx == 0:
+            # TODO raise: Syntax:sntxb
+            pass
+        else:
+            # TODO raise: Syntax:sntxf
+            pass
     raise ParseError(token.gettokentype())
 
 @pg.production('expr : RawLeftParenthesis expr RawRightParenthesis')
@@ -802,7 +803,7 @@ def blanks(p):
     else:
         blank = Expression(name)
     if pieces[0]:
-        return Expression('Pattern', self.user_symbol(pieces[0]), blank)
+        return Expression('Pattern', Symbol(pieces[0]), blank)
     else:
         return blank
 
