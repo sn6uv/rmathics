@@ -5,9 +5,6 @@ from rmathics.parser import parse
 
 
 def entry_point(argv):
-    a = Expression("Length", String("abc"))
-    print(a.format())
-
     definitions = Definitions()
     # print(definitions.get_definition("$Context"))
     # print(parse(u"1+1 (*1+2*)"))

@@ -623,7 +623,7 @@ def out_2(p):
     s = p[0].getstr()
     value = -len(s)
     if value == -1:
-        return Expresion('Out')
+        return Expression(Symbol('System`Out'))
     else:
         return Expression(Symbol('System`Out'), Integer(value))
 
@@ -674,11 +674,11 @@ for infix_op in infix_operators:
 for flat_infix_op in flat_infix_operators:
     code = """def %s_flat_infix(p):
     args = []
-    if p[0].get_head_name() == '%s':
+    if p[0].head.same(Symbol('System`%s')):
         args.extend(p[0].leaves)
     else:
         args.append(p[0])
-    if p[2].get_head_name() == '%s':
+    if p[2].head.same(Symbol('System`%s')):
         args.extend(p[2].leaves)
     else:
         args.append(p[2])
@@ -696,21 +696,21 @@ for postfix_op in postfix_operators:
 
 for ineq_op in inequality_operators:
     code = """def %s_inequality(p):
-        head = p[0].get_head_name()
+        head = p[0].head
         ineq_op = ensure_context('%s')
-        if head == ineq_op:
+        if head.same(Symbol(ineq_op)):
             p[0].leaves.append(p[2])
             return p[0]
-        elif head == 'System`Inequality':
+        elif head.same(Symbol('System`Inequality')):
             p[0].leaves.append(Symbol(ineq_op))
             p[0].leaves.append(p[2])
             return p[0]
-        elif head in [ensure_context(k)
+        elif head.name in [ensure_context(k)
                       for k in inequality_operators.keys()]:
             leaves = []
             for i, leaf in enumerate(p[0].leaves):
                 if i != 0:
-                    leaves.append(Symbol(head))
+                    leaves.append(head)
                 leaves.append(leaf)
             leaves.append(Symbol(ineq_op))
             leaves.append(p[0])
@@ -859,7 +859,7 @@ def Derivative(p):
     n = len(p[1].getstr())
     if (isinstance(p[0], Expression) and
         isinstance(p[0].head, Expression) and
-        p[0].head.get_head_name() == 'System`Derivative' and
+        p[0].head.same(Symbol('System`Derivative')) and
         p[0].head.leaves[0].get_int_value() is not None):
         n += p[0].head.leaves[0].get_int_value()
         p[0] = p[0].leaves[0]
@@ -879,7 +879,7 @@ def UPlus(p):
 
 @pg.production('expr : Minus expr')
 def UMinus(p):
-    # if p[1].get_head_name() in ['System`Integer', 'System`Real']:
+    # if isinstance(p[0], (Integer, Real)):
     # TODO
     return Expression(Symbol('System`Times'), Integer(-1), p[1])
 
@@ -907,15 +907,15 @@ def p_Times(p):
 
     # flatten
     args = []
-    if arg1.get_head_name() == 'System`Times':
+    if arg1.head.same(Symbol('System`Times')):
         args.extend(arg1.leaves)
     else:
         args.append(arg1)
-    if arg2.get_head_name() == 'System`Times':
+    if arg2.head.same(Symbol('System`Times')):
         args.extend(arg2.leaves)
     else:
         args.append(arg2)
-    return Expression(Symbol('System`System`Times'), *args)
+    return Expression(Symbol('System`Times'), *args)
 
 @pg.production('expr : expr Span expr Span expr')
 @pg.production('expr : expr Span      Span expr')
@@ -962,7 +962,7 @@ def Pattern(p):
         return Expression(
             'Optional', Expression(Symbol('System`Pattern'), p[0], p[2]), p[4])
     elif len(p) == 3:
-        if p[2].get_head_name() == 'System`Pattern':
+        if p[2].head.same(Symbol('System`Pattern')):
             return Expression(
                 'Optional',
                 Expression(Symbol('System`Pattern'), p[0], p[2].leaves[0]),
@@ -1017,7 +1017,7 @@ def Function(p):
 @pg.production('expr : expr Semicolon expr')
 @pg.production('expr : expr Semicolon')
 def Compound(p):
-    if p[0].get_head_name() == 'System`CompoundExpression':
+    if p[0].head.same() == Symbol('System`CompoundExpression'):
         # TODO?
         pass
     else:

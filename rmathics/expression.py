@@ -9,12 +9,6 @@ class BaseExpression(object):
         # raise NotImplementedError
         pass
 
-    def get_head(self):
-        return None
-
-    def get_head_name(self):
-        return self.get_head().get_name()
-
     def format(self, format="FullForm"):
         return None
 
@@ -30,6 +24,9 @@ class BaseExpression(object):
     def is_number(self):
         return False
 
+    def same(self, other):
+        pass
+
 
 class Expression(BaseExpression):
     def __init__(self, head, *leaves):
@@ -38,21 +35,32 @@ class Expression(BaseExpression):
         self.head = head
         self.leaves = list(leaves)
 
-    def get_head(self):
-        return self.head
-
     def format(self, format="FullForm"):
         return "%s[%s]" % (
             self.head.format(),
             ", ".join([leaf.format() for leaf in self.leaves]))
 
-
-class Atom(BaseExpression):
-    def is_atom(self):
+    def same(self, other):
+        if not isinstance(other, Expression):
+            return False
+        if self.head.same(other.head):
+            return False
+        if not self.head.same(other.head):
+            return False
+        if len(self.leaves) != len(other.leaves):
+            return False
+        for leaf, other in zip(self.leaves, other.leaves):
+            if not leaf.same(other):
+                return False
         return True
 
-    def get_head(self):
-        return Symbol(self.__class__.__name__)
+
+class Atom(BaseExpression):
+    def __init__(self):
+        self.head = Symbol(ensure_context(self.__class__.__name__))
+
+    def is_atom(self):
+        return True
 
 
 class String(Atom):
@@ -67,10 +75,16 @@ class String(Atom):
     def is_string(self):
         return True
 
+    def same(self, other):
+        return isinstance(other, String) and self.value == other.value
+
 
 class Symbol(Atom):
     def __init__(self, name):
-        Atom.__init__(self)
+        if name == 'System`Symbol':     # prevent recursion at the root symbol
+            self.head = self
+        else:
+            Atom.__init__(self)
         assert isinstance(name, basestring)
         self.name = name
 
@@ -82,6 +96,9 @@ class Symbol(Atom):
 
     def get_name(self):
         return self.name
+
+    def same(self, other):
+        return isinstance(other, Symbol) and self.name == other.name
 
 
 class Number(Atom):
@@ -97,6 +114,9 @@ class Integer(Number):
 
     def format(self, format="FullForm"):
         return "%i" % self.value
+
+    def same(self, other):
+        return isinstance(other, Integer) and self.value == other.value
 
 
 class Real(Number):
