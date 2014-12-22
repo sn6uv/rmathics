@@ -740,13 +740,13 @@ def parenthesis(p):
     expr.parenthesized = True
     return expr
 
-@pg.production('expr : expr args')
+@pg.production('expr : expr args', precedence='PART')
 def call(p):
     expr = Expression(p[0], *p[1])
     expr.parenthesized = True  # to handle e.g. Power[a,b]^c correctly
     return expr
 
-@pg.production('expr : expr position')
+@pg.production('expr : expr position', precedence='PART')
 def part(p):
     expr = Expression(Symbol('System`Part'), *p[1])
     expr.parenthesized = True  # to handle e.g. Power[a,b]^c correctly
@@ -834,11 +834,11 @@ def MessageName(p):
     elif len(p) == 6:
         return Expression(Symbol('System`MessageName'), p[0], String(p[2]), String(p[4]))
 
-@pg.production('expr : Increment expr')
+@pg.production('expr : Increment expr', precedence='PreIncrement')
 def PreIncrement(p):
     return Expression(Symbol('System`PreIncrement'), p[1])
 
-@pg.production('expr : Decrement expr')
+@pg.production('expr : Decrement expr', precedence='PreDecrement')
 def PreDecrement(p):
     return Expression(Symbol('System`PreDecrement'), p[1])
 
@@ -865,7 +865,7 @@ def Derivative(p):
         p[0] = p[0].leaves[0]
     return Expression(Expression(Symbol('System`Derivative'), Integer(n)), p[0])
 
-@pg.production('expr : Integral expr DifferentialD expr')
+@pg.production('expr : Integral expr DifferentialD expr', precedence='Integral')
 def Integrate(p):
     return Expression(Symbol('System`Integrate'), p[1], p[3])
 
@@ -873,21 +873,21 @@ def Integrate(p):
 def Minus(p):
     return Expression(Symbol('System`Plus'), p[0], Expression(Symbol('System`Times'), Integer(-1), p[2]))
 
-@pg.production('expr : Plus expr')
+@pg.production('expr : Plus expr', precedence='UPlus')
 def UPlus(p):
     return p[1]
 
-@pg.production('expr : Minus expr')
+@pg.production('expr : Minus expr', precedence='UMinus')
 def UMinus(p):
     # if isinstance(p[0], (Integer, Real)):
     # TODO
     return Expression(Symbol('System`Times'), Integer(-1), p[1])
 
-@pg.production('expr : PlusMinus expr')
+@pg.production('expr : PlusMinus expr', precedence='UPlusMinus')
 def UPlusMinus(p):
     return Expression(Symbol('System`PlusMinus'), p[1])
 
-@pg.production('expr : MinusPlus expr')
+@pg.production('expr : MinusPlus expr', precedence='UMinusPlus')
 def UMinusPlus(p):
     return Expression(Symbol('System`MinusPlus'), p[1])
 
@@ -898,8 +898,8 @@ def Divide(p):
 
 @pg.production('expr : expr Times expr')
 @pg.production('expr : expr RawStar expr')
-@pg.production('expr : expr expr')
-def p_Times(p):
+@pg.production('expr : expr expr', precedence='Times')
+def Times(p):
     if len(p) == 2:
         arg1, arg2 = p[0], p[1]
     elif len(p) == 3:
@@ -947,8 +947,8 @@ def Span(p):
             return Expression(Symbol('System`Span'), Integer(1), Symbol('All'))
 
 @pg.production('expr : Not expr')
-@pg.production('expr : Factorial2 expr')
-@pg.production('expr : Factorial expr')
+@pg.production('expr : Factorial2 expr', precedence='Not')
+@pg.production('expr : Factorial expr', precedence='Not')
 def Not(p):
     if p[0].getstr() == '!!':
         return Expression(Symbol('System`Not'), Expression(Symbol('System`Not'), p[1]))
