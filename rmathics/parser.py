@@ -472,8 +472,8 @@ precedence = (
 
 pg = ParserGenerator(
     [token[0] for token in tokens],
-    precedence=reversed(precedence),
-    cache_id="mathics")
+    precedence=precedence,
+    cache_file="/home/angus/rmathics/rmathics/parsetab.json")
 
 @pg.production('main : expr')
 @pg.production('main : ')
