@@ -473,6 +473,7 @@ precedence = (
 pg = ParserGenerator(
     [token[0] for token in tokens],
     precedence=precedence,
+    cache_id="mathics",
     cache_dir="/home/angus/rmathics/rmathics/")
 
 @pg.production('main : expr')
