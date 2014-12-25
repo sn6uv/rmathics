@@ -9,10 +9,10 @@ def entry_point(argv):
     # print(definitions.get_definition("$Context"))
     # print(parse(u"1+1 (*1+2*)"))
     # print(parse(u"1 + 2 + \:0030"))
-    print(parse(u"\\[Theta]"))
+    print(parse(u"\\[Theta]", definitions))
     while True:
         x = raw_input(">> ")
-        print(parse(x).format())
+        print(parse(x, definitions).format())
     return 0
 
 
