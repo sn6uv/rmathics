@@ -917,14 +917,14 @@ def Times(p):
         args.append(arg2)
     return Expression(Symbol('System`Times'), *args)
 
-@pg.production('expr : expr Span expr Span expr')
-@pg.production('expr : expr Span      Span expr')
-@pg.production('expr :      Span expr Span expr')
-@pg.production('expr :      Span      Span expr')
-@pg.production('expr : expr Span expr')
-@pg.production('expr : expr Span')
-@pg.production('expr :      Span expr')
 @pg.production('expr :      Span')
+@pg.production('expr :      Span expr')
+@pg.production('expr : expr Span')
+@pg.production('expr : expr Span expr')
+@pg.production('expr :      Span      Span expr')
+@pg.production('expr :      Span expr Span expr')
+@pg.production('expr : expr Span      Span expr')
+@pg.production('expr : expr Span expr Span expr')
 def Span(p):
     if len(p) == 5:
         return Expression(Symbol('System`Span'), p[0], p[2], p[4])
