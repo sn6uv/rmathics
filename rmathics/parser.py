@@ -1017,7 +1017,7 @@ def Function(p):
 @pg.production('expr : expr Semicolon expr')
 @pg.production('expr : expr Semicolon')
 def Compound(p):
-    if p[0].head.same() == Symbol('System`CompoundExpression'):
+    if p[0].head.same(Symbol('System`CompoundExpression')):
         # TODO?
         pass
     else:
