@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 from rply import ParserGenerator, LexerGenerator
+from rply.token import BaseBox
 from math import log10
 
 from rmathics.expression import (
@@ -643,16 +644,21 @@ def parenthesis(definitions, p):
     expr.parenthesized = True
     return expr
 
+class SequenceBox(BaseBox):
+    def __init__(self, leaves):
+        self.leaves = leaves
+
 @pg.production('expr : expr args', precedence='PART')
 def call(definitions, p):
-    expr = Expression(p[0], *p[1])
+    expr = Expression(p[0])
+    expr.leaves = p[1].leaves
     expr.parenthesized = True  # to handle e.g. Power[a,b]^c correctly
     return expr
 
 @pg.production('expr : expr position', precedence='PART')
 def part(definitions, p):
-    assert isinstance(p[1], tuple)
-    expr = Expression(Symbol('System`Part'), *p[1])
+    expr = Expression(Symbol('System`Part'))
+    expr.leaves = p[1].leaves
     expr.parenthesized = True  # to handle e.g. Power[a,b]^c correctly
     return expr
 
@@ -662,7 +668,9 @@ def args(definitions, p):
 
 @pg.production('expr : RawLeftBrace sequence RawRightBrace')
 def list(definitions, p):
-    return Expression(Symbol('System`List'), *p[1])
+    expr = Expression(Symbol('System`List'))
+    expr.leaves = p[1].leaves
+    return expr
 
 @pg.production('position : RawLeftBracket RawLeftBracket sequence RawRightBracket RawRightBracket')
 def position(definitions, p):
@@ -672,18 +680,21 @@ def position(definitions, p):
 @pg.production('sequence : expr')
 @pg.production('sequence : sequence RawComma sequence')
 def sequence(definitions, p):
+    assert len(p) in (0, 1, 3)
     if len(p) == 0:
-        return ()
+        return SequenceBox([])
     elif len(p) == 1:
-        return (p[0],)
+        return SequenceBox([p[0]])
     elif len(p) == 3:
-        if p[0] == []:
+        if p[0].leaves == 0:
             # TODO Raise Syntax::com
-            p[0] = [Symbol('Null')]
-        if p[2] == []:
+            p[0].leaves = [Symbol('Null')]
+        if p[2].leaves == []:
             # TODO Raise Syntax::com
-            p[2] = [Symbol('Null')]
-        return tuple(p[0] + p[2])
+            p[2].leaves = [Symbol('Null')]
+        return SequenceBox(p[0].leaves + p[2].leaves)
+    else:
+        raise ValueError
 
 @pg.production('expr : symbol')
 def symbol(definitions, p):
@@ -714,7 +725,7 @@ def blanks(definitions, p):
 
 @pg.production('pattern : blankdefault')
 def blankdefault(definitions, p):
-    # assert isinstance(p[0], unicode) and len(p[0]) >= 2
+    assert isinstance(p[0], unicode) and len(p[0]) >= 2
     name = p[0][:-2]
     if name:
         return Expression(Symbol('System`Optional'), Expression(
@@ -889,11 +900,11 @@ def Not(definitions, p):
 def Pattern(definitions, p):
     if len(p) == 5:
         return Expression(
-            'Optional', Expression(Symbol('System`Pattern'), p[0], p[2]), p[4])
+            Symbol('System`Optional'), Expression(Symbol('System`Pattern'), p[0], p[2]), p[4])
     elif len(p) == 3:
         if p[2].head.same(Symbol('System`Pattern')):
             return Expression(
-                'Optional',
+                Symbol('System`Optional'),
                 Expression(Symbol('System`Pattern'), p[0], p[2].leaves[0]),
                 p[2].leaves[1])
         else:
