@@ -502,21 +502,21 @@ def string(definitions, p):
 def slotseq(definitions, p):
     s = p[0].getstr()
     value = 1 if len(s) == 2 else int(s[2:])
-    return Expression(Symbol('System`SlotSequence'), value)
+    return Expression(Symbol('System`SlotSequence'), Integer(value))
 
 @pg.production('expr : slotsingle_1')
 @pg.production('expr : slotsingle_2')
 def slotsingle(definitions, p):
     s = p[0].getstr()
     value = 1 if len(s) == 1 else int(s[1:])
-    return Expression(Symbol('System`Slot'), value)
+    return Expression(Symbol('System`Slot'), Integer(value))
 
 @pg.production('expr : out_1')
 def out_1(definitions, p):
     s = p[0].getstr()
     value = int(p[0].getstr()[1:])
     if value == -1:
-        return Expression('Out')
+        return Expression(Symbol('System`Out'))
     else:
         return Expression(Symbol('System`Out'), Integer(value))
 
