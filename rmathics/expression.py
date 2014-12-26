@@ -14,9 +14,10 @@ The structure of things:
 """
 
 from __future__ import unicode_literals
+from rply.token import BaseBox
 
 
-class BaseExpression(object):
+class BaseExpression(BaseBox):
     def __init__(self, *args):
         self.parenthesized = False
 

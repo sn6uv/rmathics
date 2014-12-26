@@ -1,3 +1,6 @@
+from __future__ import unicode_literals
+
+
 def str_to_mpz(value):
     assert isinstance(value, str)
     pass

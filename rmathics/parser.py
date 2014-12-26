@@ -217,7 +217,6 @@ def prelex(s):
                     if s[j] == ']':
                         # MMA9 behaviour is \[] -> \\[]
                         longname = s[i+2:j]
-                        print(longname, type(longname))
                         # assert isinstance(longname, unicode)
                         char = named_characters.get(longname, None)
                         if longname == '':
@@ -246,7 +245,7 @@ class ScanError(TranslateError):
         self.text = text
 
     def __unicode__(self):
-        return u"Lexical error at position {0} in '{1}'.".format(
+        return "Lexical error at position {0} in '{1}'.".format(
             self.pos, self.text)
 
 
@@ -256,7 +255,7 @@ class InvalidCharError(TranslateError):
         self.char = char
 
     def __unicode__(self):
-        return u"Invalid character at '%s'." % self.char  # .decode('utf-8')
+        return "Invalid character at '%s'." % self.char  # .decode('utf-8')
 
 
 class ParseError(TranslateError):
@@ -265,7 +264,7 @@ class ParseError(TranslateError):
         self.token = token
 
     def __unicode__(self):
-        return u"Parse error at or near token %s." % str(self.token)
+        return "Parse error at or near token %s." % str(self.token)
 
 prefix_operators = {
     'Del': ['Del'],
