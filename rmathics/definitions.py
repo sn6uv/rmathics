@@ -18,7 +18,8 @@ u"""
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import cPickle as pickle
+from __future__ import unicode_literals
+
 import os
 import base64
 import re
@@ -29,9 +30,9 @@ from rmathics.characters import letters, letterlikes
 
 
 names_wildcards = "@*"
-base_names_pattern = ur'((?![0-9])([0-9${0}{1}{2}])+)'.format(
+base_names_pattern =r'((?![0-9])([0-9${0}{1}{2}])+)'.format(
     letters, letterlikes, names_wildcards)
-full_names_pattern = ur'(`?{0}(`{0})*)'.format(base_names_pattern)
+full_names_pattern =r'(`?{0}(`{0})*)'.format(base_names_pattern)
 
 
 def get_file_time(file):
@@ -365,15 +366,15 @@ class Definitions(object):
     def reset_user_definitions(self):
         self.user = {}
 
-    def get_user_definitions(self):
-        return base64.b64encode(
-            pickle.dumps(self.user, protocol=pickle.HIGHEST_PROTOCOL))
+    # def get_user_definitions(self):
+    #     return base64.b64encode(
+    #         pickle.dumps(self.user, protocol=pickle.HIGHEST_PROTOCOL))
 
-    def set_user_definitions(self, definitions):
-        if definitions:
-            self.user = pickle.loads(base64.b64decode(definitions))
-        else:
-            self.user = {}
+    # def set_user_definitions(self, definitions):
+    #     if definitions:
+    #         self.user = pickle.loads(base64.b64decode(definitions))
+    #     else:
+    #         self.user = {}
 
     def get_ownvalue(self, name):
         ownvalues = self.get_definition(self.lookup_name(name)).ownvalues
@@ -479,7 +480,7 @@ class Definition(object):
 
     def __repr__(self):
         s = (
-            u'<Definition: name: %s, '
-            u'downvalues: %s, formats: %s, attributes: %s>') % (
+           '<Definition: name: %s, '
+           'downvalues: %s, formats: %s, attributes: %s>') % (
                 self.name, self.downvalues, self.formatvalues, self.attributes)
         return s.encode('unicode_escape')

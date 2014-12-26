@@ -1,6 +1,6 @@
 class BaseExpression(object):
     def __init__(self, *args):
-        pass
+        self.parenthesized = False
 
     def get_precision(self):
         return None
