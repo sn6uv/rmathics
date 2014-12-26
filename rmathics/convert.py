@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from rmathics.expression import Integer
+from rmathics.expression import Integer, Real
 
 
 def str_to_mpz(value):
@@ -45,4 +45,7 @@ def ints_to_mpq(num, den):
 
 
 def str_to_num(value):
-    return Integer(int(value))
+    if '.' in value:
+        return Real(value)
+    else:
+        return Integer(int(value))

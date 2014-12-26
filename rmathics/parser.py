@@ -736,11 +736,20 @@ def pattern(definitions, p):
 @pg.production('expr : expr MessageName string')
 def MessageName(definitions, p):
     assert len(p) in (3, 5)
+    p2 = p[2].getstr()
+    if p2[0] == '"':
+        p2 = String(p2[1:-1])
+    else:
+        p2 = Symbol(p2)
     if len(p) == 3:
-        return Expression(Symbol('System`MessageName'), p[0], String(p[2]))
+        return Expression(Symbol('System`MessageName'), p[0], p2)
     elif len(p) == 5:
-        return Expression(Symbol('System`MessageName'), p[0],
-                          String(p[2]), String(p[4]))
+        p4 = p[4].getstr()
+        if p4[0] == '"':
+            p4 = String(p4[1:-1])
+        else:
+            p4 = Symbol(p4)
+        return Expression(Symbol('System`MessageName'), p[0], p2, p4)
 
 @pg.production('expr : Increment expr', precedence='PreIncrement')
 def PreIncrement(definitions, p):

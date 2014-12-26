@@ -345,8 +345,8 @@ class Definitions(object):
     def get_options(self, name):
         return self.get_definition(self.lookup_name(name)).options
 
-    def reset_user_definitions(self):
-        self.user = {}
+    # def reset_user_definitions(self):
+    #     self.user = {}
 
     # def get_user_definitions(self):
     #     return base64.b64encode(
