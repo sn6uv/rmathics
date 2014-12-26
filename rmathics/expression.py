@@ -75,7 +75,8 @@ class Expression(BaseExpression):
 
 class Atom(BaseExpression):
     def __init__(self):
-        self.head = Symbol(ensure_context(self.__class__.__name__))
+        self.head = Symbol(ensure_context(unicode(self.__class__.__name__)))
+        self.leaves = []
 
     def is_atom(self):
         return True
@@ -84,7 +85,7 @@ class Atom(BaseExpression):
 class String(Atom):
     def __init__(self, value):
         Atom.__init__(self)
-        assert isinstance(value, basestring)
+        assert isinstance(value, unicode)
         self.value = value
 
     def format(self, format="FullForm"):
@@ -103,7 +104,7 @@ class Symbol(Atom):
             self.head = self
         else:
             Atom.__init__(self)
-        assert isinstance(name, basestring)
+        assert isinstance(name, unicode)
         self.name = name
 
     def format(self, format="FullForm"):
@@ -159,22 +160,22 @@ class Rational(Number):
 
 
 def fully_qualified_symbol_name(name):
-    return (isinstance(name, basestring)
-            and '`' in name
-            and not name.startswith('`')
-            and not name.endswith('`')
-            and '``' not in name)
+    return (isinstance(name, unicode) and
+            '`' in name and
+            not name.startswith('`') and
+            not name.endswith('`') and
+            '``' not in name)
 
 
 def valid_context_name(ctx, allow_initial_backquote=False):
-    return (isinstance(ctx, basestring)
-            and ctx.endswith('`')
-            and '``' not in ctx
-            and (allow_initial_backquote or not ctx.startswith('`')))
+    return (isinstance(ctx, unicode) and
+            ctx.endswith('`') and
+            '``' not in ctx and
+            (allow_initial_backquote or not ctx.startswith('`')))
 
 
 def ensure_context(name):
-    assert isinstance(name, basestring)
+    assert isinstance(name, unicode)
     assert name != ''
     if '`' in name:
         # Symbol has a context mark -> it came from the parser

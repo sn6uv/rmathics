@@ -1,12 +1,13 @@
 from __future__ import unicode_literals
 
 import os
-import base64
 import re
 
 from rmathics.expression import (Expression, Symbol, String, ensure_context,
                                  fully_qualified_symbol_name)
 from rmathics.characters import letters, letterlikes
+from rmathics.rules import Rule
+from rmathics.pattern import AtomPattern
 
 
 names_wildcards = "@*"
@@ -39,10 +40,8 @@ class Definitions(object):
     def __init__(self, add_builtin=False, builtin_filename=None):
         self.builtin = {}
         self.user = {}
-
-        # TODO Define $Context ownvalues
-        context = Definition('System`$Context')
-        self.builtin['System`$Context'] = context
+        self.set_ownvalue('System`$Context', String('Global`'))
+        self.set_ownvalue('System`$ContextPath', Expression(Symbol('List'), String('System`'), String('Global`')))
 
         # TODO load builtin
 
@@ -51,15 +50,15 @@ class Definitions(object):
         # otherwise we'll end up back in this function and trigger
         # infinite recursion.
         context_rule = self.get_ownvalue('System`$Context')
-        context = context_rule.replace.get_string_value()
+        context = context_rule.replace.value
         assert context is not None, "$Context somehow set to an invalid value"
         return context
 
     def get_context_path(self):
         context_path_rule = self.get_ownvalue('System`$ContextPath')
         context_path = context_path_rule.replace
-        assert context_path.has_form('System`List', None)
-        context_path = [c.get_string_value() for c in context_path.leaves]
+        # assert context_path.has_form('System`List', None)
+        context_path = [c.value for c in context_path.leaves]
         assert not any([c is None for c in context_path])
         return context_path
 
@@ -150,7 +149,7 @@ class Definitions(object):
         - Otherwise, it's a new symbol in $Context.
         """
 
-        assert isinstance(name, basestring)
+        # assert isinstance(name, basestring)
 
         # Bail out if the name we're being asked to look up is already
         # fully qualified.
@@ -273,8 +272,8 @@ class Definitions(object):
     def get_user_definition(self, name, create=True):
         assert not isinstance(name, Symbol)
 
-        existing = self.user.get(name)
-        if existing:
+        existing = self.user.get(name, None)
+        if existing is not None:
             return existing
         else:
             if not create:
@@ -414,7 +413,9 @@ class Definition(object):
     """
     Individual definition entry (to be stored in Definitions)
     """
-    def __init__(self, name):
+    def __init__(self, name, ownvalues=[], downvalues=[], subvalues=[],
+                 upvalues=[], formatvalues=[], messages=[], attributes=[],
+                 options=[], nvalues=[], defaultvalues={}):
         self.name = name
 
         self.ownvalues = []

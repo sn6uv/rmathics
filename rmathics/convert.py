@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+from rmathics.expression import Integer
+
 
 def str_to_mpz(value):
     assert isinstance(value, str)
@@ -43,4 +45,4 @@ def ints_to_mpq(num, den):
 
 
 def str_to_num(value):
-    return int(value)
+    return Integer(int(value))

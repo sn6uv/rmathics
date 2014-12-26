@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import sys
 from rmathics.expression import Expression, Symbol, String
 from rmathics.definitions import Definitions
+from rmathics.rules import *
 from rmathics.parser import parse
 
 
