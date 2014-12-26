@@ -10,167 +10,167 @@ from rmathics.convert import str_to_num
 
 
 # Symbols can be any letters
-base_symb =r'((?![0-9])([0-9${0}{1}])+)'.format(letters, letterlikes)
-full_symb =r'(`?{0}(`{0})*)'.format(base_symb)
+base_symb = r'((?![0-9])([0-9${0}{1}])+)'.format(letters, letterlikes)
+full_symb = r'(`?{0}(`{0})*)'.format(base_symb)
 
 tokens = (
-    ('number',r'((\d+\^\^([a-zA-Z0-9]+\.?[a-zA-Z0-9]*|[a-zA-Z0-9]*\.?[a-zA-Z0-9]+))|(\d+\.?\d*|\d*\.?\d+))(``?(\+|-)?(\d+\.?\d*|\d*\.?\d+)|`)?(\*\^(\+|-)?\d+)?'),
-    ('string',r'"([^\\"]|\\\\|\\"|\\n|\\r|\\r\\n)*"'),
-    ('blankdefault',r'{0}?_\.'.format(full_symb)),
-    ('blanks',r'{0}?_(__?)?{0}?'.format(full_symb)),
+    ('number', r'((\d+\^\^([a-zA-Z0-9]+\.?[a-zA-Z0-9]*|[a-zA-Z0-9]*\.?[a-zA-Z0-9]+))|(\d+\.?\d*|\d*\.?\d+))(``?(\+|-)?(\d+\.?\d*|\d*\.?\d+)|`)?(\*\^(\+|-)?\d+)?'),
+    ('string', r'"([^\\"]|\\\\|\\"|\\n|\\r|\\r\\n)*"'),
+    ('blankdefault', r'{0}?_\.'.format(full_symb)),
+    ('blanks', r'{0}?_(__?)?{0}?'.format(full_symb)),
     ('symbol', full_symb),
-    ('slotseq_1',r'\#\#\d+'),
-    ('slotseq_2',r'\#\#'),
-    ('slotsingle_1',r'\#\d+'),
-    ('slotsingle_2',r'\#'),
-    ('out_1',r'\%\d+'),
-    ('out_2',r'\%+'),
-    ('PutAppend',r'\>\>\>'),
-    ('Put',r'\>\>'),
-    ('Get',r'\<\<'),
+    ('slotseq_1', r'\#\#\d+'),
+    ('slotseq_2', r'\#\#'),
+    ('slotsingle_1', r'\#\d+'),
+    ('slotsingle_2', r'\#'),
+    ('out_1', r'\%\d+'),
+    ('out_2', r'\%+'),
+    ('PutAppend', r'\>\>\>'),
+    ('Put', r'\>\>'),
+    ('Get', r'\<\<'),
     # ('file_filename',
     #   r'''
-    #    (?P<quote>\"?)                              (?# Opening quotation mark)
-    #        [a-zA-Z0-9\`/\.\\\!\-\:\_\$\*\~\?]+     (?# Literal characters)
-    #    (?P=quote)                                  (?# Closing quotation mark)
+    #    (?P<quote>\"?)                            (?# Opening quotation mark)
+    #        [a-zA-Z0-9\`/\.\\\!\-\:\_\$\*\~\?]+   (?# Literal characters)
+    #    (?P=quote)                                (?# Closing quotation mark)
     #    '''),
-    ('RawLeftBracket',r'\['),
-    ('RawRightBracket',r'\]'),
-    ('RawLeftBrace',r'\{'),
-    ('RawRightBrace',r'\}'),
-    ('RawLeftParenthesis',r'\('),
-    ('RawRightParenthesis',r'\)'),
-    ('RawComma',r'\,'),
-    ('Span',r'\;\;'),
-    ('MessageName',r'\:\:'),
-    ('PatternTest',r'\?'),
-    ('Increment',r'\+\+'),
-    ('Decrement',r'\-\-'),
-    ('Prefix',r'\@'),
-    ('Infix',r'\~'),
-    ('Apply1',r'\@\@'),
-    ('Apply2',r'\@\@\@'),
-    ('Map',r'\/\@'),
-    ('MapAll',r'\/\/\@'),
-    ('Factorial',r'\!'),
-    ('Factorial2',r'\!\!'),
-    ('Transpose',r'\uf3c7'),
-    ('Conjugate',r'\uf3c8'),
-    ('ConjugateTranspose',r'\uf3c9'),
-    ('HermitianConjugate',r'\uf3ce'),
-    ('Derivative',r'\'+'),
-    ('StringJoin',r'\<\>'),
-    ('Power',r'\^'),
-    ('Integral',r'\u222b'),
-    ('DifferentialD',r'\uf74c'),
-    # (PartialD,r'\u2202'),
-    ('Del',r'\u2207'),
-    ('Square',r'\uf520'),
-    ('SmallCircle',r'\u2218'),
-    ('CircleDot',r'\u2299'),
-    ('NonCommutativeMultiply',r'\*\*'),
-    ('Cross',r'\uf4a0'),
-    ('RawDot',r'\.'),
-    ('Plus',r'\+'),
-    ('Minus',r'\-'),
-    ('RawSlash',r'\/'),
-    ('RawBackslash',r'\\'),
-    ('Diamond',r'\u22c4'),
-    ('Wedge',r'\u22c0'),
-    ('Vee',r'\u22c1'),
-    ('CircleTimes',r'\u2297'),
-    ('CenterDot',r'\u00b7'),
-    ('Star',r'\u22c6'),
-    # (Sum,r' \u2211'),
-    # (Product,r'\u220f'),
-    ('RawStar',r'\*'),
-    ('Times',r'\u00d7'),
-    ('Divide',r'\u00f7'),
-    ('PlusMinus',r'\u00b1'),
-    ('MinusPlus',r'\u2213'),
-    ('op_Equal',r'\=\='),
-    ('op_Unequal',r'\!\='),
-    ('Greater',r'\>'),
-    ('Less',r'\<'),
-    ('op_GreaterEqual',r'\>\='),
-    ('op_LessEqual',r'\<\='),
-    ('SameQ',r'\=\=\='),
-    ('UnsameQ',r'\=\!\='),
-    ('op_And',r'\&\&'),
-    ('op_Or',r'\|\| '),
-    ('Or',r'\u2228'),
-    ('Nor',r'\u22BD'),
-    ('And',r'\u2227'),
-    ('Nand',r'\u22BC'),
-    ('Xor',r'\u22BB'),
-    ('Xnor',r'\uF4A2'),
-    ('Repeated',r'\.\.'),
-    ('RepeatedNull',r'\.\.\.'),
-    ('Alternatives',r'\|'),
-    ('RawColon',r'\:'),
-    ('StringExpression',r'\~\~'),
-    ('Condition',r'\/\;'),
-    ('op_Rule',r'\-\>'),
-    ('op_RuleDelayed',r'\:\>'),
-    ('ReplaceAll',r'\/\.'),
-    ('ReplaceRepeated',r'\/\/\.'),
-    ('AddTo',r'\+\='),
-    ('SubtractFrom',r'\-\= '),
-    ('TimesBy',r'\*\='),
-    ('DivideBy',r'\/\= '),
-    ('RawAmpersand',r'\&'),
-    ('Colon',r'\u2236'),
-    ('Postfix',r'\/\/'),
-    ('Set',r'\='),
-    ('SetDelayed',r'\:\='),
-    ('UpSet',r'\^\='),
-    ('UpSetDelayed',r'\^\:\='),
-    ('TagSet',r'\/\:'),
-    ('Unset',r'\=\.'),
-    ('Semicolon',r'\;'),
-    # (DiscreteShift,r'\uf4a3'),
-    # (DiscreteRatio,r'\uf4a4'),
-    # (DifferenceDelta,r'\u2206'),
-    ('VerticalTilde',r'\u2240'),
-    ('Coproduct',r'\u2210'),
-    ('Cap',r'\u2322'),
-    ('Cup',r'\u2323'),
-    ('CirclePlus',r'\u2295'),
-    ('CircleMinus',r'\u2296'),
-    ('Intersection',r'\u22c2'),
-    ('Union',r'\u22c3'),
-    ('Equal',r'\uf431'),
-    ('LongEqual',r'\uf7d9'),
-    ('NotEqual',r'\u2260'),
-    ('LessEqual',r'\u2264'),
-    ('LessSlantEqual',r'\u2a7d'),
-    ('GreaterEqual',r' \u2265 '),
-    ('GreaterSlantEqual',r'\u2a7e'),
-    ('VerticalBar',r'\u2223'),
-    ('NotVerticalBar',r'\u2224'),
-    ('DoubleVerticalBar',r'\u2225'),
-    ('NotDoubleVerticalBar',r'\u2226'),
-    ('Element',r'\u2208'),
-    ('NotElement',r'\u2209'),
-    ('Subset',r'\u2282'),
-    ('Superset',r'\u2283'),
-    ('ForAll',r'\u2200'),
-    ('Exists',r'\u2203'),
-    ('NotExists',r'\u2204'),
-    ('Not',r'\u00AC'),
-    ('Equivalent',r'\u29E6'),
-    ('Implies',r'\uF523'),
-    ('RightTee',r'\u22A2'),
-    ('DoubleRightTee',r'\u22A8'),
-    ('LeftTee',r'\u22A3'),
-    ('DoubleLeftTee',r'\u2AE4'),
-    ('SuchThat',r'\u220D'),
-    ('Rule',r'\uF522'),
-    ('RuleDelayed',r'\uF51F'),
-    ('VerticalSeparator',r'\uF432'),
-    ('Therefore',r'\u2234'),
-    ('Because',r'\u2235'),
-    ('Function',r'\uF4A1'),
+    ('RawLeftBracket', r'\['),
+    ('RawRightBracket', r'\]'),
+    ('RawLeftBrace', r'\{'),
+    ('RawRightBrace', r'\}'),
+    ('RawLeftParenthesis', r'\('),
+    ('RawRightParenthesis', r'\)'),
+    ('RawComma', r'\,'),
+    ('Span', r'\;\;'),
+    ('MessageName', r'\:\:'),
+    ('PatternTest', r'\?'),
+    ('Increment', r'\+\+'),
+    ('Decrement', r'\-\-'),
+    ('Prefix', r'\@'),
+    ('Infix', r'\~'),
+    ('Apply1', r'\@\@'),
+    ('Apply2', r'\@\@\@'),
+    ('Map', r'\/\@'),
+    ('MapAll', r'\/\/\@'),
+    ('Factorial', r'\!'),
+    ('Factorial2', r'\!\!'),
+    ('Transpose', r'\uf3c7'),
+    ('Conjugate', r'\uf3c8'),
+    ('ConjugateTranspose', r'\uf3c9'),
+    ('HermitianConjugate', r'\uf3ce'),
+    ('Derivative', r'\'+'),
+    ('StringJoin', r'\<\>'),
+    ('Power', r'\^'),
+    ('Integral', r'\u222b'),
+    ('DifferentialD', r'\uf74c'),
+    # (PartialD, r'\u2202'),
+    ('Del', r'\u2207'),
+    ('Square', r'\uf520'),
+    ('SmallCircle', r'\u2218'),
+    ('CircleDot', r'\u2299'),
+    ('NonCommutativeMultiply', r'\*\*'),
+    ('Cross', r'\uf4a0'),
+    ('RawDot', r'\.'),
+    ('Plus', r'\+'),
+    ('Minus', r'\-'),
+    ('RawSlash', r'\/'),
+    ('RawBackslash', r'\\'),
+    ('Diamond', r'\u22c4'),
+    ('Wedge', r'\u22c0'),
+    ('Vee', r'\u22c1'),
+    ('CircleTimes', r'\u2297'),
+    ('CenterDot', r'\u00b7'),
+    ('Star', r'\u22c6'),
+    # (Sum, r' \u2211'),
+    # (Product, r'\u220f'),
+    ('RawStar', r'\*'),
+    ('Times', r'\u00d7'),
+    ('Divide', r'\u00f7'),
+    ('PlusMinus', r'\u00b1'),
+    ('MinusPlus', r'\u2213'),
+    ('op_Equal', r'\=\='),
+    ('op_Unequal', r'\!\='),
+    ('Greater', r'\>'),
+    ('Less', r'\<'),
+    ('op_GreaterEqual', r'\>\='),
+    ('op_LessEqual', r'\<\='),
+    ('SameQ', r'\=\=\='),
+    ('UnsameQ', r'\=\!\='),
+    ('op_And', r'\&\&'),
+    ('op_Or', r'\|\| '),
+    ('Or', r'\u2228'),
+    ('Nor', r'\u22BD'),
+    ('And', r'\u2227'),
+    ('Nand', r'\u22BC'),
+    ('Xor', r'\u22BB'),
+    ('Xnor', r'\uF4A2'),
+    ('Repeated', r'\.\.'),
+    ('RepeatedNull', r'\.\.\.'),
+    ('Alternatives', r'\|'),
+    ('RawColon', r'\:'),
+    ('StringExpression', r'\~\~'),
+    ('Condition', r'\/\;'),
+    ('op_Rule', r'\-\>'),
+    ('op_RuleDelayed', r'\:\>'),
+    ('ReplaceAll', r'\/\.'),
+    ('ReplaceRepeated', r'\/\/\.'),
+    ('AddTo', r'\+\='),
+    ('SubtractFrom', r'\-\= '),
+    ('TimesBy', r'\*\='),
+    ('DivideBy', r'\/\= '),
+    ('RawAmpersand', r'\&'),
+    ('Colon', r'\u2236'),
+    ('Postfix', r'\/\/'),
+    ('Set', r'\='),
+    ('SetDelayed', r'\:\='),
+    ('UpSet', r'\^\='),
+    ('UpSetDelayed', r'\^\:\='),
+    ('TagSet', r'\/\:'),
+    ('Unset', r'\=\.'),
+    ('Semicolon', r'\;'),
+    # (DiscreteShift, r'\uf4a3'),
+    # (DiscreteRatio, r'\uf4a4'),
+    # (DifferenceDelta, r'\u2206'),
+    ('VerticalTilde', r'\u2240'),
+    ('Coproduct', r'\u2210'),
+    ('Cap', r'\u2322'),
+    ('Cup', r'\u2323'),
+    ('CirclePlus', r'\u2295'),
+    ('CircleMinus', r'\u2296'),
+    ('Intersection', r'\u22c2'),
+    ('Union', r'\u22c3'),
+    ('Equal', r'\uf431'),
+    ('LongEqual', r'\uf7d9'),
+    ('NotEqual', r'\u2260'),
+    ('LessEqual', r'\u2264'),
+    ('LessSlantEqual', r'\u2a7d'),
+    ('GreaterEqual', r' \u2265 '),
+    ('GreaterSlantEqual', r'\u2a7e'),
+    ('VerticalBar', r'\u2223'),
+    ('NotVerticalBar', r'\u2224'),
+    ('DoubleVerticalBar', r'\u2225'),
+    ('NotDoubleVerticalBar', r'\u2226'),
+    ('Element', r'\u2208'),
+    ('NotElement', r'\u2209'),
+    ('Subset', r'\u2282'),
+    ('Superset', r'\u2283'),
+    ('ForAll', r'\u2200'),
+    ('Exists', r'\u2203'),
+    ('NotExists', r'\u2204'),
+    ('Not', r'\u00AC'),
+    ('Equivalent', r'\u29E6'),
+    ('Implies', r'\uF523'),
+    ('RightTee', r'\u22A2'),
+    ('DoubleRightTee', r'\u22A8'),
+    ('LeftTee', r'\u22A3'),
+    ('DoubleLeftTee', r'\u2AE4'),
+    ('SuchThat', r'\u220D'),
+    ('Rule', r'\uF522'),
+    ('RuleDelayed', r'\uF51F'),
+    ('VerticalSeparator', r'\uF432'),
+    ('Therefore', r'\u2234'),
+    ('Because', r'\u2235'),
+    ('Function', r'\uF4A1'),
 )
 
 def string_escape(s):
@@ -186,14 +186,14 @@ def prelex(s):
     and longnames to characters e.g. \[Theta]
     """
 
-    hexdigits ='0123456789abcdefABCDEF'
+    hexdigits = '0123456789abcdefABCDEF'
     replacements = []
     for i, c in enumerate(s[:-1]):
-        if c =='\\':
-            if i > 0 and s[i-1] =='\\':   # backslash is escaped
+        if c == '\\':
+            if i > 0 and s[i - 1] == '\\':   # backslash is escaped
                 continue
-            if s[i+1] ==':':           # 4 digit hex code
-                if (i + 5 >= len(s) and
+            if s[i+1] == ':':           # 4 digit hex code
+                if (i+5 >= len(s) and
                     s[i+2] in hexdigits and
                     s[i+3] in hexdigits and
                     s[i+4] in hexdigits and
@@ -203,8 +203,8 @@ def prelex(s):
                 else:
                     # TODO Raise Syntax:snthex
                     pass
-            elif s[i+1] =='.':        # 2 digit hex code
-                if (i + 3 >= len(s) and
+            elif s[i+1] == '.':        # 2 digit hex code
+                if (i+3 >= len(s) and
                     s[i+2] in hexdigits and
                     s[i+3] in hexdigits):
                     replacements.append(        # int expects str (not unicode)
@@ -212,17 +212,17 @@ def prelex(s):
                 else:
                     # TODO Raise Syntax:sntoct2
                     pass
-            elif s[i+1] =='[':        # longname
+            elif s[i+1] == '[':        # longname
                 for j in range(i+2, len(s)):
-                    if s[j] ==']':
+                    if s[j] == ']':
                         # MMA9 behaviour is \[] -> \\[]
                         longname = s[i+2:j]
                         print(longname, type(longname))
                         # assert isinstance(longname, unicode)
                         char = named_characters.get(longname, None)
-                        if longname =='':
+                        if longname == '':
                             # MMA9 behaviour is \[] -> \\[]
-                            replacements.append((i+1, j+1,'\\\\[]'))
+                            replacements.append((i+1, j+1, '\\\\[]'))
                         elif char is not None:
                             replacements.append((i, j+1, char))
                         else:
@@ -412,9 +412,10 @@ precedence = (
     ('left', ['Element', 'NotElement', 'Subset', 'Superset']),    # flat
     ('left', ['SameQ', 'UnsameQ']),           # flat
     ('left', ['Equal', 'op_Equal', 'LongEqual', 'op_Unequal', 'NotEqual',
-              'Greater', 'Less', 'GreaterEqual', 'op_GreaterEqual', 'GreaterSlantEqual',
-              'LessEqual', 'op_LessEqual', 'LessSlantEqual', 'VerticalBar',
-              'NotVerticalBar', 'DoubleVerticalBar', 'NotDoubleVerticalBar']),
+              'Greater', 'Less', 'GreaterEqual', 'op_GreaterEqual',
+              'GreaterSlantEqual', 'LessEqual', 'op_LessEqual',
+              'LessSlantEqual', 'VerticalBar', 'NotVerticalBar',
+              'DoubleVerticalBar', 'NotDoubleVerticalBar']),
     ('nonassoc', ['Span']),
     ('left', ['Union']),                      # flat
     ('left', ['Intersection']),               # flat
@@ -567,7 +568,8 @@ for prefix_op in prefix_operators:
 
 for infix_op in infix_operators:
     code = """def %s_infix(definitions, p):
-    return Expression(Symbol('System`%s'), p[0], p[2])""" % (infix_op, infix_op)
+    return Expression(Symbol('System`%s'), p[0], p[2])""" % (
+        infix_op, infix_op)
     for token in infix_operators[infix_op]:
         code = ("@pg.production('expr : expr %s expr')\n" % token) + code
     exec(code)
@@ -583,7 +585,8 @@ for flat_infix_op in flat_infix_operators:
         args.extend(p[2].leaves)
     else:
         args.append(p[2])
-    return Expression(Symbol('System`%s'), *args)""" % (flat_infix_op, flat_infix_op, flat_infix_op, flat_infix_op)
+    return Expression(Symbol('System`%s'), *args)""" % (
+        flat_infix_op, flat_infix_op, flat_infix_op, flat_infix_op)
     for token in flat_infix_operators[flat_infix_op]:
         code = ("@pg.production('expr : expr %s expr')\n" % token) + code
     exec(code)
@@ -617,7 +620,8 @@ for ineq_op in inequality_operators:
             leaves.append(p[0])
             return Expression(Symbol('System`Inequality'), *leaves)
         else:
-            return Expression(Symbol(ineq_op), p[0], p[2])""" % (ineq_op, ineq_op)
+            return Expression(Symbol(ineq_op), p[0], p[2])""" % (
+        ineq_op, ineq_op)
     for token in inequality_operators[ineq_op]:
         code = ("@pg.production('expr : expr %s expr')\n" % token) + code
     exec(code)
@@ -699,7 +703,7 @@ def blanks(definitions, p):
     elif count == 3:
         name = 'System`BlankNullSequence'
     else:
-        raise ValueError  # required for RPython annotator
+        raise ValueError    # required for RPython annotator
     if pieces[-1]:
         blank = Expression(Symbol(ensure_context(name)), Symbol(definitions.lookup_name(pieces[-1])))
     else:
@@ -732,11 +736,12 @@ def pattern(definitions, p):
 @pg.production('expr : expr MessageName symbol')
 @pg.production('expr : expr MessageName string')
 def MessageName(definitions, p):
-    assert len(p) in (4,6)
+    assert len(p) in (4, 6)
     if len(p) == 4:
         return Expression(Symbol('System`MessageName'), p[0], String(p[2]))
     elif len(p) == 6:
-        return Expression(Symbol('System`MessageName'), p[0], String(p[2]), String(p[4]))
+        return Expression(Symbol('System`MessageName'), p[0],
+                          String(p[2]), String(p[4]))
 
 @pg.production('expr : Increment expr', precedence='PreIncrement')
 def PreIncrement(definitions, p):
@@ -756,26 +761,32 @@ def p_Infix(definitions, p):
 
 @pg.production('expr : expr Apply2 expr')
 def p_Apply2(definitions, p):
-    return Expression(Symbol('System`Apply'), p[0], p[2], Expression(Symbol('System`List'), Integer(1)))
+    return Expression(
+        Symbol('System`Apply'), p[0], p[2],
+        Expression(Symbol('System`List'), Integer(1)))
 
 @pg.production('expr : expr Derivative')
 def Derivative(definitions, p):
     n = len(p[1].getstr())
-    if (isinstance(p[0], Expression) and
-        isinstance(p[0].head, Expression) and
-        p[0].head.same(Symbol('System`Derivative')) and
-        p[0].head.leaves[0].get_int_value() is not None):
+    is_derivative = (isinstance(p[0], Expression) and
+                     isinstance(p[0].head, Expression) and
+                     p[0].head.same(Symbol('System`Derivative')) and
+                     p[0].head.leaves[0].get_int_value() is not None)
+    if is_derivative:
         n += p[0].head.leaves[0].get_int_value()
         p[0] = p[0].leaves[0]
-    return Expression(Expression(Symbol('System`Derivative'), Integer(n)), p[0])
+    return Expression(
+        Expression(Symbol('System`Derivative'), Integer(n)), p[0])
 
-@pg.production('expr : Integral expr DifferentialD expr', precedence='Integral')
+@pg.production('expr : Integral expr DifferentialD expr',
+               precedence='Integral')
 def Integrate(definitions, p):
     return Expression(Symbol('System`Integrate'), p[1], p[3])
 
 @pg.production('expr : expr Minus expr')
 def Minus(definitions, p):
-    return Expression(Symbol('System`Plus'), p[0], Expression(Symbol('System`Times'), Integer(-1), p[2]))
+    return Expression(Symbol('System`Plus'), p[0],
+                      Expression(Symbol('System`Times'), Integer(-1), p[2]))
 
 @pg.production('expr : Plus expr', precedence='UPlus')
 def UPlus(definitions, p):
@@ -798,7 +809,8 @@ def UMinusPlus(definitions, p):
 @pg.production('expr : expr RawSlash expr')
 @pg.production('expr : expr Divide expr')
 def Divide(definitions, p):
-    return Expression(Symbol('System`Times'), p[0], Expression(Symbol('System`Power'), p[2], Integer(-1)))
+    return Expression(Symbol('System`Times'), p[0],
+                      Expression(Symbol('System`Power'), p[2], Integer(-1)))
 
 @pg.production('expr : expr Times expr')
 @pg.production('expr : expr RawStar expr')
@@ -810,7 +822,7 @@ def Times(definitions, p):
     elif len(p) == 3:
         arg1, arg2 = p[0], p[2]
     else:
-        raise ValueError # required for RPython annotator
+        raise ValueError    # required for RPython annotator
 
     # flatten
     args = []
@@ -844,7 +856,8 @@ def Span(definitions, p):
         if isinstance(p[0], BaseExpression):
             return Expression(Symbol('System`Span'), p[0], p[2])
         else:
-            return Expression(Symbol('System`Span'), Integer(1), Symbol('All'), p[2])
+            return Expression(Symbol('System`Span'), Integer(1),
+                              Symbol('System`All'), p[2])
     elif len(p) == 2:
         if isinstance(p[0], BaseExpression):
             return Expression(Symbol('System`Span'), p[1], Symbol('All'))
@@ -858,7 +871,8 @@ def Span(definitions, p):
 @pg.production('expr : Factorial expr', precedence='Not')
 def Not(definitions, p):
     if p[0].getstr() == '!!':
-        return Expression(Symbol('System`Not'), Expression(Symbol('System`Not'), p[1]))
+        return Expression(
+            Symbol('System`Not'), Expression(Symbol('System`Not'), p[1]))
     else:
         return Expression(Symbol('System`Not'), p[1])
 
@@ -911,7 +925,9 @@ def p_Unset(definitions, p):
 
 @pg.production('expr : expr Function expr')
 def Function(definitions, p):
-    return Expression(Symbol('System`Function'), Expression(Symbol('System`List'), p[0]), p[2])
+    return Expression(Symbol('System`Function'),
+                      Expression(Symbol('System`List'), p[0]),
+                      p[2])
 
 # def p_Put(self, args):
 #     'expr : expr Put filename'
@@ -944,4 +960,10 @@ lexer = lg.build()
 
 # Construct parser
 parser = pg.build()
-parse = lambda string, definitions: parser.parse(lexer.lex(prelex(string)), state=definitions)
+
+
+def parse(string, definitions):
+    """
+    Parses a string and returns an expression (or None if the string is empty)
+    """
+    return parser.parse(lexer.lex(prelex(string)), state=definitions)

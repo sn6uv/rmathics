@@ -1,3 +1,21 @@
+"""
+The structure of things:
+
+- BaseExpression
+  - Expression
+  - Atom
+    - String
+    - Symbol
+    - Number
+      - Integer
+      - Rational
+      - Real
+      - Complex
+"""
+
+from __future__ import unicode_literals
+
+
 class BaseExpression(object):
     def __init__(self, *args):
         self.parenthesized = False
@@ -6,7 +24,6 @@ class BaseExpression(object):
         return None
 
     def evaluate(self, evaluation):
-        # raise NotImplementedError
         pass
 
     def format(self, format="FullForm"):
@@ -138,6 +155,7 @@ class Rational(Number):
         Number.__init__(self)
         # assert isinstance(value, mpq)
         self.value = value
+
 
 def fully_qualified_symbol_name(name):
     return (isinstance(name, basestring)

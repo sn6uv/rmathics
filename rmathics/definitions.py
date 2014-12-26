@@ -25,14 +25,14 @@ import base64
 import re
 
 from rmathics.expression import (Expression, Symbol, String, ensure_context,
-                                     fully_qualified_symbol_name)
+                                 fully_qualified_symbol_name)
 from rmathics.characters import letters, letterlikes
 
 
 names_wildcards = "@*"
-base_names_pattern =r'((?![0-9])([0-9${0}{1}{2}])+)'.format(
+base_names_pattern = r'((?![0-9])([0-9${0}{1}{2}])+)'.format(
     letters, letterlikes, names_wildcards)
-full_names_pattern =r'(`?{0}(`{0})*)'.format(base_names_pattern)
+full_names_pattern = r'(`?{0}(`{0})*)'.format(base_names_pattern)
 
 
 def get_file_time(file):
@@ -53,6 +53,9 @@ def valuesname(name):
 
 
 class Definitions(object):
+    """
+    Symbol table of definitions (to be filled with Definition instances)
+    """
     def __init__(self, add_builtin=False, builtin_filename=None):
         self.builtin = {}
         self.user = {}
@@ -428,6 +431,9 @@ def insert_rule(values, rule):
 
 
 class Definition(object):
+    """
+    Individual definition entry (to be stored in Definitions)
+    """
     def __init__(self, name):
         self.name = name
 
@@ -480,7 +486,7 @@ class Definition(object):
 
     def __repr__(self):
         s = (
-           '<Definition: name: %s, '
-           'downvalues: %s, formats: %s, attributes: %s>') % (
+            '<Definition: name: %s, '
+            'downvalues: %s, formats: %s, attributes: %s>') % (
                 self.name, self.downvalues, self.formatvalues, self.attributes)
         return s.encode('unicode_escape')
