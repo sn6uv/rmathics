@@ -37,3 +37,6 @@ def ints_to_mpq(num, den):
     assert isinstance(num, (int, long))
     assert isinstance(den, (int, long))
     pass
+
+def str_to_num(value):
+    return int(value)

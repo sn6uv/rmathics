@@ -5,10 +5,7 @@ from rmathics.expression import (
     BaseExpression, Expression, Integer, Real, Symbol, String, Rational,
     ensure_context)
 from rmathics.characters import letters, letterlikes, named_characters
-
-# from mathics.core.numbers import dps
-# from mathics.builtin.numeric import machine_precision
-machine_precision = 18
+from rmathics.convert import str_to_num
 
 
 # Symbols can be any letters
@@ -486,110 +483,7 @@ def main(definitions, p):
 
 @pg.production('expr : number')
 def number(definitions, p):
-    """
-    NOT_RPYTHON
-    """
-    import re
-    s = p[0].getstr()
-    # Look for base
-    s = s.split('^^')
-    if len(s) == 1:
-        base, s = 10, s[0]
-    else:
-        assert len(s) == 2
-        base, s = int(s[0]), s[1]
-        assert 2 <= base <= 36
-
-    # Look for mantissa
-    s = s.split('*^')
-    if len(s) == 1:
-        n, s = 0, s[0]
-    else:
-        # TODO: modify regex and provide error message if n not an int
-        n, s = int(s[1]), s[0]
-
-    # Look at precision ` suffix to get precision/accuracy
-    prec, acc = None, None
-    s = s.split('`', 1)
-    if len(s) == 1:
-        suffix, s = None, s[0]
-    else:
-        suffix, s = s[1], s[0]
-
-        if suffix == '':
-            prec = machine_precision
-        elif suffix.startswith('`'):
-            acc = float(suffix[1:])
-        else:
-            if re.match('0+$', s) is not None:
-                return Integer(0)
-            prec = float(suffix)
-
-    # Look for decimal point
-    if s.count('.') == 0:
-        if suffix is None:
-            if n < 0:
-                return Rational(int(s, base), base ** abs(n))
-            else:
-                return Integer(int(s, base) * (base ** n))
-        else:
-            s = s + '.'
-
-    if base == 10:
-        if n != 0:
-            s = s + 'E' + str(n)    # sympy handles this
-
-        if acc is not None:
-            if float(s) == 0:
-                prec = 0.
-            else:
-                prec = acc + log10(float(s)) + n
-
-        # XXX
-        if prec is not None:
-            prec = dps(prec)
-        return Real(s)  # FIXME
-        # return Real(s, prec)
-        # return Real(s, prec, acc)
-    else:
-        # Convert the base
-        assert isinstance(base, int) and 2 <= base <= 36
-
-        # Put into standard form mantissa * base ^ n
-        s = s.split('.')
-        if len(s) == 1:
-            man = s[0]
-        else:
-            n -= len(s[1])
-            man = s[0] + s[1]
-
-        man = int(man, base)
-
-        if n >= 0:
-            result = Integer(man * base ** n)
-        else:
-            result = Rational(man, base ** -n)
-
-        if acc is None and prec is None:
-            acc = len(s[1])
-            acc10 = acc * log10(base)
-            prec10 = acc10 + log10(result.to_python())
-            if prec10 < 18:
-                prec10 = None
-        elif acc is not None:
-            acc10 = acc * log10(base)
-            prec10 = acc10 + log10(result.to_python())
-        elif prec is not None:
-            if prec == machine_precision:
-                prec10 = machine_precision
-            else:
-                prec10 = prec * log10(base)
-        # XXX
-        if prec10 is None:
-            prec10 = machine_precision
-        else:
-            prec10 = dps(prec10)
-        return result.round(prec10)
+    return str_to_num(p[0].getstr())
 
 @pg.production('expr : string')
 def string(definitions, p):

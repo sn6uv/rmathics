@@ -1,6 +1,6 @@
 import sys
 from rmathics.expression import Expression, Symbol, String
-from rmathics.definition import Definitions
+from rmathics.definitions import Definitions
 from rmathics.parser import parse
 
 
