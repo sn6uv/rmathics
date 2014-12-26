@@ -133,17 +133,17 @@ class BuiltinRule(BaseRule):
         s = u'<BuiltinRule: %s -> %s>' % (self.pattern, self.function)
         return s.encode('unicode_escape')
 
-    def __getstate__(self):
-        odict = self.__dict__.copy()
-        del odict['function']
-        odict['function_'] = (
-            self.function.im_self.get_name(), self.function.__name__)
-        return odict
+    # def __getstate__(self):
+    #     odict = self.__dict__.copy()
+    #     del odict['function']
+    #     odict['function_'] = (
+    #         self.function.im_self.get_name(), self.function.__name__)
+    #     return odict
 
-    def __setstate__(self, dict):
-        from mathics.builtin import builtins
+    # def __setstate__(self, dict):
+    #     from mathics.builtin import builtins
 
-        self.__dict__.update(dict)   # update attributes
-        cls, name = dict['function_']
+    #     self.__dict__.update(dict)   # update attributes
+    #     cls, name = dict['function_']
 
-        self.function = getattr(builtins[cls], name)
+    #     self.function = getattr(builtins[cls], name)

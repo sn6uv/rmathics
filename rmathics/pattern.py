@@ -1,18 +1,13 @@
 from __future__ import unicode_literals
 
 from rmathics.expression import (Expression, system_symbols,
-                                 ensure_context)
-from mathics.core.util import subsets, subranges, permutations
+                                 ensure_context, Symbol)
+from rmathics.util import subsets, subranges, permutations
 
 
 def Pattern_create(expr):
-    from mathics.builtin import pattern_objects
-    # from mathics.core.pattern import AtomPattern, ExpressionPattern
+    # TODO Builtin
 
-    name = expr.head.name
-    pattern_object = pattern_objects.get(name)
-    if pattern_object is not None:
-        return pattern_object(expr)
     if expr.is_atom():
         return AtomPattern(expr)
     else:

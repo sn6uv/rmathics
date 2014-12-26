@@ -282,7 +282,7 @@ class Definitions(object):
             if builtin is not None:
                 attributes = builtin.attributes
             else:
-                attributes = set()
+                attributes = []
             self.user[name] = Definition(name=name, attributes=attributes)
             return self.user[name]
 
