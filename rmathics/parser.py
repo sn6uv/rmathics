@@ -735,10 +735,10 @@ def pattern(definitions, p):
 @pg.production('expr : expr MessageName symbol')
 @pg.production('expr : expr MessageName string')
 def MessageName(definitions, p):
-    assert len(p) in (4, 6)
-    if len(p) == 4:
+    assert len(p) in (3, 5)
+    if len(p) == 3:
         return Expression(Symbol('System`MessageName'), p[0], String(p[2]))
-    elif len(p) == 6:
+    elif len(p) == 5:
         return Expression(Symbol('System`MessageName'), p[0],
                           String(p[2]), String(p[4]))
 

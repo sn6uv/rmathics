@@ -278,8 +278,8 @@ class Definitions(object):
         else:
             if not create:
                 return None
-            builtin = self.builtin.get(name)
-            if builtin:
+            builtin = self.builtin.get(name, None)
+            if builtin is not None:
                 attributes = builtin.attributes
             else:
                 attributes = set()
