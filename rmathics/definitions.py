@@ -59,7 +59,7 @@ class Definitions(object):
         context_path = context_path_rule.replace
         # assert context_path.has_form('System`List', None)
         context_path = [c.value for c in context_path.leaves]
-        assert not any([c is None for c in context_path])
+        # assert not any([c is None for c in context_path])
         return context_path
 
     def set_current_context(self, context):
@@ -406,7 +406,7 @@ def insert_rule(values, rule):
             del values[index]
             break
     values.insert(0, rule)
-    values.sort()
+    # values.sort() # TODO
 
 
 class Definition(object):
