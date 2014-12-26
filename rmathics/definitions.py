@@ -382,21 +382,21 @@ class Definitions(object):
 
 def get_tag_position(pattern, name):
     if pattern.get_name() == name:
-        return 'own'
+        return 'ownvalues'
     elif pattern.is_atom():
         return None
     else:
         head_name = pattern.get_head_name()
         if head_name == name:
-            return 'down'
+            return 'downvalues'
         elif head_name == 'System`Condition' and len(pattern.leaves) > 0:
             return get_tag_position(pattern.leaves[0], name)
         elif pattern.get_lookup_name() == name:
-            return 'sub'
+            return 'subvalues'
         else:
             for leaf in pattern.leaves:
                 if leaf.get_lookup_name() == name:
-                    return 'up'
+                    return 'upvalues'
         return None
 
 
@@ -413,36 +413,69 @@ class Definition(object):
     """
     Individual definition entry (to be stored in Definitions)
     """
-    def __init__(self, name, ownvalues=[], downvalues=[], subvalues=[],
-                 upvalues=[], formatvalues=[], messages=[], attributes=[],
+    def __init__(self, name, rules =[], ownvalues=[], downvalues=[], subvalues=[],
+                 upvalues=[], formatvalues={}, messages=[], attributes=[],
                  options=[], nvalues=[], defaultvalues={}):
         self.name = name
-
-        self.ownvalues = []
-        self.downvalues = []
-        self.subvalues = []
-        self.upvalues = []
-        self.rules = []
-        self.formatvalues = []
-        self.messages = []
-        # self.attributes = set([])
-        self.options = {}
-        self.nvalues = []
-        self.defaultvalues = {}
+        self.rules = rules
+        self.ownvalues = ownvalues
+        self.downvalues = downvalues
+        self.subvalues = subvalues
+        self.upvalues = upvalues
+        self.formatvalues = formatvalues
+        self.messages = messages
+        self.attributes = attributes
+        self.options = options
+        self.nvalues = nvalues
+        self.defaultvalues = defaultvalues
 
     def get_values_list(self, pos):
-        assert pos.isalpha()
-        if pos == 'messages':
+        if pos == 'rules':
+            return self.rules
+        elif pos == 'ownvalues':
+            return self.ownvalues
+        elif pos == 'subvalues':
+            return self.subvalues
+        elif pos == 'upvalues':
+            return self.upvalues
+        # elif pos == 'formatvalues'
+        #     return self.formatvalues
+        elif pos == 'messages':
             return self.messages
+        elif pos == 'attributes':
+            return self.attributes
+        elif pos == 'options':
+            return self.options
+        elif pos == 'nvalues':
+            return self.nvalues
+        # elif pos == 'defaultvalues':
+        #     return self.defaultvalues
         else:
-            return getattr(self, '%svalues' % pos)
+            raise ValueError(pos)
 
     def set_values_list(self, pos, rules):
-        assert pos.isalpha()
-        if pos == 'messages':
+        if pos == 'rules':
+            self.rules = rules
+        elif pos == 'ownvalues':
+            self.ownvalues = rules
+        elif pos == 'subvalues':
+            self.subvalues = rules
+        elif pos == 'upvalues':
+            self.upvalues = rules
+        # elif pos == 'formatvalues'
+        #     self.formatvalues = rules
+        elif pos == 'messages':
             self.messages = rules
+        elif pos == 'attributes':
+            self.attributes = rules
+        elif pos == 'options':
+            self.options = rules
+        elif pos == 'nvalues':
+            self.nvalues = rules
+        # elif pos == 'defaultvalues':
+        #     self.defaultvalues = rules
         else:
-            setattr(self, '%svalues' % pos, rules)
+            raise ValueError(pos)
 
     def add_rule_at(self, rule, position):
         values = self.get_values_list(position)
