@@ -218,7 +218,7 @@ def prelex(s):
                         # MMA9 behaviour is \[] -> \\[]
                         longname = s[i+2:j]
                         print(longname, type(longname))
-                        assert isinstance(longname, unicode)
+                        # assert isinstance(longname, unicode)
                         char = named_characters.get(longname, None)
                         if longname =='':
                             # MMA9 behaviour is \[] -> \\[]
@@ -372,9 +372,12 @@ inequality_operators = {
     'LessEqual': ['op_LessEqual', 'LessEqual', 'LessSlantEqual'],
 }
 
-all_operator_names = (prefix_operators.keys() + infix_operators.keys() +
-                      flat_infix_operators.keys() + postfix_operators.keys() +
-                      inequality_operators.keys())
+all_operator_names = (
+    list(prefix_operators.keys()) +
+    list(infix_operators.keys()) +
+    list(flat_infix_operators.keys()) +
+    list(postfix_operators.keys()) +
+    list(inequality_operators.keys()))
 
 precedence = (
     ('right', ['FormBox']),
@@ -560,14 +563,14 @@ for prefix_op in prefix_operators:
     return Expression(Symbol('System`%s'), p[1])""" % (prefix_op, prefix_op)
     for token in prefix_operators[prefix_op]:
         code = ("@pg.production('expr : %s expr')\n" % token) + code
-    exec code
+    exec(code)
 
 for infix_op in infix_operators:
     code = """def %s_infix(definitions, p):
     return Expression(Symbol('System`%s'), p[0], p[2])""" % (infix_op, infix_op)
     for token in infix_operators[infix_op]:
         code = ("@pg.production('expr : expr %s expr')\n" % token) + code
-    exec code
+    exec(code)
 
 for flat_infix_op in flat_infix_operators:
     code = """def %s_flat_infix(definitions, p):
@@ -583,14 +586,14 @@ for flat_infix_op in flat_infix_operators:
     return Expression(Symbol('System`%s'), *args)""" % (flat_infix_op, flat_infix_op, flat_infix_op, flat_infix_op)
     for token in flat_infix_operators[flat_infix_op]:
         code = ("@pg.production('expr : expr %s expr')\n" % token) + code
-    exec code
+    exec(code)
 
 for postfix_op in postfix_operators:
     code = """def %s_postfix(definitions, p):
     return Expression(Symbol('System`%s'), p[0])""" % (postfix_op, postfix_op)
     for token in postfix_operators[postfix_op]:
         code = ("@pg.production('expr : expr %s')\n" % token) + code
-    exec code
+    exec(code)
 
 for ineq_op in inequality_operators:
     code = """def %s_inequality(definitions, p):
@@ -617,12 +620,11 @@ for ineq_op in inequality_operators:
             return Expression(Symbol(ineq_op), p[0], p[2])""" % (ineq_op, ineq_op)
     for token in inequality_operators[ineq_op]:
         code = ("@pg.production('expr : expr %s expr')\n" % token) + code
-    exec code
+    exec(code)
 
 @pg.error
 def error_handler(definitions, token):
     sourcepos = token.getsourcepos()
-    print token.gettokentype()
     if sourcepos is not None:
         if sourcepos.idx == 0:
             # TODO raise: Syntax:sntxb
@@ -709,7 +711,7 @@ def blanks(definitions, p):
 
 @pg.production('pattern : blankdefault')
 def blankdefault(definitions, p):
-    assert isinstance(p[0], unicode) and len(p[0]) >= 2
+    # assert isinstance(p[0], unicode) and len(p[0]) >= 2
     name = p[0][:-2]
     if name:
         return Expression(Symbol('System`Optional'), Expression(
