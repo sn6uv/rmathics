@@ -179,12 +179,34 @@ tokens = (
     # ('Function', r'\uF4A1'),
 )
 
+
+def replace(string, match, replace):
+    """
+    RPython only supports character replacement
+    """
+    if rpython:
+        n = len(match)
+        m = len(replace)
+        i = 0
+        while i <= len(string) - n:
+            if string[i:i+n] == match:
+                string = string[:i] + replace + string[i+n:]
+                i += m-n+1
+                assert i >= 0
+            else:
+                i += 1
+        return string
+    else:
+        return string.replace(match, replace)
+
+
 def string_escape(s):
-    s = s.replace('\\\\', '\\').replace('\\"', '"')
-    s = s.replace('\\r\\n', '\r\n')
-    s = s.replace('\\r', '\r')
-    s = s.replace('\\n', '\n')
-    return s
+    s = replace(s, '\\\\', '\\')
+    s = replace(s, '\\"', '"')
+    s = replace(s, '\\r\\n', '\r\n')
+    s = replace(s, '\\r', '\r')
+    s = replace(s, '\\n', '\n')
+
 
 def prelex(s):
     """
