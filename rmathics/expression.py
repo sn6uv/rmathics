@@ -43,7 +43,7 @@ class BaseExpression(BaseBox):
         return False
 
     def getstr(self):
-        return None
+        raise TypeError("method only valid for String instances")
 
     def getint(self):
         raise TypeError("method only valid for Integer instances")
