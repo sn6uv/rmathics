@@ -40,7 +40,10 @@ class BaseExpression(BaseBox):
         return False
 
     def same(self, other):
-        pass
+        return False
+
+    def getstr(self):
+        return None
 
 
 class Expression(BaseExpression):
@@ -93,14 +96,16 @@ class String(Atom):
     def same(self, other):
         return isinstance(other, String) and self.value == other.value
 
+    def getstr(self):
+        return self.value
 
 class Symbol(Atom):
     def __init__(self, name):
+        assert isinstance(name, unicode)
         if name == 'System`Symbol':     # prevent recursion at the root symbol
             self.head = self
         else:
             Atom.__init__(self)
-        assert isinstance(name, unicode)
         self.name = name
 
     def __repr__(self):
@@ -124,8 +129,8 @@ class Number(Atom):
 class Integer(Number):
     def __init__(self, value):
         # assert isinstance(value, mpz)
-        self.value = value
         Number.__init__(self)
+        self.value = value
 
     def __repr__(self):
         return "%i" % self.value
@@ -136,22 +141,22 @@ class Integer(Number):
 
 class Real(Number):
     def __init__(self, value):
-        Number.__init__(self)
         # assert isinstance(value, mpfr)
+        Number.__init__(self)
         self.value = value
 
 
 class Complex(Number):
     def __init__(self, value):
-        Number.__init__(self)
         # assert isinstance(value, mpc)
+        Number.__init__(self)
         self.value = value
 
 
 class Rational(Number):
     def __init__(self, value):
-        Number.__init__(self)
         # assert isinstance(value, mpq)
+        Number.__init__(self)
         self.value = value
 
 

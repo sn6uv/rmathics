@@ -41,7 +41,7 @@ class Definitions(object):
         self.builtin = {}
         self.user = {}
         self.set_ownvalue('System`$Context', String('Global`'))
-        self.set_ownvalue('System`$ContextPath', Expression(Symbol('List'), String('System`'), String('Global`')))
+        # self.set_ownvalue('System`$ContextPath', Expression(Symbol('List'), String('System`'), String('Global`')))
 
         # TODO load builtin
 
@@ -58,7 +58,7 @@ class Definitions(object):
         context_path_rule = self.get_ownvalue('System`$ContextPath')
         context_path = context_path_rule.replace
         # assert context_path.has_form('System`List', None)
-        context_path = [c.value for c in context_path.leaves]
+        context_path = [c.getstr() for c in context_path.leaves]
         # assert not any([c is None for c in context_path])
         return context_path
 

@@ -9,6 +9,12 @@ from rmathics.expression import (
 from rmathics.characters import letters, letterlikes, named_characters
 from rmathics.convert import str_to_num
 
+try:
+    import rpython
+    from rpython.annotator import model
+except:
+    rpython = None
+
 
 # Symbols can be any letters
 base_symb = r'((?![0-9])([0-9${0}{1}])+)'.format(letters, letterlikes)
@@ -240,6 +246,7 @@ class TranslateError(Exception):
 
 
 class ScanError(TranslateError):
+    pass
     def __init__(self, pos, text):
         TranslateError.__init__(self)
         self.pos = pos
@@ -251,6 +258,7 @@ class ScanError(TranslateError):
 
 
 class InvalidCharError(TranslateError):
+    pass
     def __init__(self, char):
         TranslateError.__init__(self)
         self.char = char
@@ -260,12 +268,14 @@ class InvalidCharError(TranslateError):
 
 
 class ParseError(TranslateError):
+    pass
     def __init__(self, token):
         TranslateError.__init__(self)
         self.token = token
 
     def __unicode__(self):
         return "Parse error at or near token %s." % str(self.token)
+
 
 prefix_operators = {
     'Del': ['Del'],
@@ -585,7 +595,9 @@ for flat_infix_op in flat_infix_operators:
         args.extend(p[2].leaves)
     else:
         args.append(p[2])
-    return Expression(Symbol('System`%s'), *args)""" % (
+    expr = Expression(Symbol('System`%s'))
+    expr.leaves = args
+    return expr""" % (
         flat_infix_op, flat_infix_op, flat_infix_op, flat_infix_op)
     for token in flat_infix_operators[flat_infix_op]:
         code = ("@pg.production('expr : expr %s expr')\n" % token) + code
@@ -618,7 +630,9 @@ for ineq_op in inequality_operators:
                 leaves.append(leaf)
             leaves.append(Symbol(ineq_op))
             leaves.append(p[0])
-            return Expression(Symbol('System`Inequality'), *leaves)
+            expr = Expression(Symbol('System`Inequality'))
+            expr.leaves = leaves
+            return expr
         else:
             return Expression(Symbol(ineq_op), p[0], p[2])""" % (
         ineq_op, ineq_op)
@@ -787,13 +801,16 @@ def p_Apply2(definitions, p):
 @pg.production('expr : expr Derivative')
 def Derivative(definitions, p):
     n = len(p[1].getstr())
+    # FIXME
     is_derivative = (isinstance(p[0], Expression) and
-                     isinstance(p[0].head, Expression) and
                      p[0].head.same(Symbol('System`Derivative')) and
-                     p[0].head.leaves[0].get_int_value() is not None)
-    if is_derivative:
-        n += p[0].head.leaves[0].get_int_value()
-        p[0] = p[0].leaves[0]
+                     isinstance(p[0].head.leaves[0], Integer))
+    if isinstance(p[0].head, Expression) and p[0].head.head.same(Symbol('System`Derivative')):
+        head = p[0].head
+        leaves = p[0].leaves
+        if len(head.leaves) == 1 and isinstance(head.leaves[0], Integer) and len(leaves) == 1:
+            n += head.leaves[0].value
+            p[0] = leaves[0]
     return Expression(
         Expression(Symbol('System`Derivative'), Integer(n)), p[0])
 
@@ -853,7 +870,9 @@ def Times(definitions, p):
         args.extend(arg2.leaves)
     else:
         args.append(arg2)
-    return Expression(Symbol('System`Times'), *args)
+    expr = Expression(Symbol('System`Times'))
+    expr.leaves = args
+    return expr
 
 @pg.production('expr :      Span')
 @pg.production('expr :      Span expr')
