@@ -76,8 +76,8 @@ class Pattern(object):
     def get_head_name(self):
         return self.expr.get_head_name()
 
-    def same(self, other):
-        return self.expr.same(other.expr)
+    def __eq__(self, other):
+        return self.expr == other.expr
 
     def get_head(self):
         return self.expr.get_head()
@@ -122,13 +122,13 @@ class AtomPattern(Pattern):
 
     def match(self, yield_func, expression, vars, evaluation, head=None,
               leaf_index=None, leaf_count=None, fully=True, wrap_oneid=True):
-        if expression.same(self.expr):
+        if expression == self.expr:
             # yield vars, None
             yield_func(vars, None)
 
     def get_match_candidates(
             self, leaves, expression, attributes, evaluation, vars={}):
-        return [leaf for leaf in leaves if leaf.same(self.expr)]
+        return [leaf for leaf in leaves if leaf == self.expr]
 
     def get_match_count(self, vars={}):
         return (1, 1)

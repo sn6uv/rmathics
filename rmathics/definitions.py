@@ -402,7 +402,7 @@ def get_tag_position(pattern, name):
 
 def insert_rule(values, rule):
     for index, existing in enumerate(values):
-        if existing.pattern.same(rule.pattern):
+        if existing.pattern == rule.pattern:
             del values[index]
             break
     values.insert(0, rule)
@@ -493,7 +493,7 @@ class Definition(object):
         if position:
             values = self.get_values_list(position)
             for index, existing in enumerate(values):
-                if existing.pattern.expr.same(lhs):
+                if existing.pattern.expr == lhs:
                     del values[index]
                     return True
         return False

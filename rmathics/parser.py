@@ -590,11 +590,11 @@ for infix_op in infix_operators:
 for flat_infix_op in flat_infix_operators:
     code = """def %s_flat_infix(definitions, p):
     args = []
-    if p[0].head.same(Symbol('System`%s')):
+    if p[0].head == Symbol('System`%s'):
         args.extend(p[0].leaves)
     else:
         args.append(p[0])
-    if p[2].head.same(Symbol('System`%s')):
+    if p[2].head == Symbol('System`%s'):
         args.extend(p[2].leaves)
     else:
         args.append(p[2])
@@ -617,10 +617,10 @@ for ineq_op in inequality_operators:
     code = """def %s_inequality(definitions, p):
         head = p[0].head
         ineq_op = ensure_context('%s')
-        if head.same(Symbol(ineq_op)):
+        if head == Symbol(ineq_op):
             p[0].leaves.append(p[2])
             return p[0]
-        elif head.same(Symbol('System`Inequality')):
+        elif head == Symbol('System`Inequality'):
             p[0].leaves.append(Symbol(ineq_op))
             p[0].leaves.append(p[2])
             return p[0]
@@ -675,7 +675,7 @@ def call(definitions, p):
 @pg.production('expr : expr position', precedence='PART')
 def part(definitions, p):
     expr = Expression(Symbol('System`Part'))
-    expr.leaves = p[1].leaves
+    expr.leaves = [p[0]] + p[1].leaves
     expr.parenthesized = True  # to handle e.g. Power[a,b]^c correctly
     return expr
 
@@ -705,10 +705,10 @@ def sequence(definitions, p):
     elif len(p) == 3:
         if p[0].leaves == []:
             # TODO Raise Syntax::com
-            p[0].leaves = [Symbol('Null')]
+            p[0].leaves = [Symbol('System`Null')]
         if p[2].leaves == []:
             # TODO Raise Syntax::com
-            p[2].leaves = [Symbol('Null')]
+            p[2].leaves = [Symbol('System`Null')]
         return SequenceBox(p[0].leaves + p[2].leaves)
     else:
         raise ValueError
@@ -809,9 +809,9 @@ def p_Apply2(definitions, p):
 def Derivative(definitions, p):
     n = len(p[1].getstr())
     is_derivative = (isinstance(p[0], Expression) and
-                     p[0].head.same(Symbol('System`Derivative')) and
+                     p[0].head == Symbol('System`Derivative') and
                      isinstance(p[0].head.leaves[0], Integer))
-    if isinstance(p[0].head, Expression) and p[0].head.head.same(Symbol('System`Derivative')):
+    if isinstance(p[0].head, Expression) and p[0].head.head == Symbol('System`Derivative'):
         head = p[0].head
         leaves = p[0].leaves
         if len(head.leaves) == 1 and isinstance(head.leaves[0], Integer) and len(leaves) == 1:
@@ -868,11 +868,11 @@ def Times(definitions, p):
 
     # flatten
     args = []
-    if arg1.head.same(Symbol('System`Times')):
+    if arg1.head == Symbol('System`Times'):
         args.extend(arg1.leaves)
     else:
         args.append(arg1)
-    if arg2.head.same(Symbol('System`Times')):
+    if arg2.head == Symbol('System`Times'):
         args.extend(arg2.leaves)
     else:
         args.append(arg2)
@@ -904,7 +904,7 @@ def Span(definitions, p):
                               Symbol('System`All'), p[2])
     elif len(p) == 2:
         if isinstance(p[0], BaseExpression):
-            return Expression(Symbol('System`Span'), p[1], Symbol('All'))
+            return Expression(Symbol('System`Span'), p[0], Symbol('All'))
         elif isinstance(p[1], BaseExpression):
             return Expression(Symbol('System`Span'), Integer(1), p[1])
     elif len(p) == 1:
@@ -927,7 +927,7 @@ def Pattern(definitions, p):
         return Expression(
             Symbol('System`Optional'), Expression(Symbol('System`Pattern'), p[0], p[2]), p[4])
     elif len(p) == 3:
-        if p[2].head.same(Symbol('System`Pattern')):
+        if p[2].head == Symbol('System`Pattern'):
             return Expression(
                 Symbol('System`Optional'),
                 Expression(Symbol('System`Pattern'), p[0], p[2].leaves[0]),
@@ -984,7 +984,7 @@ def Function(definitions, p):
 @pg.production('expr : expr Semicolon expr')
 @pg.production('expr : expr Semicolon')
 def Compound(definitions, p):
-    if p[0].head.same(Symbol('System`CompoundExpression')):
+    if p[0].head == Symbol('System`CompoundExpression'):
         # TODO?
         pass
     else:

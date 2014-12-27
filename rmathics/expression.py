@@ -39,7 +39,10 @@ class BaseExpression(BaseBox):
     def is_number(self):
         return False
 
-    def same(self, other):
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __eq__(self, other):
         return False
 
     def getstr(self):
@@ -60,17 +63,15 @@ class Expression(BaseExpression):
         return "%s[%s]" % (
             self.head, ", ".join(["%s" % leaf for leaf in self.leaves]))
 
-    def same(self, other):
+    def __eq__(self, other):
         if not isinstance(other, Expression):
             return False
-        if self.head.same(other.head):
-            return False
-        if not self.head.same(other.head):
+        if self.head != other.head:
             return False
         if len(self.leaves) != len(other.leaves):
             return False
-        for leaf, other in zip(self.leaves, other.leaves):
-            if not leaf.same(other):
+        for self_leaf, other_leaf in zip(self.leaves, other.leaves):
+            if self_leaf != other_leaf:
                 return False
         return True
 
@@ -96,7 +97,7 @@ class String(Atom):
     def is_string(self):
         return True
 
-    def same(self, other):
+    def __eq__(self, other):
         return isinstance(other, String) and self.value == other.value
 
     def getstr(self):
@@ -120,7 +121,7 @@ class Symbol(Atom):
     def get_name(self):
         return self.name
 
-    def same(self, other):
+    def __eq__(self, other):
         return isinstance(other, Symbol) and self.name == other.name
 
 
@@ -138,7 +139,7 @@ class Integer(Number):
     def __repr__(self):
         return "%i" % self.value
 
-    def same(self, other):
+    def __eq__(self, other):
         return isinstance(other, Integer) and self.value == other.value
 
     def getint(self):
