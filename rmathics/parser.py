@@ -703,7 +703,7 @@ def sequence(definitions, p):
     elif len(p) == 1:
         return SequenceBox([p[0]])
     elif len(p) == 3:
-        if p[0].leaves == 0:
+        if p[0].leaves == []:
             # TODO Raise Syntax::com
             p[0].leaves = [Symbol('Null')]
         if p[2].leaves == []:
