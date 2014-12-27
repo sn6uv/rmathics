@@ -9,9 +9,9 @@ from rmathics.parser import parse
 def entry_point(argv):
     definitions = Definitions()
     # print(definitions.get_definition("$Context"))
-    print(parse("1+1 (*1+2*)", definitions))
+    print(parse("1 + 2 3", definitions))
     # print(parse("1 + 2 + \:0030"))
-    print(parse("\\[Theta]", definitions))
+    # print(parse("\\[Theta]", definitions))
     # while True:
     #     x = raw_input(">> ")
     #     print(parse(x, definitions))

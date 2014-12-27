@@ -247,34 +247,34 @@ class TranslateError(Exception):
 
 class ScanError(TranslateError):
     pass
-    def __init__(self, pos, text):
-        TranslateError.__init__(self)
-        self.pos = pos
-        self.text = text
+    # def __init__(self, pos, text):
+    #     TranslateError.__init__(self)
+    #     self.pos = pos
+    #     self.text = text
 
-    def __unicode__(self):
-        return "Lexical error at position {0} in '{1}'.".format(
-            self.pos, self.text)
+    # def __unicode__(self):
+    #     return "Lexical error at position {0} in '{1}'.".format(
+    #         self.pos, self.text)
 
 
 class InvalidCharError(TranslateError):
     pass
-    def __init__(self, char):
-        TranslateError.__init__(self)
-        self.char = char
+    # def __init__(self, char):
+    #     TranslateError.__init__(self)
+    #     self.char = char
 
-    def __unicode__(self):
-        return "Invalid character at '%s'." % self.char  # .decode('utf-8')
+    # def __unicode__(self):
+    #     return "Invalid character at '%s'." % self.char  # .decode('utf-8')
 
 
 class ParseError(TranslateError):
     pass
-    def __init__(self, token):
-        TranslateError.__init__(self)
-        self.token = token
+    # def __init__(self, token):
+    #     TranslateError.__init__(self)
+    #     self.token = token
 
-    def __unicode__(self):
-        return "Parse error at or near token %s." % str(self.token)
+    # def __unicode__(self):
+    #     return "Parse error at or near token %s." % str(self.token)
 
 
 prefix_operators = {
@@ -801,7 +801,6 @@ def p_Apply2(definitions, p):
 @pg.production('expr : expr Derivative')
 def Derivative(definitions, p):
     n = len(p[1].getstr())
-    # FIXME
     is_derivative = (isinstance(p[0], Expression) and
                      p[0].head.same(Symbol('System`Derivative')) and
                      isinstance(p[0].head.leaves[0], Integer))
@@ -809,7 +808,7 @@ def Derivative(definitions, p):
         head = p[0].head
         leaves = p[0].leaves
         if len(head.leaves) == 1 and isinstance(head.leaves[0], Integer) and len(leaves) == 1:
-            n += head.leaves[0].value
+            n += head.leaves[0].getint()
             p[0] = leaves[0]
     return Expression(
         Expression(Symbol('System`Derivative'), Integer(n)), p[0])

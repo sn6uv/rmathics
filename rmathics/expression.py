@@ -45,6 +45,9 @@ class BaseExpression(BaseBox):
     def getstr(self):
         return None
 
+    def getint(self):
+        raise TypeError("method only valid for Integer instances")
+
 
 class Expression(BaseExpression):
     def __init__(self, head, *leaves):
@@ -137,6 +140,9 @@ class Integer(Number):
 
     def same(self, other):
         return isinstance(other, Integer) and self.value == other.value
+
+    def getint(self):
+        return self.value
 
 
 class Real(Number):
