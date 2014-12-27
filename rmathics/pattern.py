@@ -63,7 +63,7 @@ class Pattern(object):
             raise StopGenerator_Pattern(True)
         try:
             self.match(yield_match, expression, vars, evaluation, fully=fully)
-        except StopGenerator_Pattern, exc:
+        except StopGenerator_Pattern as exc:
             return exc.value
         return False
 

@@ -365,8 +365,8 @@ class Definitions(object):
         return None
 
     def set_ownvalue(self, name, value):
-        from expression import Symbol
-        from rules import Rule
+        from rmathics.expression import Symbol
+        from rmathics.rules import Rule
 
         name = self.lookup_name(name)
         self.add_rule(name, Rule(Symbol(name), value))

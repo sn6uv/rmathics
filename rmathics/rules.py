@@ -80,7 +80,7 @@ class BaseRule(object):
             self.pattern.match(
                 yield_match, expression, {}, evaluation, fully=fully)
         # except StopGenerator("BaseRule_apply"), exc:
-        except StopGenerator_BaseRule, exc:
+        except StopGenerator_BaseRule as exc:
             # print "exc"
             # print "Apply %s -> %s" % (self, exc.value)
             return exc.value
