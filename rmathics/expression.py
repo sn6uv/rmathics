@@ -99,7 +99,7 @@ class String(Atom):
     def __eq__(self, other):
         return isinstance(other, String) and self.value == other.value
 
-    def getstr(self):
+    def to_str(self):
         return self.value
 
 class Symbol(Atom):
@@ -135,6 +135,14 @@ class Integer(Number):
         Number.__init__(self)
         self.value = value
 
+    @classmethod
+    def from_int(cls, value):
+        assert isinstance(value, int)
+        pass
+
+    def to_int(self):
+        pass
+
     def __repr__(self):
         return "%i" % self.value
 
@@ -151,6 +159,19 @@ class Real(Number):
         Number.__init__(self)
         self.value = value
 
+    @classmethod
+    def from_float(cls, value):
+        assert isinstance(value, float)
+        pass
+
+    @classmethod
+    def from_int(cls, value):
+        assert isinstance(value, int)
+        pass
+
+    def to_float(self):
+        pass
+
 
 class Complex(Number):
     def __init__(self, value):
@@ -158,12 +179,43 @@ class Complex(Number):
         Number.__init__(self)
         self.value = value
 
+    @classmethod
+    def from_complex(cls, value):
+        assert isinstance(value, complex)
+        pass
+
+    @classmethod
+    def from_float(cls, value):
+        assert isinstance(value, float)
+        pass
+
+    @classmethod
+    def from_int(cls, value):
+        assert isinstance(value, int)
+        pass
+
+    def to_complex(self):
+        pass
+
 
 class Rational(Number):
     def __init__(self, value):
         # assert isinstance(value, mpq)
         Number.__init__(self)
         self.value = value
+
+    @classmethod
+    def from_float(cls, value):
+        assert isinstance(value, float)
+        pass
+
+    @classmethod
+    def from_ints(cls, num, den):
+        assert isinstance(value, num) and isinstance(value, den)
+        pass
+
+    def to_ints(self):
+        pass
 
 
 def fully_qualified_symbol_name(name):
