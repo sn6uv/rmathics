@@ -504,7 +504,10 @@ def number(definitions, p):
 
 @pg.production('expr : string')
 def string(definitions, p):
-    s = p[0].getstr()[1:-1]
+    s = p[0].getstr()
+    start, stop = 1, len(s) - 1
+    assert stop >= 0
+    s = s[start:stop]
     return String(string_escape(s))
 
 @pg.production('expr : slotseq_1')
@@ -763,7 +766,9 @@ def MessageName(definitions, p):
     assert len(p) in (3, 5)
     p2 = p[2].getstr()
     if p2[0] == '"':
-        p2 = String(p2[1:-1])
+        start, stop = 1, len(p2) - 1
+        assert stop >= 0
+        p2 = String(p2[start:stop])
     else:
         p2 = Symbol(p2)
     if len(p) == 3:
@@ -771,7 +776,9 @@ def MessageName(definitions, p):
     elif len(p) == 5:
         p4 = p[4].getstr()
         if p4[0] == '"':
-            p4 = String(p4[1:-1])
+            start, stop = 1, len(p4) - 1
+            assert stop >= 0
+            p4 = String(p4[start:stop])
         else:
             p4 = Symbol(p4)
         return Expression(Symbol('System`MessageName'), p[0], p2, p4)
