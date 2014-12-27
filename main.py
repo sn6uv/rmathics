@@ -14,7 +14,7 @@ def entry_point(argv):
     # print(parse("\\[Theta]", definitions))
     while True:
         x = raw_input(">> ")
-        print(parse(x, definitions).format())
+        print(parse(x, definitions))
     return 0
 
 

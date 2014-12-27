@@ -27,9 +27,6 @@ class BaseExpression(BaseBox):
     def evaluate(self, evaluation):
         pass
 
-    def format(self, format="FullForm"):
-        return None
-
     def is_atom(self):
         return False
 
@@ -53,10 +50,9 @@ class Expression(BaseExpression):
         self.head = head
         self.leaves = list(leaves)
 
-    def format(self, format="FullForm"):
+    def __repr__(self):
         return "%s[%s]" % (
-            self.head.format(),
-            ", ".join([leaf.format() for leaf in self.leaves]))
+            self.head, ", ".join(["%s" % leaf for leaf in self.leaves]))
 
     def same(self, other):
         if not isinstance(other, Expression):
@@ -88,7 +84,7 @@ class String(Atom):
         assert isinstance(value, unicode)
         self.value = value
 
-    def format(self, format="FullForm"):
+    def __repr__(self):
         return '"%s"' % self.value
 
     def is_string(self):
@@ -107,7 +103,7 @@ class Symbol(Atom):
         assert isinstance(name, unicode)
         self.name = name
 
-    def format(self, format="FullForm"):
+    def __repr__(self):
         return self.name
 
     def is_symbol(self):
@@ -131,7 +127,7 @@ class Integer(Number):
         self.value = value
         Number.__init__(self)
 
-    def format(self, format="FullForm"):
+    def __repr__(self):
         return "%i" % self.value
 
     def same(self, other):
