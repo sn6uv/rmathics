@@ -13,7 +13,6 @@ The structure of things:
       - Complex
 """
 
-from __future__ import unicode_literals
 from rply.token import BaseBox
 
 
@@ -78,7 +77,7 @@ class Expression(BaseExpression):
 
 class Atom(BaseExpression):
     def __init__(self):
-        self.head = Symbol(ensure_context(unicode(self.__class__.__name__)))
+        self.head = Symbol(ensure_context(str(self.__class__.__name__)))
         self.leaves = []
 
     def is_atom(self):
@@ -88,7 +87,7 @@ class Atom(BaseExpression):
 class String(Atom):
     def __init__(self, value):
         Atom.__init__(self)
-        assert isinstance(value, unicode)
+        assert isinstance(value, str)
         self.value = value
 
     def __repr__(self):
@@ -105,7 +104,7 @@ class String(Atom):
 
 class Symbol(Atom):
     def __init__(self, name):
-        assert isinstance(name, unicode)
+        assert isinstance(name, str)
         if name == 'System`Symbol':     # prevent recursion at the root symbol
             self.head = self
         else:
@@ -168,7 +167,7 @@ class Rational(Number):
 
 
 def fully_qualified_symbol_name(name):
-    return (isinstance(name, unicode) and
+    return (isinstance(name, str) and
             '`' in name and
             not name.startswith('`') and
             not name.endswith('`') and
@@ -176,14 +175,14 @@ def fully_qualified_symbol_name(name):
 
 
 def valid_context_name(ctx, allow_initial_backquote=False):
-    return (isinstance(ctx, unicode) and
+    return (isinstance(ctx, str) and
             ctx.endswith('`') and
             '``' not in ctx and
             (allow_initial_backquote or not ctx.startswith('`')))
 
 
 def ensure_context(name):
-    assert isinstance(name, unicode)
+    assert isinstance(name, str)
     assert name != ''
     if '`' in name:
         # Symbol has a context mark -> it came from the parser

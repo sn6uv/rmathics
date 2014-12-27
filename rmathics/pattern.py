@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+# from __future__ import unicode_literals
 
 from rmathics.expression import (Expression, system_symbols,
                                  ensure_context, Symbol)

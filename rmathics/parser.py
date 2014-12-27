@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 from rply import ParserGenerator, LexerGenerator
 from rply.token import BaseBox
 from math import log10
@@ -32,9 +31,9 @@ tokens = (
     ('slotsingle_2', r'\#'),
     ('out_1', r'\%\d+'),
     ('out_2', r'\%+'),
-    ('PutAppend', r'\>\>\>'),
-    ('Put', r'\>\>'),
-    ('Get', r'\<\<'),
+    # ('PutAppend', r'\>\>\>'),
+    # ('Put', r'\>\>'),
+    # ('Get', r'\<\<'),
     # ('file_filename',
     #   r'''
     #    (?P<quote>\"?)                            (?# Opening quotation mark)
@@ -60,34 +59,34 @@ tokens = (
     ('MapAll', r'\/\/\@'),
     ('Map', r'\/\@'),
     ('Factorial2', r'\!\!'),
-    ('Transpose', r'\uf3c7'),
-    ('Conjugate', r'\uf3c8'),
-    ('ConjugateTranspose', r'\uf3c9'),
-    ('HermitianConjugate', r'\uf3ce'),
+    # ('Transpose', r'\uf3c7'),
+    # ('Conjugate', r'\uf3c8'),
+    # ('ConjugateTranspose', r'\uf3c9'),
+    # ('HermitianConjugate', r'\uf3ce'),
     ('Derivative', r'\'+'),
     ('StringJoin', r'\<\>'),
-    ('Integral', r'\u222b'),
-    ('DifferentialD', r'\uf74c'),
+    # ('Integral', r'\u222b'),
+    # ('DifferentialD', r'\uf74c'),
     # (PartialD, r'\u2202'),
-    ('Del', r'\u2207'),
-    ('Square', r'\uf520'),
-    ('SmallCircle', r'\u2218'),
-    ('CircleDot', r'\u2299'),
+    # ('Del', r'\u2207'),
+    # ('Square', r'\uf520'),
+    # ('SmallCircle', r'\u2218'),
+    # ('CircleDot', r'\u2299'),
     ('NonCommutativeMultiply', r'\*\*'),
-    ('Cross', r'\uf4a0'),
+    # ('Cross', r'\uf4a0'),
     ('RawBackslash', r'\\'),
-    ('Diamond', r'\u22c4'),
-    ('Wedge', r'\u22c0'),
-    ('Vee', r'\u22c1'),
-    ('CircleTimes', r'\u2297'),
-    ('CenterDot', r'\u00b7'),
-    ('Star', r'\u22c6'),
+    # ('Diamond', r'\u22c4'),
+    # ('Wedge', r'\u22c0'),
+    # ('Vee', r'\u22c1'),
+    # ('CircleTimes', r'\u2297'),
+    # ('CenterDot', r'\u00b7'),
+    # ('Star', r'\u22c6'),
     # (Sum, r' \u2211'),
     # (Product, r'\u220f'),
     ('Times', r'\u00d7'),
     ('Divide', r'\u00f7'),
-    ('PlusMinus', r'\u00b1'),
-    ('MinusPlus', r'\u2213'),
+    # ('PlusMinus', r'\u00b1'),
+    # ('MinusPlus', r'\u2213'),
     ('SameQ', r'\=\=\='),
     ('op_Equal', r'\=\='),
     ('op_Unequal', r'\!\='),
@@ -98,12 +97,12 @@ tokens = (
     ('Less', r'\<'),
     ('op_And', r'\&\&'),
     ('op_Or', r'\|\| '),
-    ('Or', r'\u2228'),
-    ('Nor', r'\u22BD'),
-    ('And', r'\u2227'),
-    ('Nand', r'\u22BC'),
-    ('Xor', r'\u22BB'),
-    ('Xnor', r'\uF4A2'),
+    # ('Or', r'\u2228'),
+    # ('Nor', r'\u22BD'),
+    # ('And', r'\u2227'),
+    # ('Nand', r'\u22BC'),
+    # ('Xor', r'\u22BB'),
+    # ('Xnor', r'\uF4A2'),
     ('Factorial', r'\!'),
     ('RepeatedNull', r'\.\.\.'),
     ('Repeated', r'\.\.'),
@@ -120,7 +119,7 @@ tokens = (
     ('RawStar', r'\*'),
     ('DivideBy', r'\/\= '),
     ('RawAmpersand', r'\&'),
-    ('Colon', r'\u2236'),
+    # ('Colon', r'\u2236'),
     ('Postfix', r'\/\/'),
     ('SetDelayed', r'\:\='),
     ('UpSet', r'\^\='),
@@ -138,46 +137,46 @@ tokens = (
     # (DiscreteShift, r'\uf4a3'),
     # (DiscreteRatio, r'\uf4a4'),
     # (DifferenceDelta, r'\u2206'),
-    ('VerticalTilde', r'\u2240'),
-    ('Coproduct', r'\u2210'),
-    ('Cap', r'\u2322'),
-    ('Cup', r'\u2323'),
-    ('CirclePlus', r'\u2295'),
-    ('CircleMinus', r'\u2296'),
-    ('Intersection', r'\u22c2'),
-    ('Union', r'\u22c3'),
-    ('Equal', r'\uf431'),
-    ('LongEqual', r'\uf7d9'),
-    ('NotEqual', r'\u2260'),
-    ('LessEqual', r'\u2264'),
-    ('LessSlantEqual', r'\u2a7d'),
-    ('GreaterEqual', r' \u2265 '),
-    ('GreaterSlantEqual', r'\u2a7e'),
-    ('VerticalBar', r'\u2223'),
-    ('NotVerticalBar', r'\u2224'),
-    ('DoubleVerticalBar', r'\u2225'),
-    ('NotDoubleVerticalBar', r'\u2226'),
-    ('Element', r'\u2208'),
-    ('NotElement', r'\u2209'),
-    ('Subset', r'\u2282'),
-    ('Superset', r'\u2283'),
-    ('ForAll', r'\u2200'),
-    ('Exists', r'\u2203'),
-    ('NotExists', r'\u2204'),
-    ('Not', r'\u00AC'),
-    ('Equivalent', r'\u29E6'),
-    ('Implies', r'\uF523'),
-    ('RightTee', r'\u22A2'),
-    ('DoubleRightTee', r'\u22A8'),
-    ('LeftTee', r'\u22A3'),
-    ('DoubleLeftTee', r'\u2AE4'),
-    ('SuchThat', r'\u220D'),
-    ('Rule', r'\uF522'),
-    ('RuleDelayed', r'\uF51F'),
-    ('VerticalSeparator', r'\uF432'),
-    ('Therefore', r'\u2234'),
-    ('Because', r'\u2235'),
-    ('Function', r'\uF4A1'),
+    # ('VerticalTilde', r'\u2240'),
+    # ('Coproduct', r'\u2210'),
+    # ('Cap', r'\u2322'),
+    # ('Cup', r'\u2323'),
+    # ('CirclePlus', r'\u2295'),
+    # ('CircleMinus', r'\u2296'),
+    # ('Intersection', r'\u22c2'),
+    # ('Union', r'\u22c3'),
+    # ('Equal', r'\uf431'),
+    # ('LongEqual', r'\uf7d9'),
+    # ('NotEqual', r'\u2260'),
+    # ('LessEqual', r'\u2264'),
+    # ('LessSlantEqual', r'\u2a7d'),
+    # ('GreaterEqual', r' \u2265 '),
+    # ('GreaterSlantEqual', r'\u2a7e'),
+    # ('VerticalBar', r'\u2223'),
+    # ('NotVerticalBar', r'\u2224'),
+    # ('DoubleVerticalBar', r'\u2225'),
+    # ('NotDoubleVerticalBar', r'\u2226'),
+    # ('Element', r'\u2208'),
+    # ('NotElement', r'\u2209'),
+    # ('Subset', r'\u2282'),
+    # ('Superset', r'\u2283'),
+    # ('ForAll', r'\u2200'),
+    # ('Exists', r'\u2203'),
+    # ('NotExists', r'\u2204'),
+    # ('Not', r'\u00AC'),
+    # ('Equivalent', r'\u29E6'),
+    # ('Implies', r'\uF523'),
+    # ('RightTee', r'\u22A2'),
+    # ('DoubleRightTee', r'\u22A8'),
+    # ('LeftTee', r'\u22A3'),
+    # ('DoubleLeftTee', r'\u2AE4'),
+    # ('SuchThat', r'\u220D'),
+    # ('Rule', r'\uF522'),
+    # ('RuleDelayed', r'\uF51F'),
+    # ('VerticalSeparator', r'\uF432'),
+    # ('Therefore', r'\u2234'),
+    # ('Because', r'\u2235'),
+    # ('Function', r'\uF4A1'),
 )
 
 def string_escape(s):
@@ -206,7 +205,7 @@ def prelex(s):
                     s[i+4] in hexdigits and
                     s[i+5] in hexdigits):
                     replacements.append(        # int expects str (not unicode)
-                        (i, i+6, unichr(int(str(s[i+2:i+6]), 16))))
+                        (i, i+6, chr(int(s[i+2:i+6], 16))))
                 else:
                     # TODO Raise Syntax:snthex
                     pass
@@ -215,7 +214,7 @@ def prelex(s):
                     s[i+2] in hexdigits and
                     s[i+3] in hexdigits):
                     replacements.append(        # int expects str (not unicode)
-                        (i, i+4, unichr(int(str(s[i+2:i+4]), 16))))
+                        (i, i+4, chr(int(s[i+2:i+4], 16))))
                 else:
                     # TODO Raise Syntax:sntoct2
                     pass
@@ -224,7 +223,7 @@ def prelex(s):
                     if s[j] == ']':
                         # MMA9 behaviour is \[] -> \\[]
                         longname = s[i+2:j]
-                        # assert isinstance(longname, unicode)
+                        assert isinstance(longname, str)
                         char = named_characters.get(longname, None)
                         if longname == '':
                             # MMA9 behaviour is \[] -> \\[]
@@ -278,11 +277,11 @@ class ParseError(TranslateError):
 
 
 prefix_operators = {
-    'Del': ['Del'],
-    'Square': ['Square'],
-    'ForAll': ['ForAll'],
-    'Exists': ['Exists'],
-    'NotExists': ['NotExists'],
+    # 'Del': ['Del'],
+    # 'Square': ['Square'],
+    # 'ForAll': ['ForAll'],
+    # 'Exists': ['Exists'],
+    # 'NotExists': ['NotExists'],
 }
 
 infix_operators = {
@@ -290,74 +289,74 @@ infix_operators = {
     'Apply': ['Apply1'],
     'Map': ['Map'],
     'MapAll': ['MapAll'],
-    'PlusMinus': ['PlusMinus'],
-    'MinusPlus': ['MinusPlus'],
-    'RightTee': ['RightTee'],
-    'DoubleRightTee': ['DoubleRightTee'],
+    # 'PlusMinus': ['PlusMinus'],
+    # 'MinusPlus': ['MinusPlus'],
+    # 'RightTee': ['RightTee'],
+    # 'DoubleRightTee': ['DoubleRightTee'],
     'Power': ['Power'],
-    'LeftTee': ['LeftTee'],
-    'DoubleLeftTee': ['DoubleLeftTee'],
-    'Implies': ['Implies'],
-    'SuchThat': ['SuchThat'],
+    # 'LeftTee': ['LeftTee'],
+    # 'DoubleLeftTee': ['DoubleLeftTee'],
+    # 'Implies': ['Implies'],
+    # 'SuchThat': ['SuchThat'],
     'Condition': ['Condition'],
-    'Rule': ['op_Rule', 'Rule'],
-    'RuleDelayed': ['op_RuleDelayed', 'RuleDelayed'],
+    'Rule': ['op_Rule'], # , 'Rule'],
+    'RuleDelayed': ['op_RuleDelayed'], #, 'RuleDelayed'],
     'ReplaceAll': ['ReplaceAll'],
     'ReplaceRepeated': ['ReplaceRepeated'],
     'AddTo': ['AddTo'],
     'SubtractFrom': ['SubtractFrom'],
     'TimesBy': ['TimesBy'],
     'DivideBy': ['DivideBy'],
-    'Therefore': ['Therefore'],
-    'Because': ['Because'],
+    # 'Therefore': ['Therefore'],
+    # 'Because': ['Because'],
     'UpSet': ['UpSet'],
     'UpSetDelayed': ['UpSetDelayed'],
 }
 
 flat_infix_operators = {
     'StringJoin': ['StringJoin'],
-    'SmallCircle': ['SmallCircle'],
-    'CircleDot': ['CircleDot'],
+    # 'SmallCircle': ['SmallCircle'],
+    # 'CircleDot': ['CircleDot'],
     'NonCommutativeMultiply': ['NonCommutativeMultiply'],
-    'Cross': ['Cross'],
+    # 'Cross': ['Cross'],
     'Dot': ['RawDot'],
     'Plus': ['Plus'],
-    'Intersection': ['Intersection'],
-    'Union': ['Union'],
-    'Diamond': ['Diamond'],
-    'Wedge': ['Wedge'],
-    'Vee': ['Vee'],
-    'CircleTimes': ['CircleTimes'],
-    'CirclePlus': ['CirclePlus'],
-    'CircleMinus': ['CircleMinus'],
-    'CenterDot': ['CenterDot'],
-    'VerticalTilde': ['VerticalTilde'],
-    'Coproduct': ['Coproduct'],
-    'Cap': ['Cap'],
-    'Cup': ['Cup'],
-    'Star': ['Star'],
+    # 'Intersection': ['Intersection'],
+    # 'Union': ['Union'],
+    # 'Diamond': ['Diamond'],
+    # 'Wedge': ['Wedge'],
+    # 'Vee': ['Vee'],
+    # 'CircleTimes': ['CircleTimes'],
+    # 'CirclePlus': ['CirclePlus'],
+    # 'CircleMinus': ['CircleMinus'],
+    # 'CenterDot': ['CenterDot'],
+    # 'VerticalTilde': ['VerticalTilde'],
+    # 'Coproduct': ['Coproduct'],
+    # 'Cap': ['Cap'],
+    # 'Cup': ['Cup'],
+    # 'Star': ['Star'],
     'Backslash': ['RawBackslash'],
-    'VerticalBar': ['VerticalBar'],
-    'NotVerticalBar': ['NotVerticalBar'],
-    'DoubleVerticalBar': ['DoubleVerticalBar'],
-    'NotDoubleVerticalBar': ['NotDoubleVerticalBar'],
+    # 'VerticalBar': ['VerticalBar'],
+    # 'NotVerticalBar': ['NotVerticalBar'],
+    # 'DoubleVerticalBar': ['DoubleVerticalBar'],
+    # 'NotDoubleVerticalBar': ['NotDoubleVerticalBar'],
     'SameQ': ['SameQ'],
     'UnsameQ': ['UnsameQ'],
-    'Element': ['Element'],
-    'NotElement': ['NotElement'],
-    'Subset': ['Subset'],
-    'Superset': ['Superset'],
-    'And': ['And', 'op_And'],
-    'Nand': ['Nand'],
-    'Xor': ['Xor'],
-    'Xnor': ['Xnor'],
-    'Or': ['op_Or', 'Or'],
-    'Nor': ['Nor'],
-    'Equivalent': ['Equivalent'],
+    # 'Element': ['Element'],
+    # 'NotElement': ['NotElement'],
+    # 'Subset': ['Subset'],
+    # 'Superset': ['Superset'],
+    'And': ['op_And'], #, 'op_And'],
+    # 'Nand': ['Nand'],
+    # 'Xor': ['Xor'],
+    # 'Xnor': ['Xnor'],
+    'Or': ['op_Or'], #, 'Or'],
+    # 'Nor': ['Nor'],
+    # 'Equivalent': ['Equivalent'],
     'Alternatives': ['Alternatives'],
     'StringExpression': ['StringExpression'],
-    'Colon': ['Colon'],
-    'VerticalSeparator': ['VerticalSeparator'],
+    # 'Colon': ['Colon'],
+    # 'VerticalSeparator': ['VerticalSeparator'],
 }
 
 postfix_operators = {
@@ -365,21 +364,21 @@ postfix_operators = {
     'Decrement': ['Decrement'],
     'Factorial': ['Factorial'],
     'Factorial2': ['Factorial2'],
-    'Conjugate': ['Conjugate'],
-    'Transpose': ['Transpose'],
-    'ConjugateTranspose': ['ConjugateTranspose', 'HermitianConjugate'],
+    # 'Conjugate': ['Conjugate'],
+    # 'Transpose': ['Transpose'],
+    # 'ConjugateTranspose': ['ConjugateTranspose', 'HermitianConjugate'],
     'Repeated': ['Repeated'],
     'RepeatedNull': ['RepeatedNull'],
     'Function': ['RawAmpersand'],
 }
 
 inequality_operators = {
-    'Equal': ['op_Equal', 'LongEqual', 'Equal'],
-    'Unequal': ['op_Unequal', 'NotEqual'],
+    'Equal': ['op_Equal'], #, 'LongEqual', 'Equal'],
+    'Unequal': ['op_Unequal'], #, 'NotEqual'],
     'Greater': ['Greater'],
     'Less': ['Less'],
-    'GreaterEqual': ['op_GreaterEqual', 'GreaterEqual', 'GreaterSlantEqual'],
-    'LessEqual': ['op_LessEqual', 'LessEqual', 'LessSlantEqual'],
+    'GreaterEqual': ['op_GreaterEqual'], #, 'GreaterEqual', 'GreaterSlantEqual'],
+    'LessEqual': ['op_LessEqual'], #, 'LessEqual', 'LessSlantEqual'],
 }
 
 all_operator_names = (
@@ -392,7 +391,7 @@ all_operator_names = (
 precedence = (
     ('right', ['FormBox']),
     ('left', ['Semicolon']),                  # flat - custom
-    ('left', ['Put', 'PutAppend']),
+    # ('left', ['Put', 'PutAppend']),
     ('right', ['Set', 'SetDelayed', 'Function',
      'UpSet', 'UpSetDelayed', 'TagSet', 'Unset']),
     ('left', ['Because']),
@@ -417,7 +416,7 @@ precedence = (
     ('left', ['Or', 'op_Or', 'Nor']),         # flat
     ('left', ['Xor', 'Xnor']),                # flat
     ('left', ['And', 'op_And', 'Nand']),      # flat
-    ('right', ['Not']),
+    # ('right', ['Not']),
     ('right', ['ForAll', 'Exists', 'NotExists']),
     ('left', ['Element', 'NotElement', 'Subset', 'Superset']),    # flat
     ('left', ['SameQ', 'UnsameQ']),           # flat
@@ -474,7 +473,7 @@ precedence = (
     ('nonassoc', ['InterpretedBox']),
     ('right', ['Subscript']),
     ('right', ['Overscript', 'Underscript']),
-    ('nonassoc', ['Get']),
+    # ('nonassoc', ['Get']),
     # ('nonassoc', ['blanks', 'blankdefault']),
     # ('nonassoc', ['out']),
     # ('nonassoc', ['slotsingle', 'slotseq']),
@@ -485,7 +484,7 @@ precedence = (
 )
 
 pg = ParserGenerator(
-    [token[0] for token in tokens],
+    [token[0] for token in tokens] + ['Function'],
     precedence=precedence,
     cache_id="mathics",
     cache_dir="/home/angus/rmathics/rmathics/")
@@ -742,7 +741,7 @@ def blanks(definitions, p):
 
 @pg.production('pattern : blankdefault')
 def blankdefault(definitions, p):
-    assert isinstance(p[0], unicode) and len(p[0]) >= 2
+    assert isinstance(p[0], str) and len(p[0]) >= 2
     name = p[0][:-2]
     if name:
         return Expression(Symbol('System`Optional'), Expression(
@@ -820,10 +819,10 @@ def Derivative(definitions, p):
     return Expression(
         Expression(Symbol('System`Derivative'), Integer(n)), p[0])
 
-@pg.production('expr : Integral expr DifferentialD expr',
-               precedence='Integral')
-def Integrate(definitions, p):
-    return Expression(Symbol('System`Integrate'), p[1], p[3])
+# @pg.production('expr : Integral expr DifferentialD expr',
+#                precedence='Integral')
+# def Integrate(definitions, p):
+#     return Expression(Symbol('System`Integrate'), p[1], p[3])
 
 @pg.production('expr : expr Minus expr')
 def Minus(definitions, p):
@@ -840,13 +839,13 @@ def UMinus(definitions, p):
     # TODO
     return Expression(Symbol('System`Times'), Integer(-1), p[1])
 
-@pg.production('expr : PlusMinus expr', precedence='UPlusMinus')
-def UPlusMinus(definitions, p):
-    return Expression(Symbol('System`PlusMinus'), p[1])
-
-@pg.production('expr : MinusPlus expr', precedence='UMinusPlus')
-def UMinusPlus(definitions, p):
-    return Expression(Symbol('System`MinusPlus'), p[1])
+# @pg.production('expr : PlusMinus expr', precedence='UPlusMinus')
+# def UPlusMinus(definitions, p):
+#     return Expression(Symbol('System`PlusMinus'), p[1])
+# 
+# @pg.production('expr : MinusPlus expr', precedence='UMinusPlus')
+# def UMinusPlus(definitions, p):
+#     return Expression(Symbol('System`MinusPlus'), p[1])
 
 @pg.production('expr : expr RawSlash expr')
 @pg.production('expr : expr Divide expr')
@@ -910,15 +909,16 @@ def Span(definitions, p):
     elif len(p) == 1:
             return Expression(Symbol('System`Span'), Integer(1), Symbol('All'))
 
-@pg.production('expr : Not expr')
-@pg.production('expr : Factorial2 expr', precedence='Not')
-@pg.production('expr : Factorial expr', precedence='Not')
-def Not(definitions, p):
-    if p[0].getstr() == '!!':
-        return Expression(
-            Symbol('System`Not'), Expression(Symbol('System`Not'), p[1]))
-    else:
-        return Expression(Symbol('System`Not'), p[1])
+# @pg.production('expr : Not expr')
+# FIXME
+# @pg.production('expr : Factorial2 expr', precedence='Not')
+# @pg.production('expr : Factorial expr', precedence='Not')
+# def Not(definitions, p):
+#     if p[0].getstr() == '!!':
+#         return Expression(
+#             Symbol('System`Not'), Expression(Symbol('System`Not'), p[1]))
+#     else:
+#         return Expression(Symbol('System`Not'), p[1])
 
 @pg.production('expr : symbol RawColon pattern RawColon expr')
 @pg.production('expr : symbol RawColon expr')

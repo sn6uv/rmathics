@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+# from __future__ import unicode_literals
 
 from rmathics.expression import Expression, Symbol, strip_context
 from rmathics.pattern import Pattern, StopGenerator
@@ -34,7 +34,7 @@ class BaseRule(object):
                     options[name[len('_option_'):]] = value
                     del vars[name]
             # print sorted((name.encode('utf-8'),
-            # unicode(value).encode('utf-8')) for name, value in
+            # str(value).encode('utf-8')) for name, value in
             # vars.iteritems())
             new_expression = self.do_replace(vars, options, evaluation)
             if new_expression is None:
