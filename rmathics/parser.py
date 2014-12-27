@@ -509,7 +509,7 @@ pg = ParserGenerator(
     [token[0] for token in tokens] + ['Function'],
     precedence=precedence,
     cache_id="mathics",
-    cache_dir="/home/angus/rmathics/rmathics/")
+    cache_dir="/home/angus/rmathics/rmathics/cache/parser/")
 
 @pg.production('main : expr')
 @pg.production('main : ')
