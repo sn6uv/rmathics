@@ -53,6 +53,7 @@ class BaseExpression(BaseBox):
 
 class Expression(BaseExpression):
     def __init__(self, head, *leaves):
+        BaseExpression.__init__(self)
         assert isinstance(head, BaseExpression)
         # assert all(isinstance(leaf, BaseExpression) for leaf in leaves)
         self.head = head
@@ -77,6 +78,7 @@ class Expression(BaseExpression):
 
 class Atom(BaseExpression):
     def __init__(self):
+        BaseExpression.__init__(self)
         self.head = Symbol(ensure_context(str(self.__class__.__name__)))
         self.leaves = []
 
@@ -106,7 +108,9 @@ class Symbol(Atom):
     def __init__(self, name):
         assert isinstance(name, str)
         if name == 'System`Symbol':     # prevent recursion at the root symbol
+            BaseExpression.__init__(self)
             self.head = self
+            self.leaves = []
         else:
             Atom.__init__(self)
         self.name = name

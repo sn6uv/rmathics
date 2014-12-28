@@ -165,5 +165,5 @@ class Definition(object):
         s = (
             '<Definition: name: %s, '
             'downvalues: %s, formats: %s, attributes: %s>') % (
-                self.name, self.downvalues, self.formatvalues, self.attributes)
+                self.downvalues, self.formatvalues, self.attributes)
         return s.encode('unicode_escape')
