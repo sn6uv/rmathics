@@ -1,3 +1,6 @@
+import os
+
+
 def subsets(items, min, max, included=None, less_first=False):
     if max is None:
         max = len(items)
@@ -65,3 +68,10 @@ def permutations(items, without_duplicates=True):
         for sub in permutations(items[:index] + items[index + 1:]):
             yield [item] + sub
             # already_taken.add(item)
+
+
+def get_file_time(file):
+    try:
+        return os.stat(file).st_mtime
+    except OSError:
+        return 0

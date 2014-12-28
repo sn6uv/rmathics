@@ -1,17 +1,8 @@
 # from __future__ import unicode_literals
 
-import os
-
 from rmathics.expression import (
     BaseExpression, Expression, Symbol, String, ensure_context,
     fully_qualified_symbol_name)
-
-
-def get_file_time(file):
-    try:
-        return os.stat(file).st_mtime
-    except OSError:
-        return 0
 
 
 class Definitions(object):
