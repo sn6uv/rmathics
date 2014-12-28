@@ -208,12 +208,11 @@ def string_escape(s):
     s = replace(s, '\\n', '\n')
 
 
-def prelex(s):
+def prelex(s, messages):
     """
     Converts character codes to characters E.g. \.7A -> z, \:004a -> J
     and longnames to characters e.g. \[Theta]
     """
-
     hexdigits = '0123456789abcdefABCDEF'
     replacements = []
     for i, c in enumerate(s[:-1]):
@@ -229,8 +228,7 @@ def prelex(s):
                     replacements.append(        # int expects str (not unicode)
                         (i, i+6, chr(int(s[i+2:i+6], 16))))
                 else:
-                    # TODO Raise Syntax:snthex
-                    pass
+                    messages.append(('Syntax', 'snthex'))
             elif s[i+1] == '.':        # 2 digit hex code
                 if (i+3 >= len(s) and
                     s[i+2] in hexdigits and
@@ -238,8 +236,7 @@ def prelex(s):
                     replacements.append(        # int expects str (not unicode)
                         (i, i+4, chr(int(s[i+2:i+4], 16))))
                 else:
-                    # TODO Raise Syntax:sntoct2
-                    pass
+                    messages.append(('Syntax', 'sntoct2'))
             elif s[i+1] == '[':        # longname
                 for j in range(i+2, len(s)):
                     if s[j] == ']':
@@ -253,8 +250,7 @@ def prelex(s):
                         elif char is not None:
                             replacements.append((i, j+1, char))
                         else:
-                            # TODO Raise Syntax:sntufn
-                            pass
+                            messages.append(('Syntax', 'sntufn'))
                         break
 
     # Make the replacements
@@ -513,18 +509,18 @@ pg = ParserGenerator(
 
 @pg.production('main : expr')
 @pg.production('main : ')
-def main(definitions, p):
+def main(state, p):
     if len(p) == 0:
         return None
     elif len(p) == 1:
         return p[0]
 
 @pg.production('expr : number')
-def number(definitions, p):
+def number(state, p):
     return str_to_num(p[0].getstr())
 
 @pg.production('expr : string')
-def string(definitions, p):
+def string(state, p):
     s = p[0].getstr()
     start, stop = 1, len(s) - 1
     assert stop >= 0
@@ -533,20 +529,20 @@ def string(definitions, p):
 
 @pg.production('expr : slotseq_1')
 @pg.production('expr : slotseq_2')
-def slotseq(definitions, p):
+def slotseq(state, p):
     s = p[0].getstr()
     value = 1 if len(s) == 2 else int(s[2:])
     return Expression(Symbol('System`SlotSequence'), Integer(value))
 
 @pg.production('expr : slotsingle_1')
 @pg.production('expr : slotsingle_2')
-def slotsingle(definitions, p):
+def slotsingle(state, p):
     s = p[0].getstr()
     value = 1 if len(s) == 1 else int(s[1:])
     return Expression(Symbol('System`Slot'), Integer(value))
 
 @pg.production('expr : out_1')
-def out_1(definitions, p):
+def out_1(state, p):
     s = p[0].getstr()
     value = int(p[0].getstr()[1:])
     if value == -1:
@@ -555,7 +551,7 @@ def out_1(definitions, p):
         return Expression(Symbol('System`Out'), Integer(value))
 
 @pg.production('expr : out_2')
-def out_2(definitions, p):
+def out_2(state, p):
     s = p[0].getstr()
     value = -len(s)
     if value == -1:
@@ -594,14 +590,14 @@ def out_2(definitions, p):
 #     return t
 
 for prefix_op in prefix_operators:
-    code = """def %s_prefix(definitions, p):
+    code = """def %s_prefix(state, p):
     return Expression(Symbol('System`%s'), p[1])""" % (prefix_op, prefix_op)
     for token in prefix_operators[prefix_op]:
         code = ("@pg.production('expr : %s expr')\n" % token) + code
     exec(code)
 
 for infix_op in infix_operators:
-    code = """def %s_infix(definitions, p):
+    code = """def %s_infix(state, p):
     return Expression(Symbol('System`%s'), p[0], p[2])""" % (
         infix_op, infix_op)
     for token in infix_operators[infix_op]:
@@ -609,7 +605,7 @@ for infix_op in infix_operators:
     exec(code)
 
 for flat_infix_op in flat_infix_operators:
-    code = """def %s_flat_infix(definitions, p):
+    code = """def %s_flat_infix(state, p):
     args = []
     if p[0].head == Symbol('System`%s'):
         args.extend(p[0].leaves)
@@ -628,14 +624,14 @@ for flat_infix_op in flat_infix_operators:
     exec(code)
 
 for postfix_op in postfix_operators:
-    code = """def %s_postfix(definitions, p):
+    code = """def %s_postfix(state, p):
     return Expression(Symbol('System`%s'), p[0])""" % (postfix_op, postfix_op)
     for token in postfix_operators[postfix_op]:
         code = ("@pg.production('expr : expr %s')\n" % token) + code
     exec(code)
 
 for ineq_op in inequality_operators:
-    code = """def %s_inequality(definitions, p):
+    code = """def %s_inequality(state, p):
         head = p[0].head
         ineq_op = ensure_context('%s')
         if head == Symbol(ineq_op):
@@ -665,19 +661,21 @@ for ineq_op in inequality_operators:
     exec(code)
 
 @pg.error
-def error_handler(definitions, token):
+def error_handler(state, token):
     sourcepos = token.getsourcepos()
     if sourcepos is not None:
         if sourcepos.idx == 0:
             # TODO raise: Syntax:sntxb
+            state.messages.append(('Syntax', 'sntxb'))
             pass
         else:
             # TODO raise: Syntax:sntxf
+            state.messages.append(('Syntax', 'sntxf'))
             pass
     raise ParseError(token.gettokentype())
 
 @pg.production('expr : RawLeftParenthesis expr RawRightParenthesis')
-def parenthesis(definitions, p):
+def parenthesis(state, p):
     expr = p[1]
     expr.parenthesized = True
     return expr
@@ -687,37 +685,37 @@ class SequenceBox(BaseBox):
         self.leaves = leaves
 
 @pg.production('expr : expr args', precedence='PART')
-def call(definitions, p):
+def call(state, p):
     expr = Expression(p[0])
     expr.leaves = p[1].leaves
     expr.parenthesized = True  # to handle e.g. Power[a,b]^c correctly
     return expr
 
 @pg.production('expr : expr position', precedence='PART')
-def part(definitions, p):
+def part(state, p):
     expr = Expression(Symbol('System`Part'))
     expr.leaves = [p[0]] + p[1].leaves
     expr.parenthesized = True  # to handle e.g. Power[a,b]^c correctly
     return expr
 
 @pg.production('args : RawLeftBracket sequence RawRightBracket')
-def args(definitions, p):
+def args(state, p):
     return p[1]
 
 @pg.production('expr : RawLeftBrace sequence RawRightBrace')
-def list(definitions, p):
+def list(state, p):
     expr = Expression(Symbol('System`List'))
     expr.leaves = p[1].leaves
     return expr
 
 @pg.production('position : RawLeftBracket RawLeftBracket sequence RawRightBracket RawRightBracket')
-def position(definitions, p):
+def position(state, p):
     return p[2]
 
 @pg.production('sequence :')
 @pg.production('sequence : expr')
 @pg.production('sequence : sequence RawComma sequence')
-def sequence(definitions, p):
+def sequence(state, p):
     assert len(p) in (0, 1, 3)
     if len(p) == 0:
         return SequenceBox([])
@@ -725,22 +723,22 @@ def sequence(definitions, p):
         return SequenceBox([p[0]])
     elif len(p) == 3:
         if p[0].leaves == []:
-            # TODO Raise Syntax::com
+            state.messages.append(('Syntax', 'com'))
             p[0].leaves = [Symbol('System`Null')]
         if p[2].leaves == []:
-            # TODO Raise Syntax::com
+            state.messages.append(('Syntax', 'com'))
             p[2].leaves = [Symbol('System`Null')]
         return SequenceBox(p[0].leaves + p[2].leaves)
     else:
         raise ValueError
 
 @pg.production('expr : symbol')
-def symbol(definitions, p):
+def symbol(state, p):
     name = p[0].getstr()
-    return Symbol(definitions.lookup_name(name))
+    return Symbol(state.definitions.lookup_name(name))
 
 @pg.production('pattern : blanks')
-def blanks(definitions, p):
+def blanks(state, p):
     pieces = p[0].getstr().split('_')
     count = len(pieces) - 1
     assert 1 <= count <= 3
@@ -753,7 +751,7 @@ def blanks(definitions, p):
     else:
         raise ValueError    # required for RPython annotator
     if pieces[-1]:
-        blank = Expression(Symbol(ensure_context(name)), Symbol(definitions.lookup_name(pieces[-1])))
+        blank = Expression(Symbol(ensure_context(name)), Symbol(state.definitions.lookup_name(pieces[-1])))
     else:
         blank = Expression(Symbol(ensure_context(name)))
     if pieces[0]:
@@ -762,17 +760,17 @@ def blanks(definitions, p):
         return blank
 
 @pg.production('pattern : blankdefault')
-def blankdefault(definitions, p):
+def blankdefault(state, p):
     assert isinstance(p[0], str) and len(p[0]) >= 2
     name = p[0][:-2]
     if name:
         return Expression(Symbol('System`Optional'), Expression(
-            Symbol('System`Pattern'), Symbol(definitions.lookup_name(name)), Expression(Symbol('System`Blank'))))
+            Symbol('System`Pattern'), Symbol(state.definitions.lookup_name(name)), Expression(Symbol('System`Blank'))))
     else:
         return Expression(Symbol('System`Optional'), Expression(Symbol('System`Blank')))
 
 @pg.production('expr : pattern')
-def pattern(definitions, p):
+def pattern(state, p):
     return p[0]
 
 # def p_Get(self, args):
@@ -783,7 +781,7 @@ def pattern(definitions, p):
 @pg.production('expr : expr MessageName symbol MessageName string')
 @pg.production('expr : expr MessageName symbol')
 @pg.production('expr : expr MessageName string')
-def MessageName(definitions, p):
+def MessageName(state, p):
     assert len(p) in (3, 5)
     p2 = p[2].getstr()
     if p2[0] == '"':
@@ -805,29 +803,29 @@ def MessageName(definitions, p):
         return Expression(Symbol('System`MessageName'), p[0], p2, p4)
 
 @pg.production('expr : Increment expr', precedence='PreIncrement')
-def PreIncrement(definitions, p):
+def PreIncrement(state, p):
     return Expression(Symbol('System`PreIncrement'), p[1])
 
 @pg.production('expr : Decrement expr', precedence='PreDecrement')
-def PreDecrement(definitions, p):
+def PreDecrement(state, p):
     return Expression(Symbol('System`PreDecrement'), p[1])
 
 @pg.production('expr : expr Prefix expr')
-def Prefix(definitions, p):
+def Prefix(state, p):
     return Expression(p[0], p[2])
 
 @pg.production('expr : expr Infix expr Infix expr')
-def p_Infix(definitions, p):
+def p_Infix(state, p):
     return Expression(p[2], p[0], p[4])
 
 @pg.production('expr : expr Apply2 expr')
-def p_Apply2(definitions, p):
+def p_Apply2(state, p):
     return Expression(
         Symbol('System`Apply'), p[0], p[2],
         Expression(Symbol('System`List'), Integer(1)))
 
 @pg.production('expr : expr Derivative')
-def Derivative(definitions, p):
+def Derivative(state, p):
     n = len(p[1].getstr())
     is_derivative = (isinstance(p[0], Expression) and
                      p[0].head == Symbol('System`Derivative') and
@@ -843,42 +841,42 @@ def Derivative(definitions, p):
 
 # @pg.production('expr : Integral expr DifferentialD expr',
 #                precedence='Integral')
-# def Integrate(definitions, p):
+# def Integrate(state, p):
 #     return Expression(Symbol('System`Integrate'), p[1], p[3])
 
 @pg.production('expr : expr Minus expr')
-def Minus(definitions, p):
+def Minus(state, p):
     return Expression(Symbol('System`Plus'), p[0],
                       Expression(Symbol('System`Times'), Integer(-1), p[2]))
 
 @pg.production('expr : Plus expr', precedence='UPlus')
-def UPlus(definitions, p):
+def UPlus(state, p):
     return p[1]
 
 @pg.production('expr : Minus expr', precedence='UMinus')
-def UMinus(definitions, p):
+def UMinus(state, p):
     # if isinstance(p[0], (Integer, Real)):
     # TODO
     return Expression(Symbol('System`Times'), Integer(-1), p[1])
 
 # @pg.production('expr : PlusMinus expr', precedence='UPlusMinus')
-# def UPlusMinus(definitions, p):
+# def UPlusMinus(state, p):
 #     return Expression(Symbol('System`PlusMinus'), p[1])
 # 
 # @pg.production('expr : MinusPlus expr', precedence='UMinusPlus')
-# def UMinusPlus(definitions, p):
+# def UMinusPlus(state, p):
 #     return Expression(Symbol('System`MinusPlus'), p[1])
 
 @pg.production('expr : expr RawSlash expr')
 @pg.production('expr : expr Divide expr')
-def Divide(definitions, p):
+def Divide(state, p):
     return Expression(Symbol('System`Times'), p[0],
                       Expression(Symbol('System`Power'), p[2], Integer(-1)))
 
 @pg.production('expr : expr Times expr')
 @pg.production('expr : expr RawStar expr')
 @pg.production('expr : expr expr', precedence='Times')
-def Times(definitions, p):
+def Times(state, p):
     assert 2 <= len(p) <= 3
     if len(p) == 2:
         arg1, arg2 = p[0], p[1]
@@ -909,7 +907,7 @@ def Times(definitions, p):
 @pg.production('expr :      Span expr Span expr')
 @pg.production('expr : expr Span      Span expr')
 @pg.production('expr : expr Span expr Span expr')
-def Span(definitions, p):
+def Span(state, p):
     if len(p) == 5:
         return Expression(Symbol('System`Span'), p[0], p[2], p[4])
     elif len(p) == 4:
@@ -935,7 +933,7 @@ def Span(definitions, p):
 # FIXME
 # @pg.production('expr : Factorial2 expr', precedence='Not')
 # @pg.production('expr : Factorial expr', precedence='Not')
-# def Not(definitions, p):
+# def Not(state, p):
 #     if p[0].getstr() == '!!':
 #         return Expression(
 #             Symbol('System`Not'), Expression(Symbol('System`Not'), p[1]))
@@ -944,7 +942,7 @@ def Span(definitions, p):
 
 @pg.production('expr : symbol RawColon pattern RawColon expr')
 @pg.production('expr : symbol RawColon expr')
-def Pattern(definitions, p):
+def Pattern(state, p):
     if len(p) == 5:
         return Expression(
             Symbol('System`Optional'), Expression(Symbol('System`Pattern'), p[0], p[2]), p[4])
@@ -958,16 +956,16 @@ def Pattern(definitions, p):
             return Expression(Symbol('System`Pattern'), p[0], p[2])
 
 @pg.production('expr : pattern RawColon expr')
-def Optional(definitions, p):
+def Optional(state, p):
     return Expression(Symbol('System`Optional'), p[0], p[2])
 
 @pg.production('expr : expr Postfix expr')
-def Postfix(definitions, p):
+def Postfix(state, p):
     return Expression(p[2], p[0])
 
 @pg.production('expr : expr TagSet expr Set expr')
 @pg.production('expr : expr Set expr')
-def Set(definitions, p):
+def Set(state, p):
     if len(p) == 3:
         return Expression(Symbol('System`Set'), p[0], p[2])
     elif len(p) == 5:
@@ -975,7 +973,7 @@ def Set(definitions, p):
 
 @pg.production('expr : expr TagSet expr SetDelayed expr')
 @pg.production('expr : expr SetDelayed expr')
-def SetDelayed(definitions, p):
+def SetDelayed(state, p):
     if len(p) == 3:
         return Expression(Symbol('System`SetDelayed'), p[0], p[2])
     elif len(p) == 5:
@@ -983,14 +981,14 @@ def SetDelayed(definitions, p):
 
 @pg.production('expr : expr TagSet expr Unset')
 @pg.production('expr : expr Unset')
-def p_Unset(definitions, p):
+def p_Unset(state, p):
     if len(p) == 2:
         return Expression(Symbol('System`Unset'), p[0])
     elif len(p) == 4:
         return Expression(Symbol('System`TagUnset'), p[0], p[2])
 
 @pg.production('expr : expr Function expr')
-def Function(definitions, p):
+def Function(state, p):
     return Expression(Symbol('System`Function'),
                       Expression(Symbol('System`List'), p[0]),
                       p[2])
@@ -1005,7 +1003,7 @@ def Function(definitions, p):
 
 @pg.production('expr : expr Semicolon expr')
 @pg.production('expr : expr Semicolon')
-def Compound(definitions, p):
+def Compound(state, p):
     if p[0].head == Symbol('System`CompoundExpression'):
         # TODO?
         pass
@@ -1016,6 +1014,17 @@ def Compound(definitions, p):
     else:
         p[0].leaves.append(Symbol('System`Null'))
     return p[0]
+
+
+class ParserState(object):
+    """
+    Object for storing parser state:
+      - definitions used (e.g. looking up symbol names)
+      - messages created (e.g. invalid \[xxxx] longnames)
+    """
+    def __init__(self, messages, definitions):
+        self.messages = messages
+        self.definitions = definitions
 
 # Construct lexer
 lg = LexerGenerator()
@@ -1031,5 +1040,8 @@ parser = pg.build()
 def parse(string, definitions):
     """
     Parses a string and returns an expression (or None if the string is empty)
+    also return the messages generated during parsing
     """
-    return parser.parse(lexer.lex(prelex(string)), state=definitions)
+    state = ParserState([], definitions)
+    result = parser.parse(lexer.lex(prelex(string, state.messages)), state=state)
+    return (result, state.messages)

@@ -11,9 +11,12 @@ def entry_point(argv):
     print(parse("1 + 2 3", definitions))
     # print(parse("1 + 2 + \:0030"))
     # print(parse("\\[Theta]", definitions))
-    # while True:
-    #     x = raw_input(">> ")
-    #     print(parse(x, definitions))
+    while True:
+        x = raw_input(">> ")
+        result, messages = parse(x, definitions)
+        for message in messages:
+            print(message)
+        print(result)
     return 0
 
 
