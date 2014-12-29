@@ -4,6 +4,12 @@ from rmathics.expression import (
     BaseExpression, Expression, Symbol, String, ensure_context,
     fully_qualified_symbol_name)
 
+known_attributes = set([
+    'Orderless', 'Flat', 'OneIdentity', 'Listable', 'Constant',
+    'NumericFunction', 'Protected', 'Locked', 'ReadProtected', 'HoldFirst',
+    'HoldRest', 'HoldAll', 'HoldAllComplete', 'NHoldFirst', 'NHoldRest',
+    'NHoldAll', 'SequenceHold', 'Temporary', 'Stub'])
+
 
 class Definitions(object):
     """
@@ -132,6 +138,22 @@ class Definitions(object):
         assert isinstance(name, str)
         self.table[self.lookup_name(name)] = definition
 
+    def get_attributes(self, name):
+        # assert isinstance(name, str)
+        attributes = self.get_definition(name).attributes
+        # assert attributes.head == Symbol('System`List')
+        # assert all(leaf.get_name().startswith('System`') for leaf in attributes.leaves)
+        return [leaf.get_name()[7:] for leaf in attributes.leaves]
+
+    def set_attributes(self, name, attributes):
+        assert isinstance(name, str)
+        assert isinstance(attributes, list)
+        # assert all(isinstance(attribute, str) and attribute in known_attributes
+        #           for attribute in attributes)
+        name = self.lookup_name(name)
+        defn = self.get_definition(name)
+        defn.attributes = Expression(Symbol('System`List'))
+        defn.attributes.leaves = [Symbol('System`' + attribute) for attribute in attributes]
 
 class Definition(object):
     """
