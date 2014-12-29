@@ -14,18 +14,7 @@ The structure of things:
 """
 
 from rply.token import BaseBox
-
-try:
-    import rpython
-except ImportError:
-    rpython = None
-
-if rpython:
-    def zip(list1, list2):
-        assert len(list1) == len(list2)
-        for i in xrange(len(list1)):
-            yield list1[i], list2[i]
-        raise StopIteration
+from rmathics.rpython_util import zip, all
 
 
 class BaseExpression(BaseBox):
@@ -67,7 +56,7 @@ class Expression(BaseExpression):
     def __init__(self, head, *leaves):
         BaseExpression.__init__(self)
         assert isinstance(head, BaseExpression)
-        # assert all(isinstance(leaf, BaseExpression) for leaf in leaves)
+        assert all([isinstance(leaf, BaseExpression) for leaf in list(leaves)])
         self.head = head
         self.leaves = list(leaves)
 
@@ -160,7 +149,7 @@ class Integer(Number):
         pass
 
     def repr(self):
-        return "%i" % self.value
+        return str(self.value)
 
     def eq(self, other):
         return isinstance(other, Integer) and self.value == other.value

@@ -7,6 +7,7 @@ from rmathics.expression import (
     ensure_context)
 from rmathics.characters import letters, letterlikes, named_characters
 from rmathics.convert import str_to_num
+from rmathics.rpython_util import replace
 
 try:
     import rpython
@@ -178,26 +179,6 @@ tokens = (
     # ('Because', r'\u2235'),
     # ('Function', r'\uF4A1'),
 )
-
-
-def replace(string, match, replace):
-    """
-    RPython only supports character replacement
-    """
-    if rpython:
-        n = len(match)
-        m = len(replace)
-        i = 0
-        while i <= len(string) - n:
-            if string[i:i+n] == match:
-                string = string[:i] + replace + string[i+n:]
-                i += m-n+1
-                assert i >= 0
-            else:
-                i += 1
-        return string
-    else:
-        return string.replace(match, replace)
 
 
 def string_escape(s):
