@@ -607,11 +607,11 @@ for infix_op in infix_operators:
 for flat_infix_op in flat_infix_operators:
     code = """def %s_flat_infix(state, p):
     args = []
-    if p[0].head == Symbol('System`%s'):
+    if p[0].head.eq(Symbol('System`%s')):
         args.extend(p[0].leaves)
     else:
         args.append(p[0])
-    if p[2].head == Symbol('System`%s'):
+    if p[2].head.eq(Symbol('System`%s')):
         args.extend(p[2].leaves)
     else:
         args.append(p[2])
@@ -634,10 +634,10 @@ for ineq_op in inequality_operators:
     code = """def %s_inequality(state, p):
         head = p[0].head
         ineq_op = ensure_context('%s')
-        if head == Symbol(ineq_op):
+        if head.eq(Symbol(ineq_op)):
             p[0].leaves.append(p[2])
             return p[0]
-        elif head == Symbol('System`Inequality'):
+        elif head.eq(Symbol('System`Inequality')):
             p[0].leaves.append(Symbol(ineq_op))
             p[0].leaves.append(p[2])
             return p[0]
@@ -828,9 +828,9 @@ def p_Apply2(state, p):
 def Derivative(state, p):
     n = len(p[1].getstr())
     is_derivative = (isinstance(p[0], Expression) and
-                     p[0].head == Symbol('System`Derivative') and
+                     p[0].head.eq(Symbol('System`Derivative')) and
                      isinstance(p[0].head.leaves[0], Integer))
-    if isinstance(p[0].head, Expression) and p[0].head.head == Symbol('System`Derivative'):
+    if isinstance(p[0].head, Expression) and p[0].head.head.eq(Symbol('System`Derivative')):
         head = p[0].head
         leaves = p[0].leaves
         if len(head.leaves) == 1 and isinstance(head.leaves[0], Integer) and len(leaves) == 1:
@@ -887,11 +887,11 @@ def Times(state, p):
 
     # flatten
     args = []
-    if arg1.head == Symbol('System`Times'):
+    if arg1.head.eq(Symbol('System`Times')):
         args.extend(arg1.leaves)
     else:
         args.append(arg1)
-    if arg2.head == Symbol('System`Times'):
+    if arg2.head.eq(Symbol('System`Times')):
         args.extend(arg2.leaves)
     else:
         args.append(arg2)
@@ -947,7 +947,7 @@ def Pattern(state, p):
         return Expression(
             Symbol('System`Optional'), Expression(Symbol('System`Pattern'), p[0], p[2]), p[4])
     elif len(p) == 3:
-        if p[2].head == Symbol('System`Pattern'):
+        if p[2].head.eq(Symbol('System`Pattern')):
             return Expression(
                 Symbol('System`Optional'),
                 Expression(Symbol('System`Pattern'), p[0], p[2].leaves[0]),
@@ -1004,7 +1004,7 @@ def Function(state, p):
 @pg.production('expr : expr Semicolon expr')
 @pg.production('expr : expr Semicolon')
 def Compound(state, p):
-    if p[0].head == Symbol('System`CompoundExpression'):
+    if p[0].head.eq(Symbol('System`CompoundExpression')):
         # TODO?
         pass
     else:

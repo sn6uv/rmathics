@@ -36,7 +36,7 @@ class Definitions(object):
         return current $ContextPath as a list of str
         """
         path = self.get_ownvalues('System`$ContextPath')
-        assert isinstance(path, Expression) and path.head == Symbol('System`List')
+        assert isinstance(path, Expression) and path.head.eq(Symbol('System`List'))
         return [leaf.to_str() for leaf in path.leaves]
 
     def set_context(self, context):
@@ -113,7 +113,7 @@ class Definitions(object):
     def get_ownvalues(self, name):
         assert isinstance(name, str)
         ownvalues = self.get_definition(name).ownvalues
-        assert ownvalues.head == Symbol('System`List') and len(ownvalues.leaves) == 1
+        assert ownvalues.head.eq(Symbol('System`List')) and len(ownvalues.leaves) == 1
         head, leaves = ownvalues.leaves[0].head, ownvalues.leaves[0].leaves
         # assert head is rule
         assert len(leaves) == 2
@@ -141,7 +141,7 @@ class Definitions(object):
     def get_attributes(self, name):
         # assert isinstance(name, str)
         attributes = self.get_definition(name).attributes
-        # assert attributes.head == Symbol('System`List')
+        # assert attributes.head.eq(Symbol('System`List'))
         # assert all(leaf.get_name().startswith('System`') for leaf in attributes.leaves)
         return [leaf.get_name()[7:] for leaf in attributes.leaves]
 

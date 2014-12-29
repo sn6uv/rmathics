@@ -15,6 +15,18 @@ The structure of things:
 
 from rply.token import BaseBox
 
+try:
+    import rpython
+except ImportError:
+    rpython = None
+
+if rpython:
+    def zip(list1, list2):
+        assert len(list1) == len(list2)
+        for i in xrange(len(list1)):
+            yield list1[i], list2[i]
+        raise StopIteration
+
 
 class BaseExpression(BaseBox):
     def __init__(self, *args):
@@ -38,10 +50,10 @@ class BaseExpression(BaseBox):
     def is_number(self):
         return False
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
+    def ne(self, other):
+        return not self.eq(other)
 
-    def __eq__(self, other):
+    def eq(self, other):
         return False
 
     def getstr(self):
@@ -59,19 +71,19 @@ class Expression(BaseExpression):
         self.head = head
         self.leaves = list(leaves)
 
-    def __repr__(self):
+    def repr(self):
         return "%s[%s]" % (
-            self.head, ", ".join(["%s" % leaf for leaf in self.leaves]))
+            self.head.repr(), ", ".join([leaf.repr() for leaf in self.leaves]))
 
-    def __eq__(self, other):
+    def eq(self, other):
         if not isinstance(other, Expression):
             return False
-        if self.head != other.head:
+        if not self.head.eq(other.head):
             return False
         if len(self.leaves) != len(other.leaves):
             return False
         for self_leaf, other_leaf in zip(self.leaves, other.leaves):
-            if self_leaf != other_leaf:
+            if not self_leaf.eq(other_leaf):
                 return False
         return True
 
@@ -92,13 +104,13 @@ class String(Atom):
         assert isinstance(value, str)
         self.value = value
 
-    def __repr__(self):
+    def repr(self):
         return '"%s"' % self.value
 
     def is_string(self):
         return True
 
-    def __eq__(self, other):
+    def eq(self, other):
         return isinstance(other, String) and self.value == other.value
 
     def to_str(self):
@@ -115,7 +127,7 @@ class Symbol(Atom):
             Atom.__init__(self)
         self.name = name
 
-    def __repr__(self):
+    def repr(self):
         return self.name
 
     def is_symbol(self):
@@ -124,8 +136,8 @@ class Symbol(Atom):
     def get_name(self):
         return self.name
 
-    def __eq__(self, other):
-        return isinstance(other, Symbol) and self.name == other.name
+    def eq(self, other):
+        return isinstance(other, Symbol) and self.get_name() == other.get_name()
 
 
 class Number(Atom):
@@ -147,10 +159,10 @@ class Integer(Number):
     def to_int(self):
         pass
 
-    def __repr__(self):
+    def repr(self):
         return "%i" % self.value
 
-    def __eq__(self, other):
+    def eq(self, other):
         return isinstance(other, Integer) and self.value == other.value
 
     def getint(self):

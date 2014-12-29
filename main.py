@@ -14,17 +14,18 @@ from rmathics.evaluation import evaluate
 def entry_point(argv):
     definitions = Definitions()
     # print(definitions.get_definition("$Context"))
-    print(parse("1 + 2 3", definitions))
+    # print(parse("1 + 2 3", definitions))
     # print(parse("1 + 2 + \:0030"))
     # print(parse("\\[Theta]", definitions))
-    if Expression(Symbol('Sin'), Integer(1)).eq(Expression(Symbol('Sin'), Integer(1))):
-        print "equal1"
+    assert Expression(Symbol('Sin'), Integer(1)).eq(Expression(Symbol('Sin'), Integer(1)))
 
-    # definitions.set_attributes('Global`f', ['Flat'])
+    definitions.set_attributes('Global`f', ['Flat'])
     # expr = Expression(Symbol('Global`f'), Expression(Symbol('Global`f'), Integer(1), Integer(2)), Integer(3), Integer(4))
-    # result, message = evaluate(expr, definitions)
-    # if result == Expression(Symbol('Global`f'), Integer(1), Integer(2), Integer(3), Integer(4)):
-    #     print "equal"
+    expr, messages = parse('Global`f[1, Global`f[2, Global`f[3]], Global`f[4], 5]', definitions)
+    result, message = evaluate(expr, definitions)
+    print result.repr()
+    if result == Expression(Symbol('Global`f'), Integer(1), Integer(2), Integer(3), Integer(4)):
+        print "equal"
 
     if not rpython:
         while True:
@@ -35,7 +36,7 @@ def entry_point(argv):
             result, messages = evaluate(expr, definitions)
             for message in messages:
                 print(message)
-            print(result)
+            print(result.repr())
     return 0
 
 
