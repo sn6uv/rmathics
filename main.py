@@ -19,13 +19,15 @@ def entry_point(argv):
     # print(parse("\\[Theta]", definitions))
     assert Expression(Symbol('Sin'), Integer(1)).eq(Expression(Symbol('Sin'), Integer(1)))
 
-    definitions.set_attributes('Global`f', ['Flat'])
-    # expr = Expression(Symbol('Global`f'), Expression(Symbol('Global`f'), Integer(1), Integer(2)), Integer(3), Integer(4))
-    expr, messages = parse('Global`f[1, Global`f[2, Global`f[3]], Global`f[4], 5]', definitions)
-    result, message = evaluate(expr, definitions)
-    print result.repr()
-    if result == Expression(Symbol('Global`f'), Integer(1), Integer(2), Integer(3), Integer(4)):
-        print "equal"
+    # definitions.set_attributes('Global`f', ['Flat'])
+    # # expr = Expression(Symbol('Global`f'), Expression(Symbol('Global`f'), Integer(1), Integer(2)), Integer(3), Integer(4))
+    # expr, messages = parse('Global`f[1, Global`f[2, Global`f[3]], Global`f[4], 5]', definitions)
+    # result, message = evaluate(expr, definitions)
+    # print result.repr()
+    # if result == Expression(Symbol('Global`f'), Integer(1), Integer(2), Integer(3), Integer(4)):
+    #     print "equal"
+
+    definitions.set_attributes('Global`g', ['Listable'])
 
     if not rpython:
         while True:

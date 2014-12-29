@@ -26,7 +26,8 @@ def evaluate(expr, definitions=Definitions()):
             if isinstance(head, Symbol):
                 head_attributes = definitions.get_attributes(head.get_name())
                 if 'Listable' in head_attributes:
-                    result = thread(result)
+                    result, thread_messages = thread(result)
+                    messages.extend(thread_messages)
                 if 'Orderless' in head_attributes:
                     result = sort(result)
                 if 'Flat' in head_attributes:
