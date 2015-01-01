@@ -156,6 +156,24 @@ class Definitions(object):
         defn.attributes = Expression(Symbol('System`List'))
         defn.attributes.leaves = [Symbol('System`' + attribute) for attribute in attributes]
 
+    def get_messages(self, name):
+        assert isinstance(name, str)
+        messages = self.get_definition(name).messages
+        assert messages.head.eq(Symbol('System`List'))
+        messages = messages.leaves
+        assert all([message.leaves[0].head.eq(Symbol('HoldPattern')) for message in messages])
+        assert all([isinstance(message.leaves[1], String) for message in messages])
+        return {message.leaves[0].leaves[0].leaves[1].to_str(): message.leaves[1].to_str() for message in messages}
+
+    def construct_message(self, *message):
+        assert len(message) >= 2
+        message_base = message[0] + '::' + message[1] + ': '
+        messages = self.get_messages(message[0])
+        message_text = messages.get(message[1], '-- Message text not found --')
+        # TODO format message_text with remaining components of message
+        return message_base + message_text
+
+
 class Definition(object):
     """
     Individual definition entry (to be stored in Definitions)

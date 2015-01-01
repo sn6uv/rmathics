@@ -27,7 +27,7 @@ class MathicsKernel(Kernel):
             for message in messages:
                 stream_content = {
                     'name': 'stderr',
-                    'text': definition.construct_message(message),
+                    'text': self.definitions.construct_message(*message),
                 }
                 self.send_response(self.iopub_socket, 'stream', stream_content)
         result, messages = evaluate(expr, self.definitions)
@@ -35,7 +35,7 @@ class MathicsKernel(Kernel):
             for message in messages:
                 stream_content = {
                     'name': 'stderr',
-                    'text': definition.construct_message(message),
+                    'text': self.definitions.construct_message(*message),
                 }
                 self.send_response(self.iopub_socket, 'stream', stream_content)
             stream_content = {
