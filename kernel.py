@@ -1,8 +1,6 @@
 #! /usr/bin/env python2
 
-# from __future__ import unicode_literals
 import sys
-
 from IPython.kernel.zmq.kernelbase import Kernel
 
 from rmathics.version import __version__ as version
@@ -10,6 +8,7 @@ from rmathics.expression import Expression, Symbol, String
 from rmathics.definitions import Definitions
 from rmathics.parser import parse
 from rmathics.evaluation import evaluate
+
 
 class MathicsKernel(Kernel):
     implementation = 'rmathics'
