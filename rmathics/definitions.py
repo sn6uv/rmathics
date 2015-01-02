@@ -37,7 +37,8 @@ class Definitions(object):
         return current $ContextPath as a list of str
         """
         path = self.get_ownvalues('System`$ContextPath')
-        assert isinstance(path, Expression) and path.head.eq(Symbol('System`List'))
+        assert isinstance(path, Expression)
+        assert path.head.eq(Symbol('System`List'))
         return [leaf.to_str() for leaf in path.leaves]
 
     def set_context(self, context):
@@ -114,7 +115,8 @@ class Definitions(object):
     def get_ownvalues(self, name):
         assert isinstance(name, str)
         ownvalues = self.get_definition(name).ownvalues
-        assert ownvalues.head.eq(Symbol('System`List')) and len(ownvalues.leaves) == 1
+        assert ownvalues.head.eq(Symbol('System`List'))
+        assert len(ownvalues.leaves) == 1
         head, leaves = ownvalues.leaves[0].head, ownvalues.leaves[0].leaves
         # assert head is rule
         assert len(leaves) == 2
@@ -143,27 +145,32 @@ class Definitions(object):
         assert isinstance(name, str)
         attributes = self.get_definition(name).attributes
         assert attributes.head.eq(Symbol('System`List'))
-        assert all([leaf.get_name().startswith('System`') for leaf in attributes.leaves])
+        assert all([leaf.get_name().startswith('System`')
+                    for leaf in attributes.leaves])
         return [leaf.get_name()[7:] for leaf in attributes.leaves]
 
     def set_attributes(self, name, attributes):
         assert isinstance(name, str)
         assert isinstance(attributes, list)
-        assert all([isinstance(attribute, str) and attribute in known_attributes
-                  for attribute in attributes])
+        assert all([isinstance(attr, str) and attr in known_attributes
+                    for attr in attributes])
         name = self.lookup_name(name)
         defn = self.get_definition(name)
         defn.attributes = Expression(Symbol('System`List'))
-        defn.attributes.leaves = [Symbol('System`' + attribute) for attribute in attributes]
+        defn.attributes.leaves = [Symbol('System`' + attribute)
+                                  for attribute in attributes]
 
     def get_messages(self, name):
         assert isinstance(name, str)
         messages = self.get_definition(name).messages
         assert messages.head.eq(Symbol('System`List'))
         messages = messages.leaves
-        assert all([message.leaves[0].head.eq(Symbol('HoldPattern')) for message in messages])
-        assert all([isinstance(message.leaves[1], String) for message in messages])
-        return {message.leaves[0].leaves[0].leaves[1].to_str(): message.leaves[1].to_str() for message in messages}
+        assert all([message.leaves[0].head.eq(Symbol('HoldPattern'))
+                    for message in messages])
+        assert all([isinstance(message.leaves[1], String)
+                    for message in messages])
+        return {message.leaves[0].leaves[0].leaves[1].to_str():
+                message.leaves[1].to_str() for message in messages}
 
     def construct_message(self, *message):
         assert len(message) >= 2

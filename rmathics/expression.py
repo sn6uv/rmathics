@@ -105,6 +105,7 @@ class String(Atom):
     def to_str(self):
         return self.value
 
+
 class Symbol(Atom):
     def __init__(self, name):
         assert isinstance(name, str)
@@ -126,7 +127,8 @@ class Symbol(Atom):
         return self.name
 
     def eq(self, other):
-        return isinstance(other, Symbol) and self.get_name() == other.get_name()
+        return (isinstance(other, Symbol) and
+                self.get_name() == other.get_name())
 
 
 class Number(Atom):

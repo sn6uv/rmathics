@@ -27,6 +27,7 @@ else:
     all = all
     zip = zip
 
+
 def replace(string, match, replace):
     """
     RPython only supports character replacement
@@ -45,5 +46,3 @@ def replace(string, match, replace):
         return string
     else:
         return string.replace(match, replace)
-
-

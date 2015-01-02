@@ -1,5 +1,6 @@
 from rmathics.definitions import BaseExpression, Expression, Symbol
 
+
 def flatten(expr, depth=-1, head=None):
     """
     flattens an Expression
@@ -32,6 +33,7 @@ def flatten(expr, depth=-1, head=None):
     expr.leaves = leaves
     return expr
 
+
 def thread(expr, head=Symbol('System`List')):
     """
     threads an Expression
@@ -48,7 +50,7 @@ def thread(expr, head=Symbol('System`List')):
     # indices of args with matching heads
     match_indices = [i for i, arg in enumerate(args) if arg.head.eq(head)]
 
-    if match_indices == []: # nothing to thread over
+    if match_indices == []:     # nothing to thread over
         return expr, messages
 
     # check all matching args have the same length
@@ -75,6 +77,7 @@ def thread(expr, head=Symbol('System`List')):
     result = Expression(head)
     result.leaves = leaves
     return result, messages
+
 
 def sort(expr):
     return expr
