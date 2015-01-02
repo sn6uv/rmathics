@@ -624,7 +624,7 @@ for ineq_op in inequality_operators:
             p[0].leaves.append(Symbol(ineq_op))
             p[0].leaves.append(p[2])
             return p[0]
-        elif head.get_name() in ['System`%%s' % k for k in inequality_operators.keys()]:
+        elif head.get_name() in ['System`%%s' %% k for k in inequality_operators.keys()]:
             leaves = []
             for i, leaf in enumerate(p[0].leaves):
                 if i != 0:
