@@ -1,10 +1,9 @@
 from rply import ParserGenerator, LexerGenerator
-from rply.token import BaseBox
+from rply.token import BaseBox, Token
 from math import log10
 
 from rmathics.expression import (
-    BaseExpression, Expression, Integer, Real, Symbol, String, Rational,
-    ensure_context)
+    BaseExpression, Expression, Integer, Real, Symbol, String, Rational)
 from rmathics.characters import letters, letterlikes, named_characters
 from rmathics.convert import str_to_num
 from rmathics.rpython_util import replace
@@ -617,7 +616,7 @@ for postfix_op in postfix_operators:
 for ineq_op in inequality_operators:
     code = """def %s_inequality(state, p):
         head = p[0].head
-        ineq_op = ensure_context('%s')
+        ineq_op = 'System`%s'
         if head.eq(Symbol(ineq_op)):
             p[0].leaves.append(p[2])
             return p[0]
@@ -625,8 +624,7 @@ for ineq_op in inequality_operators:
             p[0].leaves.append(Symbol(ineq_op))
             p[0].leaves.append(p[2])
             return p[0]
-        elif head.get_name() in [ensure_context(k)
-                      for k in inequality_operators.keys()]:
+        elif head.get_name() in ['System`%%s' % k for k in inequality_operators.keys()]:
             leaves = []
             for i, leaf in enumerate(p[0].leaves):
                 if i != 0:
@@ -735,11 +733,15 @@ def blanks(state, p):
     else:
         raise ValueError    # required for RPython annotator
     if pieces[-1]:
-        blank = Expression(Symbol(ensure_context(name)), Symbol(state.definitions.lookup_name(pieces[-1])))
+        piece = Token('symbol', pieces[-1])
+        # p[0].getsourcepos() + len(''.join(pieces[:-1]))
+        blank = Expression(Symbol(name), symbol(state, [piece]))
     else:
-        blank = Expression(Symbol(ensure_context(name)))
+        blank = Expression(Symbol(name))
     if pieces[0]:
-        return Expression(Symbol('System`Pattern'), Symbol(pieces[0]), blank)
+        piece = Token('symbol', pieces[0])
+        # p[0].getsourcepos() + len(''.join(pieces[1:]))
+        return Expression(Symbol('System`Pattern'), symbol(state, [piece]), blank)
     else:
         return blank
 
@@ -761,29 +763,25 @@ def pattern(state, p):
 #     'expr : Get filename'
 #     args[0] = Expression(Symbol('System`Get'), args[2])
 
-@pg.production('expr : expr MessageName string MessageName string')
+@pg.production('expr : expr MessageName symbol MessageName symbol')
+@pg.production('expr : expr MessageName string MessageName symbol')
 @pg.production('expr : expr MessageName symbol MessageName string')
+@pg.production('expr : expr MessageName string MessageName string')
 @pg.production('expr : expr MessageName symbol')
 @pg.production('expr : expr MessageName string')
 def MessageName(state, p):
     assert len(p) in (3, 5)
-    p2 = p[2].getstr()
-    if p2[0] == '"':
-        start, stop = 1, len(p2) - 1
-        assert stop >= 0
-        p2 = String(p2[start:stop])
+    if p2[0].getstr() == '"':
+        p2 = string(state, [p[2]])
     else:
-        p2 = Symbol(p2)
+        p2 = symbol(state, [p[2]])
     if len(p) == 3:
         return Expression(Symbol('System`MessageName'), p[0], p2)
     elif len(p) == 5:
-        p4 = p[4].getstr()
-        if p4[0] == '"':
-            start, stop = 1, len(p4) - 1
-            assert stop >= 0
-            p4 = String(p4[start:stop])
+        if p4[0].getstr() == '"':
+            p4 = string(state, [p[4]])
         else:
-            p4 = Symbol(p4)
+            p4 = symbol(state, [p[4]])
         return Expression(Symbol('System`MessageName'), p[0], p2, p4)
 
 @pg.production('expr : Increment expr', precedence='PreIncrement')
@@ -927,17 +925,18 @@ def Span(state, p):
 @pg.production('expr : symbol RawColon pattern RawColon expr')
 @pg.production('expr : symbol RawColon expr')
 def Pattern(state, p):
+    p0 =  symbol(state, [p[0]])
     if len(p) == 5:
         return Expression(
-            Symbol('System`Optional'), Expression(Symbol('System`Pattern'), p[0], p[2]), p[4])
+            Symbol('System`Optional'), Expression(Symbol('System`Pattern'), p0, p[2]), p[4])
     elif len(p) == 3:
         if p[2].head.eq(Symbol('System`Pattern')):
             return Expression(
                 Symbol('System`Optional'),
-                Expression(Symbol('System`Pattern'), p[0], p[2].leaves[0]),
+                Expression(Symbol('System`Pattern'), p0, p[2].leaves[0]),
                 p[2].leaves[1])
         else:
-            return Expression(Symbol('System`Pattern'), p[0], p[2])
+            return Expression(Symbol('System`Pattern'), p0, p[2])
 
 @pg.production('expr : pattern RawColon expr')
 def Optional(state, p):

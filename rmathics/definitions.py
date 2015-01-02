@@ -1,8 +1,7 @@
 # from __future__ import unicode_literals
 
 from rmathics.expression import (
-    BaseExpression, Expression, Symbol, String, ensure_context,
-    fully_qualified_symbol_name)
+    BaseExpression, Expression, Symbol, String, fully_qualified_symbol_name)
 from rmathics.rpython_util import all
 
 known_attributes = (

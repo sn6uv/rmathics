@@ -80,7 +80,7 @@ class Expression(BaseExpression):
 class Atom(BaseExpression):
     def __init__(self):
         BaseExpression.__init__(self)
-        self.head = Symbol(ensure_context(str(self.__class__.__name__)))
+        self.head = Symbol('System`%s' % self.__class__.__name__)
         self.leaves = []
 
     def is_atom(self):
@@ -233,36 +233,7 @@ def fully_qualified_symbol_name(name):
             '``' not in name)
 
 
-def valid_context_name(ctx, allow_initial_backquote=False):
-    return (isinstance(ctx, str) and
-            ctx.endswith('`') and
-            '``' not in ctx and
-            (allow_initial_backquote or not ctx.startswith('`')))
-
-
-def ensure_context(name):
-    assert isinstance(name, str)
-    assert name != ''
-    if '`' in name:
-        # Symbol has a context mark -> it came from the parser
-        assert fully_qualified_symbol_name(name)
-        return name
-    # Symbol came from Python code doing something like
-    # Expression('Plus', ...) -> use System`
-    return 'System`' + name
-
-
 def strip_context(name):
     if '`' in name:
         return name[name.rindex('`') + 1:]
     return name
-
-
-# system_symbols('A', 'B', ...) -> ['System`A', 'System`B', ...]
-def system_symbols(*symbols):
-    return [ensure_context(s) for s in symbols]
-
-
-# system_symbols_dict({'SomeSymbol': ...}) -> {'System`SomeSymbol': ...}
-def system_symbols_dict(d):
-    return dict(((ensure_context(k), v) for k, v in d.iteritems()))
