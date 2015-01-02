@@ -771,14 +771,14 @@ def pattern(state, p):
 @pg.production('expr : expr MessageName string')
 def MessageName(state, p):
     assert len(p) in (3, 5)
-    if p2[0].getstr() == '"':
+    if p[2].getstr().startswith('"'):
         p2 = string(state, [p[2]])
     else:
         p2 = symbol(state, [p[2]])
     if len(p) == 3:
         return Expression(Symbol('System`MessageName'), p[0], p2)
     elif len(p) == 5:
-        if p4[0].getstr() == '"':
+        if p[4].getstr().startswith('"'):
             p4 = string(state, [p[4]])
         else:
             p4 = symbol(state, [p[4]])
