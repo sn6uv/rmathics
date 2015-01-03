@@ -1,4 +1,5 @@
-from rmathics.definitions import BaseExpression, Expression, Symbol
+from rmathics.expression import BaseExpression, Expression, Symbol
+from rmathics.rpython_util import all
 
 
 def flatten(expr, depth=-1, head=None):
@@ -52,27 +53,30 @@ def thread(expr, head=Symbol('System`List')):
 
     if match_indices == []:     # nothing to thread over
         return expr, messages
+    else:
+        thread_len = len(args[match_indices[0]].leaves)
 
     # check all matching args have the same length
-    thread_len = len(args[match_indices[0]].leaves)
     for i in match_indices:
-        if args[i].leaves != thread_len:
+        if len(args[i].leaves) != thread_len:
             messages.append(('Thread', 'tdlen'))
+            return expr, messages
 
     # args with heads that don't match are repeated thread_len times
+    new_args = []
     for i, arg in enumerate(args):
         if i in match_indices:
-            args[i] = arg.leaves
+            new_args.append(arg.leaves)
         else:
-            args[i] = thread_len * [arg]
+            new_args.append(thread_len * [arg])
 
-    assert all([len(arg) == thread_len for arg in args])
+    assert all([len(arg) == thread_len for arg in new_args])
 
     # thread over args
     leaves = []
     for i in xrange(thread_len):
         expr = Expression(exprhead)
-        expr.leaves = [arg[i] for arg in args]
+        expr.leaves = [arg[i] for arg in new_args]
         leaves.append(expr)
     result = Expression(head)
     result.leaves = leaves

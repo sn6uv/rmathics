@@ -28,6 +28,10 @@ def entry_point(argv):
     #     print "equal"
 
     definitions.set_attributes('Global`g', ['Listable'])
+    expr, messages = parse('Global`g[{a,b,c}, x]', definitions)
+    result, message = evaluate(expr, definitions)
+
+    print result.repr()
 
     if not rpython:
         while True:
