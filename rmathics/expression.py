@@ -12,9 +12,11 @@ The structure of things:
       - Real
       - Complex
 """
+import sys
 
 from rply.token import BaseBox
 from rmathics.rpython_util import zip, all
+from rmathics.gmp import gmp, ffi
 
 
 class BaseExpression(BaseBox):
@@ -45,10 +47,10 @@ class BaseExpression(BaseBox):
     def eq(self, other):
         return False
 
-    def getstr(self):
+    def to_str(self):
         raise TypeError("method only valid for String instances")
 
-    def getint(self):
+    def to_int(self):
         raise TypeError("method only valid for Integer instances")
 
 
@@ -138,26 +140,41 @@ class Number(Atom):
 
 class Integer(Number):
     def __init__(self, value):
-        # assert isinstance(value, mpz)
+        assert isinstance(value, int)
         Number.__init__(self)
-        self.value = value
+        self.value = ffi.new('mpz_t')
+        gmp.mpz_init_set_si(self.value, value)
+
+    def __del__(self):
+        gmp.mpz_clear(self.value)
 
     @classmethod
-    def from_int(cls, value):
-        assert isinstance(value, int)
-        pass
+    def from_mpz(cls, value):
+        self = object.__new__(cls)
+        Number.__init__(self)
+        self.value = value
+        return self
+
+    @classmethod
+    def from_str(cls, value, base=10):
+        self = object.__new__(cls)
+        Number.__init__(self)
+        self.value = ffi.new('mpz_t')
+        retcode = gmp.mpz_init_set_str(self.value, value, base)
+        assert retcode == 0
+        return self
 
     def to_int(self):
-        pass
+        if gmp.mpz_fits_slong_p(self.value):
+            return gmp.mpz_get_si(self.value)
+        else:
+            raise OverflowError
 
     def repr(self):
         return str(self.value)
 
     def eq(self, other):
-        return isinstance(other, Integer) and self.value == other.value
-
-    def getint(self):
-        return self.value
+        return isinstance(other, Integer) and gmp.mpz_cmp(self.value, other.value) == 0
 
 
 class Real(Number):

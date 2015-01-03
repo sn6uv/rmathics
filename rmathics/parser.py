@@ -5,7 +5,6 @@ from math import log10
 from rmathics.expression import (
     BaseExpression, Expression, Integer, Real, Symbol, String, Rational)
 from rmathics.characters import letters, letterlikes, named_characters
-from rmathics.convert import str_to_num
 from rmathics.rpython_util import replace
 
 try:
@@ -503,7 +502,11 @@ def main(state, p):
 
 @pg.production('expr : number')
 def number(state, p):
-    return str_to_num(p[0].getstr())
+    value = p[0].getstr()
+    if '.' in value:
+        return Real.from_str(value)
+    else:
+        return Integer.from_str(value)
 
 @pg.production('expr : string')
 def string(state, p):
@@ -819,7 +822,7 @@ def Derivative(state, p):
         head = p[0].head
         leaves = p[0].leaves
         if len(head.leaves) == 1 and isinstance(head.leaves[0], Integer) and len(leaves) == 1:
-            n += head.leaves[0].getint()
+            n += head.leaves[0].to_int()
             p[0] = leaves[0]
     return Expression(
         Expression(Symbol('System`Derivative'), Integer(n)), p[0])
