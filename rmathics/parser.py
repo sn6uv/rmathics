@@ -1,4 +1,4 @@
-from rply import ParserGenerator, LexerGenerator
+from rply import ParserGenerator, LexerGenerator, DirectoryCache
 from rply.token import BaseBox, Token
 from math import log10
 
@@ -13,6 +13,9 @@ try:
     from rpython.annotator import model
 except:
     rpython = None
+
+# monkey patching of BaseBox required for RPython
+BaseBox._attrs_ = ['head', 'leaves', 'parenthesized']
 
 
 # Symbols can be any letters
@@ -487,8 +490,8 @@ precedence = (
 pg = ParserGenerator(
     [token[0] for token in tokens] + ['Function'],
     precedence=precedence,
-    cache_id="mathics",
-    cache_dir="/home/angus/rmathics/rmathics/cache/parser/")
+    cache=DirectoryCache(cache_id="mathics", cache_dir="/home/angus/prog/rmathics/rmathics/cache/parser/")
+)
 
 @pg.production('main : expr')
 @pg.production('main : ')
