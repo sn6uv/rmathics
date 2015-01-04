@@ -37,7 +37,7 @@ class Definitions(object):
         """
         path = self.get_ownvalues('System`$ContextPath')
         assert isinstance(path, Expression)
-        assert path.head.eq(Symbol('System`List'))
+        assert path.head.same(Symbol('System`List'))
         return [leaf.to_str() for leaf in path.leaves]
 
     def set_context(self, context):
@@ -114,7 +114,7 @@ class Definitions(object):
     def get_ownvalues(self, name):
         assert isinstance(name, str)
         ownvalues = self.get_definition(name).ownvalues
-        assert ownvalues.head.eq(Symbol('System`List'))
+        assert ownvalues.head.same(Symbol('System`List'))
         assert len(ownvalues.leaves) == 1
         head, leaves = ownvalues.leaves[0].head, ownvalues.leaves[0].leaves
         # assert head is rule
@@ -143,7 +143,7 @@ class Definitions(object):
     def get_attributes(self, name):
         assert isinstance(name, str)
         attributes = self.get_definition(name).attributes
-        assert attributes.head.eq(Symbol('System`List'))
+        assert attributes.head.same(Symbol('System`List'))
         assert all([leaf.get_name().startswith('System`')
                     for leaf in attributes.leaves])
         return [leaf.get_name()[7:] for leaf in attributes.leaves]
@@ -162,9 +162,9 @@ class Definitions(object):
     def get_messages(self, name):
         assert isinstance(name, str)
         messages = self.get_definition(name).messages
-        assert messages.head.eq(Symbol('System`List'))
+        assert messages.head.same(Symbol('System`List'))
         messages = messages.leaves
-        assert all([message.leaves[0].head.eq(Symbol('HoldPattern'))
+        assert all([message.leaves[0].head.same(Symbol('HoldPattern'))
                     for message in messages])
         assert all([isinstance(message.leaves[1], String)
                     for message in messages])

@@ -17,7 +17,7 @@ def entry_point(argv):
     # print(parse("1 + 2 3", definitions))
     # print(parse("1 + 2 + \:0030"))
     # print(parse("\\[Theta]", definitions))
-    assert Expression(Symbol('Sin'), Integer(1)).eq(Expression(Symbol('Sin'), Integer(1)))
+    assert Expression(Symbol('Sin'), Integer(1)).same(Expression(Symbol('Sin'), Integer(1)))
     assert Rational.from_float(0.5).to_float() == 0.5
 
     # definitions.set_attributes('Global`f', ['Flat'])

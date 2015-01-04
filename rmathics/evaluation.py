@@ -45,7 +45,7 @@ def evaluate(expr, definitions=Definitions()):
             pass
         result = expr
 
-    if expr.eq(result):
+    if expr.same(result):
         return (result, messages)
     else:
         result, result_messages = evaluate(result, definitions)

@@ -18,7 +18,7 @@ def flatten(expr, depth=-1, head=None):
 
     leaves = []
     for leaf in expr.leaves:
-        if leaf.head.eq(head):
+        if leaf.head.same(head):
             assert isinstance(leaf, Expression)
             for leaf2 in leaf.leaves:
                 if isinstance(leaf2, Expression):
@@ -49,7 +49,7 @@ def thread(expr, head=Symbol('System`List')):
     exprhead = expr.head
 
     # indices of args with matching heads
-    match_indices = [i for i, arg in enumerate(args) if arg.head.eq(head)]
+    match_indices = [i for i, arg in enumerate(args) if arg.head.same(head)]
 
     if match_indices == []:     # nothing to thread over
         return expr, messages

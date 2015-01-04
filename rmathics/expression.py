@@ -41,10 +41,7 @@ class BaseExpression(BaseBox):
     def is_number(self):
         return False
 
-    def ne(self, other):
-        return not self.eq(other)
-
-    def eq(self, other):
+    def same(self, other):
         return False
 
     def to_str(self):
@@ -66,15 +63,15 @@ class Expression(BaseExpression):
         return "%s[%s]" % (
             self.head.repr(), ", ".join([leaf.repr() for leaf in self.leaves]))
 
-    def eq(self, other):
+    def same(self, other):
         if not isinstance(other, Expression):
             return False
-        if not self.head.eq(other.head):
+        if not self.head.same(other.head):
             return False
         if len(self.leaves) != len(other.leaves):
             return False
         for self_leaf, other_leaf in zip(self.leaves, other.leaves):
-            if not self_leaf.eq(other_leaf):
+            if not self_leaf.same(other_leaf):
                 return False
         return True
 
@@ -101,7 +98,7 @@ class String(Atom):
     def is_string(self):
         return True
 
-    def eq(self, other):
+    def same(self, other):
         return isinstance(other, String) and self.value == other.value
 
     def to_str(self):
@@ -128,7 +125,7 @@ class Symbol(Atom):
     def get_name(self):
         return self.name
 
-    def eq(self, other):
+    def same(self, other):
         return (isinstance(other, Symbol) and
                 self.get_name() == other.get_name())
 
@@ -178,7 +175,7 @@ class Integer(Number):
     def repr(self):
         return self.to_str()
 
-    def eq(self, other):
+    def same(self, other):
         return (isinstance(other, Integer) and
                 gmp.mpz_cmp(self.value, other.value) == 0)
 
@@ -303,7 +300,7 @@ class Rational(Number):
     def __del__(self):
         gmp.mpq_clear(self.value)
 
-    def eq(self, other):
+    def same(self, other):
         return (isinstance(other, Rational) and
                 gmp.mpq_equal(self.value, other.value) != 0)
 
