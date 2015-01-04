@@ -48,10 +48,10 @@ class BaseExpression(BaseBox):
         return False
 
     def to_str(self):
-        raise TypeError("method only valid for String instances")
+        raise NotImplementedError
 
     def to_int(self):
-        raise TypeError("method only valid for Integer instances")
+        raise NotImplementedError
 
 
 class Expression(BaseExpression):
@@ -145,14 +145,12 @@ class Integer(Number):
         self.value = ffi.new('mpz_t')
         gmp.mpz_init_set_si(self.value, value)
 
-    def __del__(self):
-        gmp.mpz_clear(self.value)
-
     @classmethod
     def from_mpz(cls, value):
         self = object.__new__(cls)
         Number.__init__(self)
-        self.value = value
+        self.value = ffi.new('mpz_t')
+        gmp.mpz_init_set(self.value, value)
         return self
 
     @classmethod
@@ -164,6 +162,13 @@ class Integer(Number):
         assert retcode == 0
         return self
 
+    def to_str(self, base=10):
+        assert 2 <= base <= 62
+        l = gmp.mpz_sizeinbase(self.value, base) + 2
+        p = ffi.new('char[]', l)
+        gmp.mpz_get_str(p, base, self.value)
+        return ffi.string(p)
+
     def to_int(self):
         if gmp.mpz_fits_slong_p(self.value):
             return gmp.mpz_get_si(self.value)
@@ -171,10 +176,14 @@ class Integer(Number):
             raise OverflowError
 
     def repr(self):
-        return str(self.value)
+        return self.to_str()
 
     def eq(self, other):
-        return isinstance(other, Integer) and gmp.mpz_cmp(self.value, other.value) == 0
+        return (isinstance(other, Integer) and
+                gmp.mpz_cmp(self.value, other.value) == 0)
+
+    def __del__(self):
+        gmp.mpz_clear(self.value)
 
 
 class Real(Number):
@@ -223,23 +232,80 @@ class Complex(Number):
 
 
 class Rational(Number):
-    def __init__(self, value):
-        # assert isinstance(value, mpq)
+    def __init__(self, num, den):
+        assert isinstance(num, int) and isinstance(den, int)
+        if den < 0:
+            num, den = -1 * num, -1 * den
         Number.__init__(self)
-        self.value = value
+        self.value = ffi.new('mpq_t')
+        gmp.mpq_init(self.value)
+        gmp.mpq_set_si(self.value, num, den)
+        gmp.mpq_canonicalize(self.value)
 
     @classmethod
     def from_float(cls, value):
         assert isinstance(value, float)
-        pass
+        self = object.__new__(cls)
+        Number.__init__(self)
+        self.value = ffi.new('mpq_t')
+        gmp.mpq_init(self.value)
+        gmp.mpq_set_d(self.value, value)
+        return self
+
+    def to_float(self):
+        return gmp.mpq_get_d(self.value)
+
+    @classmethod
+    def from_str(cls, value, base=10):
+        assert isinstance(value, str)
+        self = object.__new__(cls)
+        Number.__init__(self)
+        self.value = ffi.new('mpq_t')
+        gmp.mpq_init(self.value)
+        retcode = gmp.mpq_set_str(self.value, value, base)
+        assert retcode == 0
+        gmp.mpq_canonicalize(self.value)
+        return self
+
+    def to_str(self, base=10):
+        assert 2 <= base <= 62
+        l = (gmp.mpz_sizeinbase(gmp.mpq_numref(self.value), base) +
+             gmp.mpz_sizeinbase(gmp.mpq_denref(self.value), base) + 3)
+        p = ffi.new('char[]', l)
+        gmp.mpq_get_str(p, base, self.value)
+        return ffi.string(p)
 
     @classmethod
     def from_ints(cls, num, den):
-        assert isinstance(value, num) and isinstance(value, den)
-        pass
+        assert isinstance(num, int) and isinstance(den, int)
+        if den < 0:
+            num, den = -1 * num, -1 * den
+        self = object.__new__(cls)
+        Number.__init__(self)
+        self.value = ffi.new('mpq_t')
+        gmp.mpq_init(self.value)
+        gmp.mpq_set_si(self.value, num, den)
+        gmp.mpq_canonicalize(self.value)
+        return self
+
+    def num(self):
+        return Integer.from_mpz(gmp.mpq_numref(self.value))
+
+    def den(self):
+        return Integer.from_mpz(gmp.mpq_numref(self.value))
 
     def to_ints(self):
-        pass
+        return self.num(), self.den()
+
+    def repr(self):
+        return self.to_str()
+
+    def __del__(self):
+        gmp.mpq_clear(self.value)
+
+    def eq(self, other):
+        return (isinstance(other, Rational) and
+                gmp.mpq_equal(self.value, other.value) != 0)
 
 
 def fully_qualified_symbol_name(name):

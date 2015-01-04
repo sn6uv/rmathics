@@ -6,7 +6,7 @@ try:
 except ImportError:
     rpython = None
 
-from rmathics.expression import Expression, Symbol, String, Integer
+from rmathics.expression import Expression, Symbol, String, Integer, Rational
 from rmathics.definitions import Definitions
 from rmathics.parser import parse
 from rmathics.evaluation import evaluate
@@ -18,6 +18,7 @@ def entry_point(argv):
     # print(parse("1 + 2 + \:0030"))
     # print(parse("\\[Theta]", definitions))
     assert Expression(Symbol('Sin'), Integer(1)).eq(Expression(Symbol('Sin'), Integer(1)))
+    assert Rational.from_float(0.5).to_float() == 0.5
 
     # definitions.set_attributes('Global`f', ['Flat'])
     # # expr = Expression(Symbol('Global`f'), Expression(Symbol('Global`f'), Integer(1), Integer(2)), Integer(3), Integer(4))
