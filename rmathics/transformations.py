@@ -74,7 +74,7 @@ def thread(expr, head=Symbol('System`List')):
 
     # thread over args
     leaves = []
-    for i in xrange(thread_len):
+    for i in range(thread_len):
         expr = Expression(exprhead)
         expr.leaves = [arg[i] for arg in new_args]
         leaves.append(expr)

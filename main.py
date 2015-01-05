@@ -6,6 +6,11 @@ try:
 except ImportError:
     rpython = None
 
+try:
+    input = raw_input
+except NameError:
+    pass
+
 from rmathics.expression import Expression, Symbol, String, Integer, Rational
 from rmathics.definitions import Definitions
 from rmathics.parser import parse
@@ -32,11 +37,11 @@ def entry_point(argv):
     expr, messages = parse('Global`g[{a,b,c}, x]', definitions)
     result, message = evaluate(expr, definitions)
 
-    print result.repr()
+    print(result.repr())
 
     if not rpython:
         while True:
-            x = raw_input(">> ")
+            x = input(">> ")
             expr, messages = parse(x, definitions)
             for message in messages:
                 print(message)

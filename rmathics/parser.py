@@ -195,8 +195,7 @@ def prelex(s, messages):
     Converts character codes to characters E.g. \.7A -> z, \:004a -> J
     and longnames to characters e.g. \[Theta]
     """
-    if isinstance(s, unicode):
-        s = str(s)
+    s = str(s)
     assert isinstance(s, str)
     hexdigits = '0123456789abcdefABCDEF'
     replacements = []
