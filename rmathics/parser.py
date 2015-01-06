@@ -278,117 +278,110 @@ class ParseError(TranslateError):
     #     return "Parse error at or near token %s." % str(self.token)
 
 
-prefix_operators = {
-    # 'Del': ['Del'],
-    # 'Square': ['Square'],
-    # 'ForAll': ['ForAll'],
-    # 'Exists': ['Exists'],
-    # 'NotExists': ['NotExists'],
-}
+prefix_operators = (
+    # ('Del', ['Del']),
+    # ('Square', ['Square']),
+    # ('ForAll', ['ForAll']),
+    # ('Exists', ['Exists']),
+    # ('NotExists', ['NotExists']),
+)
 
-infix_operators = {
-    'PatternTest': ['PatternTest'],
-    'Apply': ['Apply1'],
-    'Map': ['Map'],
-    'MapAll': ['MapAll'],
-    # 'PlusMinus': ['PlusMinus'],
-    # 'MinusPlus': ['MinusPlus'],
-    # 'RightTee': ['RightTee'],
-    # 'DoubleRightTee': ['DoubleRightTee'],
-    'Power': ['Power'],
-    # 'LeftTee': ['LeftTee'],
-    # 'DoubleLeftTee': ['DoubleLeftTee'],
-    # 'Implies': ['Implies'],
-    # 'SuchThat': ['SuchThat'],
-    'Condition': ['Condition'],
-    'Rule': ['op_Rule'], # , 'Rule'],
-    'RuleDelayed': ['op_RuleDelayed'], #, 'RuleDelayed'],
-    'ReplaceAll': ['ReplaceAll'],
-    'ReplaceRepeated': ['ReplaceRepeated'],
-    'AddTo': ['AddTo'],
-    'SubtractFrom': ['SubtractFrom'],
-    'TimesBy': ['TimesBy'],
-    'DivideBy': ['DivideBy'],
-    # 'Therefore': ['Therefore'],
-    # 'Because': ['Because'],
-    'UpSet': ['UpSet'],
-    'UpSetDelayed': ['UpSetDelayed'],
-}
+infix_operators = (
+    ('PatternTest', ['PatternTest']),
+    ('Apply', ['Apply1']),
+    ('Map', ['Map']),
+    ('MapAll', ['MapAll']),
+    # ('PlusMinus', ['PlusMinus']),
+    # ('MinusPlus', ['MinusPlus']),
+    # ('RightTee', ['RightTee']),
+    # ('DoubleRightTee', ['DoubleRightTee']),
+    ('Power', ['Power']),
+    # ('LeftTee', ['LeftTee']),
+    # ('DoubleLeftTee', ['DoubleLeftTee']),
+    # ('Implies', ['Implies']),
+    # ('SuchThat', ['SuchThat']),
+    ('Condition', ['Condition']),
+    ('Rule', ['op_Rule']), # , 'Rule']),
+    ('RuleDelayed', ['op_RuleDelayed']), #, 'RuleDelayed']),
+    ('ReplaceAll', ['ReplaceAll']),
+    ('ReplaceRepeated', ['ReplaceRepeated']),
+    ('AddTo', ['AddTo']),
+    ('SubtractFrom', ['SubtractFrom']),
+    ('TimesBy', ['TimesBy']),
+    ('DivideBy', ['DivideBy']),
+    # ('Therefore', ['Therefore']),
+    # ('Because', ['Because']),
+    ('UpSet', ['UpSet']),
+    ('UpSetDelayed', ['UpSetDelayed']),
+)
 
-flat_infix_operators = {
-    'StringJoin': ['StringJoin'],
-    # 'SmallCircle': ['SmallCircle'],
-    # 'CircleDot': ['CircleDot'],
-    'NonCommutativeMultiply': ['NonCommutativeMultiply'],
-    # 'Cross': ['Cross'],
-    'Dot': ['RawDot'],
-    'Plus': ['Plus'],
-    # 'Intersection': ['Intersection'],
-    # 'Union': ['Union'],
-    # 'Diamond': ['Diamond'],
-    # 'Wedge': ['Wedge'],
-    # 'Vee': ['Vee'],
-    # 'CircleTimes': ['CircleTimes'],
-    # 'CirclePlus': ['CirclePlus'],
-    # 'CircleMinus': ['CircleMinus'],
-    # 'CenterDot': ['CenterDot'],
-    # 'VerticalTilde': ['VerticalTilde'],
-    # 'Coproduct': ['Coproduct'],
-    # 'Cap': ['Cap'],
-    # 'Cup': ['Cup'],
-    # 'Star': ['Star'],
-    'Backslash': ['RawBackslash'],
-    # 'VerticalBar': ['VerticalBar'],
-    # 'NotVerticalBar': ['NotVerticalBar'],
-    # 'DoubleVerticalBar': ['DoubleVerticalBar'],
-    # 'NotDoubleVerticalBar': ['NotDoubleVerticalBar'],
-    'SameQ': ['SameQ'],
-    'UnsameQ': ['UnsameQ'],
-    # 'Element': ['Element'],
-    # 'NotElement': ['NotElement'],
-    # 'Subset': ['Subset'],
-    # 'Superset': ['Superset'],
-    'And': ['op_And'], #, 'op_And'],
-    # 'Nand': ['Nand'],
-    # 'Xor': ['Xor'],
-    # 'Xnor': ['Xnor'],
-    'Or': ['op_Or'], #, 'Or'],
-    # 'Nor': ['Nor'],
-    # 'Equivalent': ['Equivalent'],
-    'Alternatives': ['Alternatives'],
-    'StringExpression': ['StringExpression'],
-    # 'Colon': ['Colon'],
-    # 'VerticalSeparator': ['VerticalSeparator'],
-}
+flat_infix_operators = (
+    ('StringJoin', ['StringJoin']),
+    # ('SmallCircle', ['SmallCircle']),
+    # ('CircleDot', ['CircleDot']),
+    ('NonCommutativeMultiply', ['NonCommutativeMultiply']),
+    # ('Cross', ['Cross']),
+    ('Dot', ['RawDot']),
+    ('Plus', ['Plus']),
+    # ('Intersection', ['Intersection']),
+    # ('Union', ['Union']),
+    # ('Diamond', ['Diamond']),
+    # ('Wedge', ['Wedge']),
+    # ('Vee', ['Vee']),
+    # ('CircleTimes', ['CircleTimes']),
+    # ('CirclePlus', ['CirclePlus']),
+    # ('CircleMinus', ['CircleMinus']),
+    # ('CenterDot', ['CenterDot']),
+    # ('VerticalTilde', ['VerticalTilde']),
+    # ('Coproduct', ['Coproduct']),
+    # ('Cap', ['Cap']),
+    # ('Cup', ['Cup']),
+    # ('Star', ['Star']),
+    ('Backslash', ['RawBackslash']),
+    # ('VerticalBar', ['VerticalBar']),
+    # ('NotVerticalBar', ['NotVerticalBar']),
+    # ('DoubleVerticalBar', ['DoubleVerticalBar']),
+    # ('NotDoubleVerticalBar', ['NotDoubleVerticalBar']),
+    ('SameQ', ['SameQ']),
+    ('UnsameQ', ['UnsameQ']),
+    # ('Element', ['Element']),
+    # ('NotElement', ['NotElement']),
+    # ('Subset', ['Subset']),
+    # ('Superset', ['Superset']),
+    ('And', ['op_And']), #, 'op_And']),
+    # ('Nand', ['Nand']),
+    # ('Xor', ['Xor']),
+    # ('Xnor', ['Xnor']),
+    ('Or', ['op_Or']), #, 'Or']),
+    # ('Nor', ['Nor']),
+    # ('Equivalent', ['Equivalent']),
+    ('Alternatives', ['Alternatives']),
+    ('StringExpression', ['StringExpression']),
+    # ('Colon', ['Colon']),
+    # ('VerticalSeparator', ['VerticalSeparator']),
+)
 
-postfix_operators = {
-    'Increment': ['Increment'],
-    'Decrement': ['Decrement'],
-    'Factorial': ['Factorial'],
-    'Factorial2': ['Factorial2'],
-    # 'Conjugate': ['Conjugate'],
-    # 'Transpose': ['Transpose'],
-    # 'ConjugateTranspose': ['ConjugateTranspose', 'HermitianConjugate'],
-    'Repeated': ['Repeated'],
-    'RepeatedNull': ['RepeatedNull'],
-    'Function': ['RawAmpersand'],
-}
+postfix_operators = (
+    ('Increment', ['Increment']),
+    ('Decrement', ['Decrement']),
+    ('Factorial', ['Factorial']),
+    ('Factorial2', ['Factorial2']),
+    # ('Conjugate', ['Conjugate']),
+    # ('Transpose', ['Transpose']),
+    # ('ConjugateTranspose', ['ConjugateTranspose', 'HermitianConjugate']),
+    ('Repeated', ['Repeated']),
+    ('RepeatedNull', ['RepeatedNull']),
+    ('Function', ['RawAmpersand']),
+)
 
-inequality_operators = {
-    'Equal': ['op_Equal'], #, 'LongEqual', 'Equal'],
-    'Unequal': ['op_Unequal'], #, 'NotEqual'],
-    'Greater': ['Greater'],
-    'Less': ['Less'],
-    'GreaterEqual': ['op_GreaterEqual'], #, 'GreaterEqual', 'GreaterSlantEqual'],
-    'LessEqual': ['op_LessEqual'], #, 'LessEqual', 'LessSlantEqual'],
-}
-
-all_operator_names = (
-    list(prefix_operators.keys()) +
-    list(infix_operators.keys()) +
-    list(flat_infix_operators.keys()) +
-    list(postfix_operators.keys()) +
-    list(inequality_operators.keys()))
+inequality_operators = (
+    ('Equal', ['op_Equal']), #, 'LongEqual', 'Equal']),
+    ('Unequal', ['op_Unequal']), #, 'NotEqual']),
+    ('Greater', ['Greater']),
+    ('Less', ['Less']),
+    ('GreaterEqual', ['op_GreaterEqual']), #, 'GreaterEqual', 'GreaterSlantEqual']),
+    ('LessEqual', ['op_LessEqual']), #, 'LessEqual', 'LessSlantEqual']),
+)
 
 precedence = (
     ('right', ['FormBox']),
@@ -577,22 +570,22 @@ def out_2(state, p):
 #     t.lexer.begin('INITIAL')
 #     return t
 
-for prefix_op in prefix_operators:
+for prefix_op, prefix_tokens in prefix_operators:
     code = """def %s_prefix(state, p):
     return Expression(Symbol('System`%s'), p[1])""" % (prefix_op, prefix_op)
-    for token in prefix_operators[prefix_op]:
+    for token in prefix_tokens:
         code = ("@pg.production('expr : %s expr')\n" % token) + code
     exec(code)
 
-for infix_op in infix_operators:
+for infix_op, infix_tokens in infix_operators:
     code = """def %s_infix(state, p):
     return Expression(Symbol('System`%s'), p[0], p[2])""" % (
         infix_op, infix_op)
-    for token in infix_operators[infix_op]:
+    for token in infix_tokens:
         code = ("@pg.production('expr : expr %s expr')\n" % token) + code
     exec(code)
 
-for flat_infix_op in flat_infix_operators:
+for flat_infix_op, flat_infix_tokens in flat_infix_operators:
     code = """def %s_flat_infix(state, p):
     args = []
     if p[0].head.same(Symbol('System`%s')):
@@ -607,18 +600,18 @@ for flat_infix_op in flat_infix_operators:
     expr.leaves = args
     return expr""" % (
         flat_infix_op, flat_infix_op, flat_infix_op, flat_infix_op)
-    for token in flat_infix_operators[flat_infix_op]:
+    for token in flat_infix_tokens:
         code = ("@pg.production('expr : expr %s expr')\n" % token) + code
     exec(code)
 
-for postfix_op in postfix_operators:
+for postfix_op, postfix_tokens in postfix_operators:
     code = """def %s_postfix(state, p):
     return Expression(Symbol('System`%s'), p[0])""" % (postfix_op, postfix_op)
-    for token in postfix_operators[postfix_op]:
+    for token in postfix_tokens:
         code = ("@pg.production('expr : expr %s')\n" % token) + code
     exec(code)
 
-for ineq_op in inequality_operators:
+for ineq_op, ineq_tokens in inequality_operators:
     code = """def %s_inequality(state, p):
         head = p[0].head
         ineq_op = 'System`%s'
@@ -643,7 +636,7 @@ for ineq_op in inequality_operators:
         else:
             return Expression(Symbol(ineq_op), p[0], p[2])""" % (
         ineq_op, ineq_op)
-    for token in inequality_operators[ineq_op]:
+    for token in ineq_tokens:
         code = ("@pg.production('expr : expr %s expr')\n" % token) + code
     exec(code)
 
