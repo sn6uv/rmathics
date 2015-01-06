@@ -1,0 +1,161 @@
+python2 /home/angus/prog/pypy-2.4.0-src/rpython/bin/rpython --output=bin/rmathics minimal.py
+[translation:info] 2.7.9 (default, Dec 11 2014, 04:42:00)
+[translation:info] [GCC 4.9.2]
+[platform:msg] Set platform with 'host' cc=None, using cc='gcc'
+[translation:info] Translating target as defined by minimal
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/gcctest.c -o /tmp/usession-release-2.4.x-3/gcctest.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/gcctest.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/gcctest
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/gcctest.c -o /tmp/usession-release-2.4.x-3/gcctest.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/gcctest.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/gcctest
+[translation] translate.py configuration:
+[translation] [translate]
+[translation]     targetspec = minimal
+[translation] translation configuration:
+[translation] [translation]
+[translation]     gc = incminimark
+[translation]     gctransformer = framework
+[translation]     list_comprehension_operations = True
+[translation]     output = bin/rmathics
+[translation]     withsmallfuncsets = 5
+[translation:info] Annotating&simplifying...
+[17] {translation-task
+starting annotate
+[translation:info] with policy: rpython.annotator.policy.AnnotatorPolicy
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_0.c -o /tmp/usession-release-2.4.x-3/platcheck_0.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_0.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_0
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_1.c -o /tmp/usession-release-2.4.x-3/platcheck_1.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_1.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_1
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_2.c -o /tmp/usession-release-2.4.x-3/platcheck_2.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_2.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_2
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_3.c -o /tmp/usession-release-2.4.x-3/platcheck_3.o
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_4.c -o /tmp/usession-release-2.4.x-3/platcheck_4.o
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_5.c -o /tmp/usession-release-2.4.x-3/platcheck_5.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_5.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_5
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_6.c -o /tmp/usession-release-2.4.x-3/platcheck_6.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_6.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_6
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_7.c -o /tmp/usession-release-2.4.x-3/platcheck_7.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_7.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_7
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_8.c -o /tmp/usession-release-2.4.x-3/platcheck_8.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_8.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_8
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_9.c -o /tmp/usession-release-2.4.x-3/platcheck_9.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_9.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_9
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_10.c -o /tmp/usession-release-2.4.x-3/platcheck_10.o
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_11.c -o /tmp/usession-release-2.4.x-3/platcheck_11.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_11.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_11
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_12.c -o /tmp/usession-release-2.4.x-3/platcheck_12.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_12.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_12
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_13.c -o /tmp/usession-release-2.4.x-3/platcheck_13.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_13.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_13
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused -I/home/angus/prog/pypy-2.4.0-src/rpython/translator/c /tmp/usession-release-2.4.x-3/platcheck_14.c -o /tmp/usession-release-2.4.x-3/platcheck_14.o
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused -I/home/angus/prog/pypy-2.4.0-src/rpython/translator/c /home/angus/prog/pypy-2.4.0-src/rpython/translator/c/src/thread.c -o /tmp/usession-release-2.4.x-3/rpython/translator/c/src/thread.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_14.o /tmp/usession-release-2.4.x-3/rpython/translator/c/src/thread.o -pthread -Wl,--export-dynamic,--version-script=/tmp/usession-release-2.4.x-3/dynamic-symbols-0 -lrt -o /tmp/usession-release-2.4.x-3/platcheck_14
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_15.c -o /tmp/usession-release-2.4.x-3/platcheck_15.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_15.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_15
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_16.c -o /tmp/usession-release-2.4.x-3/platcheck_16.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_16.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_16
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_17.c -o /tmp/usession-release-2.4.x-3/platcheck_17.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_17.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_17
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_18.c -o /tmp/usession-release-2.4.x-3/platcheck_18.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_18.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_18
+[platform:execute] gcc -c -O3 -pthread -fomit-frame-pointer -Wall -Wno-unused /tmp/usession-release-2.4.x-3/platcheck_19.c -o /tmp/usession-release-2.4.x-3/platcheck_19.o
+[platform:execute] gcc /tmp/usession-release-2.4.x-3/platcheck_19.o -pthread -lrt -o /tmp/usession-release-2.4.x-3/platcheck_19
+[2a] translation-task}
+[Timer] Timings:
+[Timer] annotate                       --- 1.4 s
+[Timer] ========================================
+[Timer] Total:                         --- 1.4 s
+[translation:info] Error:
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/translator/goal/translate.py", line 316, in main
+[translation:info]     drv.proceed(goals)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/translator/driver.py", line 531, in proceed
+[translation:info]     return self._execute(goals, task_skip = self._maybe_skip())
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/translator/tool/taskengine.py", line 114, in _execute
+[translation:info]     res = self._do(goal, taskcallable, *args, **kwds)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/translator/driver.py", line 276, in _do
+[translation:info]     res = func()
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/translator/driver.py", line 313, in task_annotate
+[translation:info]     s = annotator.build_types(self.entry_point, self.inputtypes)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/annrpython.py", line 91, in build_types
+[translation:info]     return self.build_graph_types(flowgraph, inputcells, complete_now=complete_now)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/annrpython.py", line 145, in build_graph_types
+[translation:info]     self.complete()
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/annrpython.py", line 199, in complete
+[translation:info]     self.complete_pending_blocks()
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/annrpython.py", line 194, in complete_pending_blocks
+[translation:info]     self.processblock(graph, block)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/annrpython.py", line 342, in processblock
+[translation:info]     self.flowin(graph, block)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/annrpython.py", line 405, in flowin
+[translation:info]     self.consider_op(op)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/annrpython.py", line 596, in consider_op
+[translation:info]     resultcell = op.consider(self, *argcells)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/flowspace/operation.py", line 146, in consider
+[translation:info]     return impl(*other_args)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/unaryop.py", line 137, in simple_call
+[translation:info]     return self.call(simple_args(args_s))
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/unaryop.py", line 762, in call
+[translation:info]     return bookkeeper.pbc_call(self, args)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/bookkeeper.py", line 518, in pbc_call
+[translation:info]     results.append(desc.pycall(schedule, args, s_previous_result, op))
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/description.py", line 636, in pycall
+[translation:info]     s_init.call(args)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/unaryop.py", line 762, in call
+[translation:info]     return bookkeeper.pbc_call(self, args)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/bookkeeper.py", line 518, in pbc_call
+[translation:info]     results.append(desc.pycall(schedule, args, s_previous_result, op))
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/description.py", line 301, in pycall
+[translation:info]     result = self.specialize(inputcells, op)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/description.py", line 297, in specialize
+[translation:info]     return self.specializer(self, inputcells)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/specialize.py", line 80, in default_specialize
+[translation:info]     graph = funcdesc.cachedgraph(key, builder=builder)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/description.py", line 246, in cachedgraph
+[translation:info]     graph = self.buildgraph(alt_name, builder)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/annotator/description.py", line 209, in buildgraph
+[translation:info]     graph = translator.buildflowgraph(self.pyobj)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/translator/translator.py", line 54, in buildflowgraph
+[translation:info]     graph = build_flow(func)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/flowspace/objspace.py", line 42, in build_flow
+[translation:info]     ctx.build_flow()
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/flowspace/flowcontext.py", line 448, in build_flow
+[translation:info]     self.record_block(block)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/flowspace/flowcontext.py", line 456, in record_block
+[translation:info]     next_pos = self.handle_bytecode(next_pos)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/flowspace/flowcontext.py", line 548, in handle_bytecode
+[translation:info]     res = getattr(self, methodname)(oparg)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/flowspace/flowcontext.py", line 1023, in CALL_FUNCTION
+[translation:info]     self.call_function(oparg)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/flowspace/flowcontext.py", line 1020, in call_function
+[translation:info]     self.pushvalue(hlop.eval(self))
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/flowspace/operation.py", line 512, in eval
+[translation:info]     return sc(ctx, *args_w)
+[translation:info]    File "/home/angus/prog/pypy-2.4.0-src/rpython/flowspace/specialcase.py", line 36, in sc_locals
+[translation:info]     "A function calling locals() is not RPython.  "
+[translation:ERROR] Exception: A function calling locals() is not RPython.  Note that if you're translating code outside the PyPy repository, a likely cause is that py.test's --assert=rewrite mode is getting in the way.  You should copy the file pytest.ini from the root of the PyPy repository into your own project.
+[translation:ERROR] Processing block:
+[translation:ERROR]  block@3 is a <class 'rpython.flowspace.flowcontext.SpamBlock'>
+[translation:ERROR]  in (minimal:5)entry_point
+[translation:ERROR]  containing the following operations:
+[translation:ERROR]        v0 = simple_call((type ExternalCompilationInfo))
+[translation:ERROR]  --end--
+[translation] start debugger...
+> /home/angus/prog/pypy-2.4.0-src/rpython/flowspace/specialcase.py(36)sc_locals()
+-> "A function calling locals() is not RPython.  "
+Traceback (most recent call last):
+  File "/home/angus/prog/pypy-2.4.0-src/rpython/bin/rpython", line 20, in <module>
+    main()
+  File "/home/angus/prog/pypy-2.4.0-src/rpython/translator/goal/translate.py", line 323, in main
+    debug(True)
+  File "/home/angus/prog/pypy-2.4.0-src/rpython/translator/goal/translate.py", line 278, in debug
+    pdb_plus_show.start(tb)
+  File "/home/angus/prog/pypy-2.4.0-src/rpython/translator/tool/pdbplus.py", line 441, in start
+    fn(*args)
+  File "/home/angus/prog/pypy-2.4.0-src/rpython/translator/tool/pdbplus.py", line 25, in post_mortem
+    self.interaction(t.tb_frame, t)        
+  File "/usr/lib/python2.7/pdb.py", line 210, in interaction
+    self.cmdloop()
+  File "/usr/lib/python2.7/cmd.py", line 109, in cmdloop
+    self.preloop()
+  File "/home/angus/prog/pypy-2.4.0-src/rpython/translator/tool/pdbplus.py", line 29, in preloop
+    raise NoTTY("Cannot start the debugger when stdout is captured.")
+rpython.translator.tool.pdbplus.NoTTY: Cannot start the debugger when stdout is captured.
