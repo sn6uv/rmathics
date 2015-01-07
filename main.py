@@ -1,6 +1,6 @@
 import sys
 
-from rmathics.expression import int2Integer, str2Integer
+from rmathics.convert import int2Integer, str2Integer
 
 
 try:

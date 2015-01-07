@@ -15,12 +15,11 @@ The structure of things:
 from rply.token import BaseBox
 from rmathics.rpython_util import zip, all
 from rmathics.gmp import (
-    MPZ_STRUCT, c_mpz_init, c_mpz_clear, c_mpz_set_si, c_mpz_sizeinbase,
-    c_mpz_get_str, c_mpz_set_str, c_mpz_cmp
+    MPZ_STRUCT, c_mpz_init, c_mpz_clear, c_mpz_sizeinbase, c_mpz_get_str,
+    c_mpz_cmp
 )
 
-from rpython.rtyper.lltypesystem.lltype import free, malloc
-from rpython.rtyper.lltypesystem import rffi
+from rpython.rtyper.lltypesystem import rffi, lltype
 
 
 class BaseExpression(BaseBox):
@@ -142,20 +141,20 @@ class Number(Atom):
 class Integer(Number):
     def __init__(self):
         Number.__init__(self)
-        self.value = malloc(MPZ_STRUCT, flavor='raw')
+        self.value = lltype.malloc(MPZ_STRUCT, flavor='raw')
         c_mpz_init(self.value)
 
     def __del__(self):
         c_mpz_clear(self.value)
-        free(self.value, flavor='raw')
+        lltype.free(self.value, flavor='raw')
 
     def to_str(self, base=10):
         assert 2 <= base <= 62
         l = c_mpz_sizeinbase(self.value, rffi.r_int(base)) + 2
-        p = malloc(rffi.CCHARP.TO, l, flavor='raw')
+        p = lltype.malloc(rffi.CCHARP.TO, l, flavor='raw')
         c_mpz_get_str(p, rffi.r_int(base), self.value)
         result = rffi.charp2str(p)
-        free(p, flavor='raw')
+        lltype.free(p, flavor='raw')
         return result
 
     def repr(self):
@@ -164,24 +163,6 @@ class Integer(Number):
     def same(self, other):
         return (isinstance(other, Integer) and
                 c_mpz_cmp(self.value, other.value) == 0)
-
-
-def int2Integer(value):
-    assert isinstance(value, int)
-    result = Integer()
-    c_mpz_set_si(result.value, rffi.r_long(value))
-    return result
-
-
-def str2Integer(value, base=10):
-    assert isinstance(value, str)
-    assert 2 <= base <= 62
-    result = Integer()
-    p = rffi.str2charp(value)
-    retcode = c_mpz_set_str(result.value, p, rffi.r_int(base))
-    assert retcode == 0
-    rffi.free_charp(p)
-    return result
 
 
 class Real(Number):
