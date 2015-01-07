@@ -17,7 +17,8 @@ from rmathics.rpython_util import zip, all
 from rmathics.gmp import (
     MPZ_STRUCT, c_mpz_init, c_mpz_clear, c_mpz_sizeinbase, c_mpz_get_str,
     c_mpz_cmp,
-    MPQ_STRUCT, c_mpq_init, c_mpq_clear, c_mpq_equal
+    MPQ_STRUCT, c_mpq_init, c_mpq_clear, c_mpq_equal, c_mpq_get_str,
+    c_mpq_get_num, c_mpq_get_den, c_mpq_get_d
 )
 
 from rpython.rtyper.lltypesystem import rffi, lltype
@@ -225,23 +226,28 @@ class Rational(Number):
         return (isinstance(other, Rational) and
                 c_mpq_equal(self.value, other.value) != 0)
 
-    # def to_str(self, base=10):
-    #     l = c_mpz_sizeinbase(self.value, rffi.r_int(base)) + 2
-    #     p = lltype.malloc(rffi.CCHARP.TO, l, flavor='raw')
-    #     c_mpz_get_str(p, rffi.r_int(base), self.value)
-    #     result = rffi.charp2str(p)
-    #     lltype.free(p, flavor='raw')
-    #     return result
+    def to_str(self, base=10):
+        assert 2 <= base <= 62
 
-    #     assert 2 <= base <= 62
-    #     l = (gmp.mpz_sizeinbase(gmp.mpq_numref(self.value), base) +
-    #          gmp.mpz_sizeinbase(gmp.mpq_denref(self.value), base) + 3)
-    #     p = ffi.new('char[]', l)
-    #     gmp.mpq_get_str(p, base, self.value)
-    #     return ffi.string(p)
+        # find the required length
+        num = lltype.malloc(MPZ_STRUCT, flavor='raw')
+        den = lltype.malloc(MPZ_STRUCT, flavor='raw')
+        c_mpq_get_num(num, self.value)
+        c_mpq_get_den(den, self.value)
+        l = (c_mpz_sizeinbase(num, rffi.r_int(base)) +
+             c_mpz_sizeinbase(den, rffi.r_int(base)) + 3)
+        lltype.free(num, flavor='raw')
+        lltype.free(den, flavor='raw')
 
-    # def to_float(self):
-    #     return gmp.mpq_get_d(self.value)
+        # get the str
+        p = lltype.malloc(rffi.CCHARP.TO, l, flavor='raw')
+        c_mpq_get_str(p, base, self.value)
+        result = rffi.charp2str(p)
+        lltype.free(p, flavor='raw')
+        return result
+
+    def to_float(self):
+        return c_mpq_get_d(self.value)
 
     # @classmethod
     # def from_str(cls, value, base=10):

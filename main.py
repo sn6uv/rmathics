@@ -17,6 +17,10 @@ def entry_point(argv):
     x = int2Rational(1, 2)
     y = float2Rational(0.5)
     assert x.same(y)
+    x = int2Rational(2, 4)
+    assert x.same(y)
+    print x.to_str()
+    print x.to_float()
 
     return 0
 
