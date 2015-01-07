@@ -3,8 +3,8 @@ from rpython.rtyper.lltypesystem import rffi, lltype
 
 
 info = ExternalCompilationInfo(
-    includes=['gmp.h'],
-    libraries=['gmp']
+    includes=['gmp.h', 'mpfr.h'],
+    libraries=['mpfr', 'gmp']   # mpfr should be linked first (according to MPFR docs)
 )
 
 
@@ -67,3 +67,13 @@ c_mpq_get_str = rffi.llexternal(
     compilation_info=info)
 c_mpq_get_d = rffi.llexternal(
     '__gmpq_get_d', [MPQ_PTR], rffi.DOUBLE, compilation_info=info)
+
+## MPFR
+MPFR_STRUCT = rffi.COpaque('__mpfr_struct', compilation_info=info)
+MPFR_PTR = lltype.Ptr(MPFR_STRUCT)
+MPFR_PREC_T = rffi.LONG
+
+c_mpfr_init2 = rffi.llexternal(
+    'mpfr_init2', [MPFR_PTR, MPFR_PREC_T], lltype.Void, compilation_info=info)
+c_mpfr_clear = rffi.llexternal(
+    'mpfr_init2', [MPFR_PTR], lltype.Void, compilation_info=info)

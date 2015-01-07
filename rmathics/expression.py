@@ -18,7 +18,8 @@ from rmathics.gmp import (
     MPZ_STRUCT, c_mpz_init, c_mpz_clear, c_mpz_sizeinbase, c_mpz_get_str,
     c_mpz_cmp,
     MPQ_STRUCT, c_mpq_init, c_mpq_clear, c_mpq_equal, c_mpq_get_str,
-    c_mpq_get_num, c_mpq_get_den, c_mpq_get_d
+    c_mpq_get_num, c_mpq_get_den, c_mpq_get_d,
+    MPFR_STRUCT, c_mpfr_init2, c_mpfr_clear,
 )
 
 from rpython.rtyper.lltypesystem import rffi, lltype
@@ -168,10 +169,14 @@ class Integer(Number):
 
 
 class Real(Number):
-    def __init__(self, value):
-        # assert isinstance(value, mpfr)
-        Number.__init__(self)
-        self.value = value
+    def __init__(self, prec):
+        assert isinstance(prec, int)
+        self.value = lltype.malloc(MPFR_STRUCT, flavor='raw')
+        c_mpfr_init2(self.value, rffi.r_long(prec))
+
+    def __clear__(self):
+        c_mpfr_clear(self.value)
+        lltype.free(self.value, flavor='raw')
 
     @classmethod
     def from_float(cls, value):

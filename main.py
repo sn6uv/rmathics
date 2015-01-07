@@ -1,6 +1,7 @@
 import sys
 
 from rmathics.convert import int2Integer, str2Integer, int2Rational, float2Rational
+from rmathics.expression import Real
 
 
 try:
@@ -21,6 +22,8 @@ def entry_point(argv):
     assert x.same(y)
     print x.to_str()
     print x.to_float()
+
+    x = Real(53)
 
     return 0
 
