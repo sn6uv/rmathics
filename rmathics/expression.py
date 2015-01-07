@@ -19,9 +19,10 @@ from rmathics.gmp import (
     c_mpz_cmp,
     MPQ_STRUCT, c_mpq_init, c_mpq_clear, c_mpq_equal, c_mpq_get_str,
     c_mpq_get_num, c_mpq_get_den, c_mpq_get_d,
-    MPFR_STRUCT, c_mpfr_init2, c_mpfr_clear,
+    MPF_STRUCT, MP_EXP_TP, c_mpf_init2, c_mpf_clear, c_mpf_get_str,
 )
 
+from math import log
 from rpython.rtyper.lltypesystem import rffi, lltype
 
 
@@ -170,18 +171,27 @@ class Integer(Number):
 
 class Real(Number):
     def __init__(self, prec):
-        assert isinstance(prec, int)
-        self.value = lltype.malloc(MPFR_STRUCT, flavor='raw')
-        c_mpfr_init2(self.value, rffi.r_long(prec))
+        self.prec = prec
+        self.value = lltype.malloc(MPF_STRUCT, flavor='raw')
+        c_mpf_init2(self.value, rffi.r_ulong(prec))
 
     def __clear__(self):
-        c_mpfr_clear(self.value)
+        c_mpf_clear(self.value)
         lltype.free(self.value, flavor='raw')
 
-    @classmethod
-    def from_float(cls, value):
-        assert isinstance(value, float)
-        pass
+    def to_str(self, base=10):
+        assert 2 <= base <= 62
+        exp = lltype.malloc(MP_EXP_TP.TO, flavor='raw')
+        n = int(self.prec * log(2) / log(10))
+        l = n + 2
+        p = lltype.malloc(rffi.CCHARP.TO, l, flavor='raw')
+        c_mpf_get_str(p, exp, rffi.r_int(base), rffi.r_size_t(n), self.value)
+        result = rffi.charp2str(p)
+        lltype.free(p, flavor='raw')
+        lltype.free(exp, flavor='raw')
+        # TODO format result
+        return result
+
 
     @classmethod
     def from_int(cls, value):

@@ -1,8 +1,9 @@
 from rpython.rtyper.lltypesystem import rffi
 
-from rmathics import Integer, Rational
+from rmathics import Integer, Rational, Real
 from rmathics.gmp import (
     c_mpz_set_si, c_mpz_set_str, c_mpq_set_si, c_mpq_set_d, c_mpq_canonicalize,
+    c_mpf_set_d,
 )
 
 
@@ -41,4 +42,9 @@ def float2Rational(value):
     result = Rational()
     c_mpq_set_d(result.value, value)
     c_mpq_canonicalize(result.value)
+    return result
+
+def float2Real(value, prec):
+    result = Real(prec)
+    c_mpf_set_d(result.value, value)
     return result
