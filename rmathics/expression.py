@@ -16,7 +16,8 @@ from rply.token import BaseBox
 from rmathics.rpython_util import zip, all
 from rmathics.gmp import (
     MPZ_STRUCT, c_mpz_init, c_mpz_clear, c_mpz_sizeinbase, c_mpz_get_str,
-    c_mpz_cmp
+    c_mpz_cmp,
+    MPQ_STRUCT, c_mpq_init, c_mpq_clear, c_mpq_equal
 )
 
 from rpython.rtyper.lltypesystem import rffi, lltype
@@ -211,26 +212,33 @@ class Complex(Number):
 
 
 class Rational(Number):
-    def __init__(self, num, den):
-        pass
-        # assert isinstance(num, int) and isinstance(den, int)
-        # if den < 0:
-        #     num, den = -1 * num, -1 * den
-        # Number.__init__(self)
-        # self.value = ffi.new('mpq_t')
-        # gmp.mpq_init(self.value)
-        # gmp.mpq_set_si(self.value, num, den)
-        # gmp.mpq_canonicalize(self.value)
+    def __init__(self):
+        Number.__init__(self)
+        self.value = lltype.malloc(MPQ_STRUCT, flavor='raw')
+        c_mpq_init(self.value)
 
-    # @classmethod
-    # def from_float(cls, value):
-    #     assert isinstance(value, float)
-    #     self = object.__new__(cls)
-    #     Number.__init__(self)
-    #     self.value = ffi.new('mpq_t')
-    #     gmp.mpq_init(self.value)
-    #     gmp.mpq_set_d(self.value, value)
-    #     return self
+    def __del__(self):
+        c_mpq_clear(self.value)
+        lltype.free(self.value, flavor='raw')
+
+    def same(self, other):
+        return (isinstance(other, Rational) and
+                c_mpq_equal(self.value, other.value) != 0)
+
+    # def to_str(self, base=10):
+    #     l = c_mpz_sizeinbase(self.value, rffi.r_int(base)) + 2
+    #     p = lltype.malloc(rffi.CCHARP.TO, l, flavor='raw')
+    #     c_mpz_get_str(p, rffi.r_int(base), self.value)
+    #     result = rffi.charp2str(p)
+    #     lltype.free(p, flavor='raw')
+    #     return result
+
+    #     assert 2 <= base <= 62
+    #     l = (gmp.mpz_sizeinbase(gmp.mpq_numref(self.value), base) +
+    #          gmp.mpz_sizeinbase(gmp.mpq_denref(self.value), base) + 3)
+    #     p = ffi.new('char[]', l)
+    #     gmp.mpq_get_str(p, base, self.value)
+    #     return ffi.string(p)
 
     # def to_float(self):
     #     return gmp.mpq_get_d(self.value)
@@ -247,27 +255,6 @@ class Rational(Number):
     #     gmp.mpq_canonicalize(self.value)
     #     return self
 
-    # def to_str(self, base=10):
-    #     assert 2 <= base <= 62
-    #     l = (gmp.mpz_sizeinbase(gmp.mpq_numref(self.value), base) +
-    #          gmp.mpz_sizeinbase(gmp.mpq_denref(self.value), base) + 3)
-    #     p = ffi.new('char[]', l)
-    #     gmp.mpq_get_str(p, base, self.value)
-    #     return ffi.string(p)
-
-    # @classmethod
-    # def from_ints(cls, num, den):
-    #     assert isinstance(num, int) and isinstance(den, int)
-    #     if den < 0:
-    #         num, den = -1 * num, -1 * den
-    #     self = object.__new__(cls)
-    #     Number.__init__(self)
-    #     self.value = ffi.new('mpq_t')
-    #     gmp.mpq_init(self.value)
-    #     gmp.mpq_set_si(self.value, num, den)
-    #     gmp.mpq_canonicalize(self.value)
-    #     return self
-
     # def num(self):
     #     return Integer.from_mpz(gmp.mpq_numref(self.value))
 
@@ -279,13 +266,6 @@ class Rational(Number):
 
     # def repr(self):
     #     return self.to_str()
-
-    # def __del__(self):
-    #     gmp.mpq_clear(self.value)
-
-    # def same(self, other):
-    #     return (isinstance(other, Rational) and
-    #             gmp.mpq_equal(self.value, other.value) != 0)
 
 
 def fully_qualified_symbol_name(name):
