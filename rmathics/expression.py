@@ -249,29 +249,8 @@ class Rational(Number):
     def to_float(self):
         return c_mpq_get_d(self.value)
 
-    # @classmethod
-    # def from_str(cls, value, base=10):
-    #     assert isinstance(value, str)
-    #     self = object.__new__(cls)
-    #     Number.__init__(self)
-    #     self.value = ffi.new('mpq_t')
-    #     gmp.mpq_init(self.value)
-    #     retcode = gmp.mpq_set_str(self.value, value, base)
-    #     assert retcode == 0
-    #     gmp.mpq_canonicalize(self.value)
-    #     return self
-
-    # def num(self):
-    #     return Integer.from_mpz(gmp.mpq_numref(self.value))
-
-    # def den(self):
-    #     return Integer.from_mpz(gmp.mpq_numref(self.value))
-
-    # def to_ints(self):
-    #     return self.num(), self.den()
-
-    # def repr(self):
-    #     return self.to_str()
+    def repr(self):
+        return self.to_str()
 
 
 def fully_qualified_symbol_name(name):
