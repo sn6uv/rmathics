@@ -77,6 +77,8 @@ c_mpf_clear = rffi.llexternal(
 
 c_mpf_set_d = rffi.llexternal(
     '__gmpf_set_d', [MPF_PTR, rffi.DOUBLE], lltype.Void, compilation_info=info)
+c_mpf_get_d = rffi.llexternal(
+    '__gmpf_get_d', [MPF_PTR], rffi.DOUBLE, compilation_info=info)
 
 c_mpf_get_str = rffi.llexternal(
     '__gmpf_get_str', [rffi.CCHARP, MP_EXP_TP, rffi.INT, rffi.SIZE_T, MPF_PTR], rffi.CCHARP,

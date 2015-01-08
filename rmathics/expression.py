@@ -20,6 +20,7 @@ from rmathics.gmp import (
     MPQ_STRUCT, c_mpq_init, c_mpq_clear, c_mpq_equal, c_mpq_get_str,
     c_mpq_get_num, c_mpq_get_den, c_mpq_get_d,
     MPF_STRUCT, MP_EXP_TP, c_mpf_init2, c_mpf_clear, c_mpf_get_str,
+    c_mpf_get_d,
 )
 
 from math import log
@@ -192,14 +193,8 @@ class Real(Number):
         # TODO format result
         return result
 
-
-    @classmethod
-    def from_int(cls, value):
-        assert isinstance(value, int)
-        pass
-
     def to_float(self):
-        pass
+        return c_mpf_get_d(self.value)
 
 
 class Complex(Number):

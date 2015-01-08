@@ -25,7 +25,7 @@ def entry_point(argv):
 
     x = Real(53)
     y = float2Real(0.543214, 53)
-    print(y.to_str())
+    print(y.to_float())
 
     return 0
 
