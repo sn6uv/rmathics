@@ -142,6 +142,9 @@ class Number(Atom):
     def is_number(self):
         return True
 
+    def repr(self):
+        return self.to_str()
+
 
 class Integer(Number):
     def __init__(self):
@@ -162,9 +165,6 @@ class Integer(Number):
         lltype.free(p, flavor='raw')
         return result
 
-    def repr(self):
-        return self.to_str()
-
     def same(self, other):
         return (isinstance(other, Integer) and
                 c_mpz_cmp(self.value, other.value) == 0)
@@ -172,6 +172,7 @@ class Integer(Number):
 
 class Real(Number):
     def __init__(self, prec):
+        Number.__init__(self)
         self.prec = prec
         self.value = lltype.malloc(MPF_STRUCT, flavor='raw')
         c_mpf_init2(self.value, rffi.r_ulong(prec))
@@ -286,9 +287,6 @@ class Rational(Number):
 
     def to_float(self):
         return c_mpq_get_d(self.value)
-
-    def repr(self):
-        return self.to_str()
 
 
 def fully_qualified_symbol_name(name):

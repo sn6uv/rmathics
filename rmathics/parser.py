@@ -3,9 +3,10 @@ from rply.token import BaseBox, Token
 from math import log10
 
 from rmathics.expression import (
-    BaseExpression, Expression, Integer, Real, Symbol, String, Rational)
+    BaseExpression, Expression, Integer, Symbol, String, Rational)
 from rmathics.characters import letters, letterlikes, named_characters
 from rmathics.rpython_util import replace
+from rmathics.convert import int2Integer, str2Integer, str2Real
 
 try:
     import rpython
@@ -496,9 +497,10 @@ def main(state, p):
 def number(state, p):
     value = p[0].getstr()
     if '.' in value:
-        return Real.from_str(value)
+        # TODO precision
+        return str2Real(value, 53)
     else:
-        return Integer.from_str(value)
+        return str2Integer(value)
 
 @pg.production('expr : string')
 def string(state, p):
@@ -513,14 +515,14 @@ def string(state, p):
 def slotseq(state, p):
     s = p[0].getstr()
     value = 1 if len(s) == 2 else int(s[2:])
-    return Expression(Symbol('System`SlotSequence'), Integer(value))
+    return Expression(Symbol('System`SlotSequence'), int2Integer(value))
 
 @pg.production('expr : slotsingle_1')
 @pg.production('expr : slotsingle_2')
 def slotsingle(state, p):
     s = p[0].getstr()
     value = 1 if len(s) == 1 else int(s[1:])
-    return Expression(Symbol('System`Slot'), Integer(value))
+    return Expression(Symbol('System`Slot'), int2Integer(value))
 
 @pg.production('expr : out_1')
 def out_1(state, p):
@@ -529,7 +531,7 @@ def out_1(state, p):
     if value == -1:
         return Expression(Symbol('System`Out'))
     else:
-        return Expression(Symbol('System`Out'), Integer(value))
+        return Expression(Symbol('System`Out'), int2Integer(value))
 
 @pg.production('expr : out_2')
 def out_2(state, p):
@@ -538,7 +540,7 @@ def out_2(state, p):
     if value == -1:
         return Expression(Symbol('System`Out'))
     else:
-        return Expression(Symbol('System`Out'), Integer(value))
+        return Expression(Symbol('System`Out'), int2Integer(value))
 
 # def t_PutAppend(self, t):
 #     r' \>\>\> '
@@ -622,7 +624,7 @@ for ineq_op, ineq_tokens in inequality_operators:
             p[0].leaves.append(Symbol(ineq_op))
             p[0].leaves.append(p[2])
             return p[0]
-        elif head.get_name() in ['System`%%s' %% k for k in inequality_operators.keys()]:
+        elif head.get_name() in ['System`%%s' %% k[0] for k in list(inequality_operators)]:
             leaves = []
             for i, leaf in enumerate(p[0].leaves):
                 if i != 0:
@@ -683,7 +685,7 @@ def args(state, p):
     return p[1]
 
 @pg.production('expr : RawLeftBrace sequence RawRightBrace')
-def list(state, p):
+def llist(state, p): # name prevents collision with builtin list
     expr = Expression(Symbol('System`List'))
     expr.leaves = p[1].leaves
     return expr
@@ -802,7 +804,7 @@ def p_Infix(state, p):
 def p_Apply2(state, p):
     return Expression(
         Symbol('System`Apply'), p[0], p[2],
-        Expression(Symbol('System`List'), Integer(1)))
+        Expression(Symbol('System`List'), int2Integer(1)))
 
 @pg.production('expr : expr Derivative')
 def Derivative(state, p):
@@ -817,7 +819,7 @@ def Derivative(state, p):
             n += head.leaves[0].to_int()
             p[0] = leaves[0]
     return Expression(
-        Expression(Symbol('System`Derivative'), Integer(n)), p[0])
+        Expression(Symbol('System`Derivative'), int2Integer(n)), p[0])
 
 # @pg.production('expr : Integral expr DifferentialD expr',
 #                precedence='Integral')
@@ -827,7 +829,7 @@ def Derivative(state, p):
 @pg.production('expr : expr Minus expr')
 def Minus(state, p):
     return Expression(Symbol('System`Plus'), p[0],
-                      Expression(Symbol('System`Times'), Integer(-1), p[2]))
+                      Expression(Symbol('System`Times'), int2Integer(-1), p[2]))
 
 @pg.production('expr : Plus expr', precedence='UPlus')
 def UPlus(state, p):
@@ -837,7 +839,7 @@ def UPlus(state, p):
 def UMinus(state, p):
     # if isinstance(p[0], (Integer, Real)):
     # TODO
-    return Expression(Symbol('System`Times'), Integer(-1), p[1])
+    return Expression(Symbol('System`Times'), int2Integer(-1), p[1])
 
 # @pg.production('expr : PlusMinus expr', precedence='UPlusMinus')
 # def UPlusMinus(state, p):
@@ -851,7 +853,7 @@ def UMinus(state, p):
 @pg.production('expr : expr Divide expr')
 def Divide(state, p):
     return Expression(Symbol('System`Times'), p[0],
-                      Expression(Symbol('System`Power'), p[2], Integer(-1)))
+                      Expression(Symbol('System`Power'), p[2], int2Integer(-1)))
 
 @pg.production('expr : expr Times expr')
 @pg.production('expr : expr RawStar expr')
@@ -894,20 +896,20 @@ def Span(state, p):
         if isinstance(p[0], BaseExpression):
             return Expression(Symbol('System`Span'), p[0], Symbol('All'), p[3])
         elif isinstance(p[1], BaseExpression):
-            return Expression(Symbol('System`Span'), Integer(1), p[1], p[3])
+            return Expression(Symbol('System`Span'), int2Integer(1), p[1], p[3])
     elif len(p) == 3:
         if isinstance(p[0], BaseExpression):
             return Expression(Symbol('System`Span'), p[0], p[2])
         else:
-            return Expression(Symbol('System`Span'), Integer(1),
+            return Expression(Symbol('System`Span'), int2Integer(1),
                               Symbol('System`All'), p[2])
     elif len(p) == 2:
         if isinstance(p[0], BaseExpression):
             return Expression(Symbol('System`Span'), p[0], Symbol('All'))
         elif isinstance(p[1], BaseExpression):
-            return Expression(Symbol('System`Span'), Integer(1), p[1])
+            return Expression(Symbol('System`Span'), int2Integer(1), p[1])
     elif len(p) == 1:
-            return Expression(Symbol('System`Span'), Integer(1), Symbol('All'))
+            return Expression(Symbol('System`Span'), int2Integer(1), Symbol('All'))
 
 # @pg.production('expr : Not expr')
 # FIXME
