@@ -32,6 +32,12 @@ def entry_point(argv):
     z = str2Real('-0.34123e41', 60)
     print z.to_float()
 
+    x = str2Real('0.5', 60)
+    y = str2Real('0.5', 60)
+    z = str2Real('0.7', 60)
+    assert x.same(y)
+    assert not x.same(z)
+
     return 0
 
 

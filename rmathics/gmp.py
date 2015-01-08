@@ -89,6 +89,9 @@ c_mpf_set_str = rffi.llexternal(
 c_mpf_get_str = rffi.llexternal(
     '__gmpf_get_str', [rffi.CCHARP, MP_EXP_TP, rffi.INT, rffi.SIZE_T, MPF_PTR], rffi.CCHARP,
     compilation_info=info)
+c_mpf_eq = rffi.llexternal(
+    '__gmpf_eq', [MPF_PTR, MPF_PTR, MPF_BITCNT_T], rffi.INT,
+    compilation_info=info)
 
 # ## MPFR
 # MPFR_STRUCT = rffi.COpaque('__mpfr_struct', compilation_info=info)

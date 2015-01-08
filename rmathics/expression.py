@@ -20,7 +20,7 @@ from rmathics.gmp import (
     MPQ_STRUCT, c_mpq_init, c_mpq_clear, c_mpq_equal, c_mpq_get_str,
     c_mpq_get_num, c_mpq_get_den, c_mpq_get_d,
     MPF_STRUCT, MP_EXP_TP, c_mpf_init2, c_mpf_clear, c_mpf_get_str,
-    c_mpf_get_d,
+    c_mpf_get_d, c_mpf_eq,
 )
 
 from math import log
@@ -195,6 +195,17 @@ class Real(Number):
 
     def to_float(self):
         return c_mpf_get_d(self.value)
+
+    def same(self, other):
+        if not isinstance(other, Real):
+            return False
+        # Approximate numbers with machine precision or higher are considered
+        # equal if they differ in at most their last seven binary digits
+        prec = min(self.prec, other.prec) - 7
+        # TODO:
+        # For numbers below machine precision the required tolerance is reduced
+        # in proportion to the precision of the numbers.
+        return c_mpf_eq(self.value, other.value, rffi.r_ulong(prec)) != 0
 
 
 class Complex(Number):
