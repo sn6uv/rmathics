@@ -68,11 +68,7 @@ c_mpq_get_d = rffi.llexternal(
 MPF_STRUCT = rffi.COpaque('__mpf_struct', compilation_info=info)
 MPF_PTR = lltype.Ptr(MPF_STRUCT)
 MPF_BITCNT_T = rffi.ULONG
-# MP_EXP_T = rffi.LONG
-# MP_EXP_TP = lltype.Ptr(lltype.Array(MP_EXP_T, hints={'nolength': True}))
-# MP_EXP_T = rffi.COpaque('mp_exp_t')     # long
-# MP_EXP_TP = lltype.Ptr(MP_EXP_T)        # long *
-MP_EXP_TP = rffi.COpaquePtr('mp_exp_t')
+MP_EXP_TP = rffi.COpaquePtr('mp_exp_t', compilation_info=info)
 
 c_mpf_init2 = rffi.llexternal(
     '__gmpf_init2', [MPF_PTR, MPF_BITCNT_T], lltype.Void, compilation_info=info)
