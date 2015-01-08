@@ -1,6 +1,6 @@
 import sys
 
-from rmathics.convert import int2Integer, str2Integer, int2Rational, float2Rational, float2Real
+from rmathics.convert import int2Integer, str2Integer, int2Rational, str2Rational, float2Rational, str2Real, float2Real
 from rmathics.expression import Real
 
 
@@ -20,12 +20,17 @@ def entry_point(argv):
     assert x.same(y)
     x = int2Rational(2, 4)
     assert x.same(y)
+    z = str2Rational('24/48')
+    assert x.same(z)
     print x.to_str()
     print x.to_float()
+    print z.to_float()
 
     x = Real(53)
     y = float2Real(0.543214, 53)
     print(y.to_float())
+    z = str2Real('-0.34123e41', 60)
+    print z.to_float()
 
     return 0
 

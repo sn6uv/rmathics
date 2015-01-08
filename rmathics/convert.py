@@ -2,8 +2,9 @@ from rpython.rtyper.lltypesystem import rffi
 
 from rmathics import Integer, Rational, Real
 from rmathics.gmp import (
-    c_mpz_set_si, c_mpz_set_str, c_mpq_set_si, c_mpq_set_d, c_mpq_canonicalize,
-    c_mpf_set_d,
+    c_mpz_set_si, c_mpz_set_str,
+    c_mpq_set_si, c_mpq_set_str, c_mpq_set_d, c_mpq_canonicalize,
+    c_mpf_set_str, c_mpf_set_d,
 )
 
 
@@ -37,12 +38,36 @@ def int2Rational(num, den):
     return result
 
 
+def str2Rational(value, base=10):
+    assert isinstance(value, str)
+    assert 2 <= base <= 62
+    result = Rational()
+    p = rffi.str2charp(value)
+    retcode = c_mpq_set_str(result.value, p, rffi.r_int(base))
+    assert retcode == 0
+    c_mpq_canonicalize(result.value)
+    rffi.free_charp(p)
+    return result
+
+
 def float2Rational(value):
     assert isinstance(value, float)
     result = Rational()
     c_mpq_set_d(result.value, value)
     c_mpq_canonicalize(result.value)
     return result
+
+
+def str2Real(value, prec, base=10):
+    assert isinstance(value, str)
+    assert 2 <= base <= 62
+    result = Real(prec)
+    p = rffi.str2charp(value)
+    retcode = c_mpf_set_str(result.value, p, rffi.r_int(base))
+    assert retcode == 0
+    rffi.free_charp(p)
+    return result
+
 
 def float2Real(value, prec):
     result = Real(prec)

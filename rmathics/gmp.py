@@ -47,6 +47,9 @@ c_mpq_set_si = rffi.llexternal(
 c_mpq_set_ui = rffi.llexternal(
     '__gmpq_set_ui', [MPQ_PTR, rffi.ULONG, rffi.ULONG], lltype.Void,
     compilation_info=info)
+c_mpq_set_str = rffi.llexternal(
+    '__gmpq_set_str', [MPQ_PTR, rffi.CCHARP, rffi.INT], rffi.INT,
+    compilation_info=info)
 c_mpq_set_d = rffi.llexternal(
     '__gmpq_set_d', [MPQ_PTR, rffi.DOUBLE], lltype.Void, compilation_info=info)
 c_mpq_equal = rffi.llexternal(
@@ -80,6 +83,9 @@ c_mpf_set_d = rffi.llexternal(
 c_mpf_get_d = rffi.llexternal(
     '__gmpf_get_d', [MPF_PTR], rffi.DOUBLE, compilation_info=info)
 
+c_mpf_set_str = rffi.llexternal(
+    '__gmpf_set_str', [MPF_PTR, rffi.CCHARP, rffi.INT], rffi.INT,
+    compilation_info=info)
 c_mpf_get_str = rffi.llexternal(
     '__gmpf_get_str', [rffi.CCHARP, MP_EXP_TP, rffi.INT, rffi.SIZE_T, MPF_PTR], rffi.CCHARP,
     compilation_info=info)
