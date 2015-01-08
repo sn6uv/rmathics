@@ -182,16 +182,33 @@ class Real(Number):
 
     def to_str(self, base=10):
         assert 2 <= base <= 62
-        exp = lltype.malloc(MP_EXP_TP.TO, flavor='raw')
+        expp = lltype.malloc(MP_EXP_TP.TO, 1, flavor='raw')
         n = int(self.prec * log(2) / log(10))
         l = n + 2
-        p = lltype.malloc(rffi.CCHARP.TO, l, flavor='raw')
-        c_mpf_get_str(p, exp, rffi.r_int(base), rffi.r_size_t(n), self.value)
-        result = rffi.charp2str(p)
-        lltype.free(p, flavor='raw')
-        lltype.free(exp, flavor='raw')
-        # TODO format result
-        return result
+        strp = lltype.malloc(rffi.CCHARP.TO, l, flavor='raw')
+        c_mpf_get_str(strp, expp, rffi.r_int(base), rffi.r_size_t(n), self.value)
+        result = rffi.charp2str(strp)
+        exp = expp[0]
+        lltype.free(strp, flavor='raw')
+        lltype.free(expp, flavor='raw')
+        # format result
+        if result.startswith('-'):
+            sign = '-'
+            result = result[1:]
+        else:
+            sign = ''
+        if 1 <= exp <= 6:
+            pos = exp
+            exp = ''
+        elif -4 <= exp <= 0:
+            pos = 1
+            result = '0' * (1-exp) + result
+            exp = ''
+        else:
+            pos = 1
+            exp = '*^' + str(exp-1)
+        # TODO: precision
+        return sign + result[:pos] + '.' + result[pos:] + exp
 
     def to_float(self):
         return c_mpf_get_d(self.value)
