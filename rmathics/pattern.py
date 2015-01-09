@@ -1,13 +1,13 @@
 from rmathics.expression import Atom, Symbol, Expression
 
 
-def match(expr, pattern, matches=False):
+def match(expr, pattern):
     """
     determine whether the expr matches the pattern
     if it doesn't match return (False, {})
 
-    if `matches` is True also return a list of named mappings from pattern
-    names to sub expressions. If `matches` false, the dict will be empty
+    if the pattern matches return True and a list of named mappings from
+    pattern names to sub expressions.
     """
 
     if isinstance(pattern, Atom):
@@ -20,13 +20,13 @@ def match(expr, pattern, matches=False):
             return False, {}
         name, patt = pattern.leaves
         name = name.get_name()
-        doesmatch, mappings = match(expr, patt, matches=matches)
+        doesmatch, mapping = match(expr, patt)
         if doesmatch:
-            if name in mappings.keys():
+            if name in mapping.keys():
                 # a recursive name can never match e.g. x:_^x_
                 return False, {}
-            mappings[name] = expr
-            return True, mappings
+            mapping[name] = expr
+            return True, mapping
     elif (phead.same(Symbol('System`Blank')) or
           phead.same(Symbol('System`BlankSequence')) or
           phead.same(Symbol('System`BlankNullSequence'))):
@@ -41,14 +41,28 @@ def match(expr, pattern, matches=False):
             # TODO message p.head::argt
             return False, {}
     elif phead.same(expr.head):
-        return _match_seq(expr.leaves, pattern.leaves, matches=matches)
+        return _match_seq(expr.leaves, pattern.leaves)
         raise NotImplementedError
     else:
         print phead.repr()
         return False, {}
 
 
-def _match_seq(exprs, patts, matches=False):
+def merge_dicts(dict1, dict2):
+    """
+    merge 2 dicts but raise ValueError if collisions do not agree
+    """
+    result = dict1
+    for key in dict2:
+        value = result.get(key, None)
+        if value is not None:
+            if not result.same(value, dict2[key]):
+                raise ValueError
+        result[key] = dict2[key]
+    return result
+
+
+def _match_seq(exprs, patts):
     """
     matches a list of expressions against a list of patterns
 
@@ -60,21 +74,32 @@ def _match_seq(exprs, patts, matches=False):
     Try to match the 'everything else' first (hence the name high_prec_xxx)
     because it's more efficient this way.
     """
-    if len(exprs) == len(patts) == 1:
-        return match(exprs[0], patts[0], matches=matches)
-    high_prec_indices = []
-    blank_seq_indices = []
-    blank_nul_indices = []
-    for patti, patt in enumerate(patts):
-        if patt.head.same(Symbol('System`BlankSequence')):
-            blank_seq_indices.append(patti)
-        elif patt.head.same(Symbol('System`BlankNullSequence')):
-            blank_nul_indices.append(patti)
-        else:
-            high_prec_indices.append(patti)
+    if len(patts) == len(exprs) == 0:
+        return True, {}
 
-    if high_prec_indices:
-        patti = high_prec_indices[0]
+    patti, name = None, None
+    for i, patt in enumerate(patts):
+        if patt.head.same(Symbol('System`Pattern')):
+            if len(patt.leaves) != 2:
+                # TODO message Pattern::argr:
+                return False, {}
+            name2, patt2 = patt.leaves
+            if patt2.head.same(Symbol('System`BlankSequence')):
+                continue
+            if patt2.head.same(Symbol('System`BlankNullSequence')):
+                continue
+            else:
+                name = name2.get_name()
+                patti = i
+                break
+        if patt.head.same(Symbol('System`BlankSequence')):
+            continue
+        elif patt.head.same(Symbol('System`BlankNullSequence')):
+            continue
+        else:
+            patti = i
+            break
+    if patti is not None:       # everything else
         patt = patts[patti]
         for expri, expr in enumerate(exprs):
             if match(expr, patt):
@@ -82,34 +107,74 @@ def _match_seq(exprs, patts, matches=False):
                     exprs[:expri], patts[:patti])
                 match1, mapping1 = _match_seq(
                     exprs[expri+1:], patts[patti+1:])
-                if match0 and match1:
-                    return True, {}
+                try:
+                    mapping = merge_dicts(mapping0, mapping1)
+                    if match0 and match1:
+                        if name is not None:
+                            mapping = merge_dicts(mapping, {name: expr})
+                        return True, mapping
+                except ValueError:
+                    pass
         return False, {}
-    if blank_seq_indices:
-        patti = blank_seq_indices[0]
-        for match_len in range(1, len(exprs)):
+
+    for i, patt in enumerate(patts):
+        if patt.head.same(Symbol('System`Pattern')):
+            assert len(patt.leaves) == 2
+            name2, patt2 = patt.leaves
+            if patt2.head.same(Symbol('System`BlankSequence')):
+                name = name2.get_name()
+                patti = i
+                break
+        if patt.head.same(Symbol('System`BlankSequence')):
+            patti = i
+            break
+    if patti is not None:       # BlankSequence
+        for match_len in range(1, len(exprs)+1):
             # begin looking for length 1 matches
-            for start_pos in range(len(exprs)-match_len):
+            for start_pos in range(len(exprs)+1-match_len):
                 match0, mapping0 = _match_seq(
                     exprs[:start_pos], patts[:patti])
                 match1, mapping1 = _match_seq(
                     exprs[start_pos+match_len:], patts[patti+1:])
-                if match0 and match:
-                    return True, {}
+                expr = Expression(Symbol('System`Sequence'),
+                                  *exprs[start_pos:start_pos+match_len])
+                try:
+                    mapping = merge_dicts(mapping0, mapping1)
+                    if match0 and match1:
+                        if name is not None:
+                            mapping = merge_dicts(mapping, {name: expr})
+                        return True, mapping
+                except ValueError:
+                    pass
         return False, {}
-    if blank_nul_indices:
-        patti = blank_nul_indices[0]
-        if exprs == []:
-            return True, {}
-        for match_len in range(0, len(exprs)):
-            # begin looking for length 0 matches
-            for start_pos in range(len(exprs)-match_len):
-                match0, mapping0 = _match_seq(
-                    exprs[:start_pos], patts[:patti])
-                match1, mapping1 = _match_seq(
-                    exprs[start_pos+match_len:], patts[patti+1:])
-                if match0 and match:
-                    return True, {}
+
+    if patts == []:
+        assert exprs != []
         return False, {}
-    assert patts == []
-    return True, {}
+    patti = 0
+    patt = patts[patti]
+    if patt.head.same(Symbol('System`Pattern')):
+            assert len(patt.leaves) == 2
+            name2, patt2 = patt.leaves
+            name = name2.get_name()
+            assert patt2.head.same(Symbol('System`BlankNullSequence'))
+    else:
+        assert patt.head.same(Symbol('System`BlankNullSequence'))
+    for match_len in range(0, len(exprs)+1):
+        # begin looking for length 0 matches
+        for start_pos in range(len(exprs)+1-match_len):
+            match0, mapping0 = _match_seq(
+                exprs[:start_pos], patts[:patti])
+            match1, mapping1 = _match_seq(
+                exprs[start_pos+match_len:], patts[patti+1:])
+            expr = Expression(Symbol('System`Sequence'),
+                              *exprs[start_pos:start_pos+match_len])
+            try:
+                mapping = merge_dicts(mapping0, mapping1)
+                if match0 and match1:
+                    if name is not None:
+                        mapping = merge_dicts(mapping, {name: expr})
+                    return True, mapping
+            except ValueError:
+                pass
+    return False, {}
