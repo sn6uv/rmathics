@@ -51,6 +51,14 @@ def match(expr, pattern, matches=False):
 def _match_seq(exprs, patts, matches=False):
     """
     matches a list of expressions against a list of patterns
+
+    We match by pairing each pattern to list of expressions
+      - BlankSequence matches to one or more expression
+      - BlankNullSequence matches to zero or more
+      - everything else (including Blank[]) matches to exactly one expression
+
+    Try to match the 'everything else' first (hence the name high_prec_xxx)
+    because it's more efficient this way.
     """
     if len(exprs) == len(patts) == 1:
         return match(exprs[0], patts[0], matches=matches)
