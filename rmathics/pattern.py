@@ -42,10 +42,7 @@ def match(expr, pattern):
             return False, {}
     elif phead.same(expr.head):
         return _match_seq(expr.leaves, pattern.leaves)
-        raise NotImplementedError
-    else:
-        print phead.repr()
-        return False, {}
+    return False, {}
 
 
 def merge_dicts(dict1, dict2):
@@ -56,7 +53,7 @@ def merge_dicts(dict1, dict2):
     for key in dict2:
         value = result.get(key, None)
         if value is not None:
-            if not result.same(value, dict2[key]):
+            if not value.same(dict2[key]):
                 raise ValueError
         result[key] = dict2[key]
     return result
@@ -77,7 +74,7 @@ def _match_seq(exprs, patts):
     if len(patts) == len(exprs) == 0:
         return True, {}
 
-    patti, name = None, None
+    patti, name = -1, None
     for i, patt in enumerate(patts):
         if patt.head.same(Symbol('System`Pattern')):
             if len(patt.leaves) != 2:
@@ -99,7 +96,7 @@ def _match_seq(exprs, patts):
         else:
             patti = i
             break
-    if patti is not None:       # everything else
+    if patti >= 0:       # everything else
         patt = patts[patti]
         for expri, expr in enumerate(exprs):
             if match(expr, patt):
@@ -128,7 +125,7 @@ def _match_seq(exprs, patts):
         if patt.head.same(Symbol('System`BlankSequence')):
             patti = i
             break
-    if patti is not None:       # BlankSequence
+    if patti >= 0:
         for match_len in range(1, len(exprs)+1):
             # begin looking for length 1 matches
             for start_pos in range(len(exprs)+1-match_len):
@@ -136,8 +133,8 @@ def _match_seq(exprs, patts):
                     exprs[:start_pos], patts[:patti])
                 match1, mapping1 = _match_seq(
                     exprs[start_pos+match_len:], patts[patti+1:])
-                expr = Expression(Symbol('System`Sequence'),
-                                  *exprs[start_pos:start_pos+match_len])
+                expr = Expression(Symbol('System`Sequence'))
+                expr.leaves = exprs[start_pos:start_pos+match_len]
                 try:
                     mapping = merge_dicts(mapping0, mapping1)
                     if match0 and match1:
@@ -167,8 +164,8 @@ def _match_seq(exprs, patts):
                 exprs[:start_pos], patts[:patti])
             match1, mapping1 = _match_seq(
                 exprs[start_pos+match_len:], patts[patti+1:])
-            expr = Expression(Symbol('System`Sequence'),
-                              *exprs[start_pos:start_pos+match_len])
+            expr = Expression(Symbol('System`Sequence'))
+            expr.leaves = exprs[start_pos:start_pos+match_len]
             try:
                 mapping = merge_dicts(mapping0, mapping1)
                 if match0 and match1:
