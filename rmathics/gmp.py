@@ -68,50 +68,29 @@ c_mpq_get_str = rffi.llexternal(
 c_mpq_get_d = rffi.llexternal(
     '__gmpq_get_d', [MPQ_PTR], rffi.DOUBLE, compilation_info=info)
 
+
+## MPF
 MPF_STRUCT = rffi.COpaque('__mpf_struct', compilation_info=info)
 MPF_PTR = lltype.Ptr(MPF_STRUCT)
 MPF_BITCNT_T = rffi.ULONG
 MP_EXP_T = rffi.LONG
 MP_EXP_TP = rffi.LONGP
-# MP_EXP_TP = rffi.COpaquePtr('mp_exp_t', compilation_info=info)
 
 c_mpf_init2 = rffi.llexternal(
-    '__gmpf_init2', [MPF_PTR, MPF_BITCNT_T], lltype.Void, compilation_info=info)
+    '__gmpf_init2', [MPF_PTR, MPF_BITCNT_T], lltype.Void,
+    compilation_info=info)
 c_mpf_clear = rffi.llexternal(
     '__gmpf_clear', [MPF_PTR], lltype.Void, compilation_info=info)
-
 c_mpf_set_d = rffi.llexternal(
     '__gmpf_set_d', [MPF_PTR, rffi.DOUBLE], lltype.Void, compilation_info=info)
 c_mpf_get_d = rffi.llexternal(
     '__gmpf_get_d', [MPF_PTR], rffi.DOUBLE, compilation_info=info)
-
 c_mpf_set_str = rffi.llexternal(
     '__gmpf_set_str', [MPF_PTR, rffi.CCHARP, rffi.INT], rffi.INT,
     compilation_info=info)
 c_mpf_get_str = rffi.llexternal(
-    '__gmpf_get_str', [rffi.CCHARP, MP_EXP_TP, rffi.INT, rffi.SIZE_T, MPF_PTR], rffi.CCHARP,
-    compilation_info=info)
+    '__gmpf_get_str', [rffi.CCHARP, MP_EXP_TP, rffi.INT, rffi.SIZE_T, MPF_PTR],
+    rffi.CCHARP, compilation_info=info)
 c_mpf_eq = rffi.llexternal(
     '__gmpf_eq', [MPF_PTR, MPF_PTR, MPF_BITCNT_T], rffi.INT,
     compilation_info=info)
-
-# ## MPFR
-# MPFR_STRUCT = rffi.COpaque('__mpfr_struct', compilation_info=info)
-# MPFR_PTR = lltype.Ptr(MPFR_STRUCT)
-# MPFR_PREC_T = rffi.LONG
-# MPFR_RND_T = rffi.INT   # enum constants are int (c99 6.4.4.3)
-# MPFR_EXP_T = rffi.LONG
-# 
-# c_mpfr_init2 = rffi.llexternal(
-#     'mpfr_init2', [MPFR_PTR, MPFR_PREC_T], lltype.Void, compilation_info=info)
-# c_mpfr_clear = rffi.llexternal(
-#     'mpfr_init2', [MPFR_PTR], lltype.Void, compilation_info=info)
-# 
-# c_mpfr_set_d = rffi.llexternal(
-#     'mpfr_set_d', [MPFR_PTR, rffi.DOUBLE, MPFR_RND_T], lltype.Void, compilation_info=info)
-# 
-# # c_mpfr_sprintf = rffi.llexternal(
-# #     'mpfr_sprintf', [rffi.CCHARP, rffi.CCHARP], rffi.INT, compilation_info=info)
-# 
-# c_mpfr_get_str = rffi.llexternal(
-#     'mpfr_get_str', [rffi.CCHARP, rffi.COpaquePtr(MPFR_EXP_T), rffi.INT, rffi.SIZE_T, MPFR_PTR, MPFR_RND_T], rffi.CCHARP, compilation_info=info)
