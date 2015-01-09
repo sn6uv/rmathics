@@ -17,13 +17,15 @@ def run(fp):
 
     definitions = Definitions()
     for line in program_contents.split('\n'):
-        expr, messages = parse(program_contents, definitions)
+        expr, messages = parse(line, definitions)
         for message in messages:
             print(message)
+        if expr is None:
+            continue
         result, messages = evaluate(expr, definitions)
         for message in messages:
             print(message)
-        x = result.repr()
+        print(result.repr())
 
 def entry_point(argv):
     try:
