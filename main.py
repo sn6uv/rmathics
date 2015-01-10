@@ -1,7 +1,7 @@
 import os
 import sys
 
-from rmathics.parser import parse
+from rmathics.parser import parse, WaitInputError
 from rmathics.evaluation import evaluate
 from rmathics.definitions import Definitions
 
@@ -16,8 +16,21 @@ def run(fp):
     os.close(fp)
 
     definitions = Definitions()
-    for line in program_contents.split('\n'):
-        expr, messages = parse(line, definitions)
+    lines = iter(program_contents.split('\n'))
+    for line in lines:
+        new_messages = []
+        while True:
+            print line
+            try:
+                expr, messages = parse(line, definitions)
+                break
+            except WaitInputError:
+                pass
+            try:
+                line = line + next(lines)
+            except StopIteration:
+                expr, messages = None, [('Syntax', 'sntup')]
+                break
         for message in messages:
             print(message)
         if expr is None:

@@ -243,40 +243,25 @@ def prelex(s, messages):
         s = s[:start] + rep + s[stop:]
     return s
 
+
 class TranslateError(Exception):
     pass
 
 
 class ScanError(TranslateError):
     pass
-    # def __init__(self, pos, text):
-    #     TranslateError.__init__(self)
-    #     self.pos = pos
-    #     self.text = text
-
-    # def __unicode__(self):
-    #     return "Lexical error at position {0} in '{1}'.".format(
-    #         self.pos, self.text)
 
 
 class InvalidCharError(TranslateError):
     pass
-    # def __init__(self, char):
-    #     TranslateError.__init__(self)
-    #     self.char = char
-
-    # def __unicode__(self):
-    #     return "Invalid character at '%s'." % self.char  # .decode('utf-8')
 
 
 class ParseError(TranslateError):
     pass
-    # def __init__(self, token):
-    #     TranslateError.__init__(self)
-    #     self.token = token
 
-    # def __unicode__(self):
-    #     return "Parse error at or near token %s." % str(self.token)
+
+class WaitInputError(TranslateError):
+    pass
 
 
 prefix_operators = (
@@ -654,6 +639,8 @@ def error_handler(state, token):
             # TODO raise: Syntax:sntxf
             state.messages.append(('Syntax', 'sntxf'))
             pass
+    if token.gettokentype() == '$end':
+        raise WaitInputError()
     raise ParseError(token.gettokentype())
 
 @pg.production('expr : RawLeftParenthesis expr RawRightParenthesis')
