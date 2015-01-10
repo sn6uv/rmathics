@@ -6,8 +6,8 @@ def match(expr, pattern):
     determine whether the expr matches the pattern
     if it doesn't match return (False, {})
 
-    if the pattern matches return True and a list of named mappings from
-    pattern names to sub expressions.
+    if the pattern matches return True and a dict {str: BaseExpression} which
+    maps pattern names to matches subexpressions.
     """
 
     if isinstance(pattern, Atom):
@@ -45,9 +45,13 @@ def match(expr, pattern):
     return False, {}
 
 
-def merge_dicts(dict1, dict2):
+def _merge_dicts(dict1, dict2):
     """
-    merge 2 dicts but raise ValueError if collisions do not agree
+    merge 2 dicts but raise ValueError if collisions do not agree.
+
+    dicts should be of the form {str: BaseExpression}
+
+    TIP: since we loop over dict2, it's more efficient for dict2 to be smaller
     """
     result = dict1
     for key in dict2:
@@ -63,13 +67,14 @@ def _match_seq(exprs, patts):
     """
     matches a list of expressions against a list of patterns
 
-    We match by pairing each pattern to list of expressions
+    We match by pairing each pattern to a list of expressions
       - BlankSequence matches to one or more expression
       - BlankNullSequence matches to zero or more
       - everything else (including Blank[]) matches to exactly one expression
 
-    Try to match the 'everything else' first (hence the name high_prec_xxx)
-    because it's more efficient this way.
+    Try to match the 'everything else' first. It's more efficient this way.
+
+    returns (bool, {str: BaseExpression}) like the function match above.
     """
     if len(patts) == len(exprs) == 0:
         return True, {}
@@ -105,10 +110,10 @@ def _match_seq(exprs, patts):
                 match1, mapping1 = _match_seq(
                     exprs[expri+1:], patts[patti+1:])
                 try:
-                    mapping = merge_dicts(mapping0, mapping1)
+                    mapping = _merge_dicts(mapping0, mapping1)
                     if match0 and match1:
                         if name is not None:
-                            mapping = merge_dicts(mapping, {name: expr})
+                            mapping = _merge_dicts(mapping, {name: expr})
                         return True, mapping
                 except ValueError:
                     pass
@@ -136,10 +141,10 @@ def _match_seq(exprs, patts):
                 expr = Expression(Symbol('System`Sequence'))
                 expr.leaves = exprs[start_pos:start_pos+match_len]
                 try:
-                    mapping = merge_dicts(mapping0, mapping1)
+                    mapping = _merge_dicts(mapping0, mapping1)
                     if match0 and match1:
                         if name is not None:
-                            mapping = merge_dicts(mapping, {name: expr})
+                            mapping = _merge_dicts(mapping, {name: expr})
                         return True, mapping
                 except ValueError:
                     pass
@@ -167,10 +172,10 @@ def _match_seq(exprs, patts):
             expr = Expression(Symbol('System`Sequence'))
             expr.leaves = exprs[start_pos:start_pos+match_len]
             try:
-                mapping = merge_dicts(mapping0, mapping1)
+                mapping = _merge_dicts(mapping0, mapping1)
                 if match0 and match1:
                     if name is not None:
-                        mapping = merge_dicts(mapping, {name: expr})
+                        mapping = _merge_dicts(mapping, {name: expr})
                     return True, mapping
             except ValueError:
                 pass
