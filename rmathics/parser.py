@@ -189,12 +189,15 @@ def string_escape(s):
     s = replace(s, '\\r\\n', '\r\n')
     s = replace(s, '\\r', '\r')
     s = replace(s, '\\n', '\n')
+    return s
 
 
 def prelex(s, messages):
     """
     Converts character codes to characters E.g. \.7A -> z, \:004a -> J
-    and longnames to characters e.g. \[Theta]
+    and longnames to characters e.g. \[Theta].
+
+    Also strips (possibly multiline) comments.
     """
     s = str(s)
     assert isinstance(s, str)
@@ -241,6 +244,19 @@ def prelex(s, messages):
     # Make the replacements
     for start, stop, rep in reversed(replacements):
         s = s[:start] + rep + s[stop:]
+
+    while True:
+        comment_start = s.find('(*', 0)
+        if comment_start == -1:
+            break
+        assert comment_start >= 0
+        comment_end = s.find('*)', comment_start) + 2
+        if comment_end == 1:
+            raise WaitInputError
+        assert comment_end >= 0
+        assert s[comment_start:comment_end].startswith('(*')
+        assert s[comment_start:comment_end].endswith('*)')
+        s = s[:comment_start] + s[comment_end:]
     return s
 
 
@@ -1000,7 +1016,7 @@ class ParserState(object):
 lg = LexerGenerator()
 for token, regex in tokens:
     lg.add(token, regex)
-lg.ignore(r'\s+|(?s)\(\*.*?\*\)')
+lg.ignore(r'\s+')
 lexer = lg.build()
 
 # Construct parser

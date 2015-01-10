@@ -20,7 +20,6 @@ def run(fp):
     for line in lines:
         new_messages = []
         while True:
-            print line
             try:
                 expr, messages = parse(line, definitions)
                 break
