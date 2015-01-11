@@ -2,11 +2,11 @@
 
 from rmathics.expression import (
     BaseExpression, Expression, Symbol, String, fully_qualified_symbol_name,
-    Integer,
+    Integer, Rational, Real,
 )
 from rmathics.rpython_util import all
-from rmathics.convert import int2Integer
-from rmathics.gmp import c_mpz_add
+from rmathics.convert import int2Integer, int2Rational, float2Real
+from rmathics.gmp import c_mpz_add, c_mpq_add, c_mpf_add, c_mpq_set_z, c_mpf_set_z, c_mpf_set_q
 
 known_attributes = (
     'Orderless', 'Flat', 'OneIdentity', 'Listable', 'Constant',
@@ -228,13 +228,70 @@ def builtin(patt):
     return wrapper
 
 
-@builtin(Expression(Symbol('System`Plus'), Expression(Symbol('System`Pattern'), Symbol('x0'), Expression(Symbol('System`BlankNullSequence')))))
+@builtin(Expression(Symbol('System`Plus'),
+    Expression(Symbol('System`Pattern'), Symbol('x0'), Expression(Symbol('System`BlankNullSequence'), Symbol('System`Integer'))),
+    Expression(Symbol('System`Pattern'), Symbol('x1'), Expression(Symbol('System`BlankNullSequence'), Symbol('System`Rational'))),
+    Expression(Symbol('System`Pattern'), Symbol('x2'), Expression(Symbol('System`BlankNullSequence'), Symbol('System`Real'))),
+))
 def plus(mappings):
-    x = mappings['x0']
-    assert x.head.same(Symbol('System`Sequence'))
-    args = x.leaves
-    result = int2Integer(0)
-    for arg in args:
-        if isinstance(arg, Integer):
-            c_mpz_add(result.value, result.value, arg.value)
+    ints = mappings['x0']
+    rats = mappings['x1']
+    reals = mappings['x2']
+
+    assert ints.head.same(Symbol('System`Sequence'))
+    assert rats.head.same(Symbol('System`Sequence'))
+    assert reals.head.same(Symbol('System`Sequence'))
+
+    ints = ints.leaves
+    rats = rats.leaves
+    reals = reals.leaves
+
+    # most of the asserts here are for the RPython annotator
+    result = None
+    if ints:
+        result = int2Integer(0)
+        assert isinstance(result, Integer)
+        value = result.value
+        for arg in ints:
+            assert isinstance(arg, Integer)
+            c_mpz_add(value, value, arg.value)
+
+    if rats:
+        if result is None:
+            result = int2Rational(0, 1)
+        else:
+            intresult = result
+            result = Rational()
+            c_mpq_set_z(result.value, intresult.value)
+        assert isinstance(result, Rational)
+        value = result.value
+        for arg in rats:
+            assert isinstance(arg, Rational)
+            c_mpq_add(value, value, arg.value)
+
+    if reals:
+        # minimum precision
+        prec = 0
+        for arg in reals:
+            assert isinstance(arg, Real)
+            if arg.prec < prec:
+                prec = arg.prec
+
+        if result is None:
+            result = float2Real(0.0, prec)
+        elif isinstance(result, Integer):
+            intresult = result
+            result = Real(prec)
+            c_mpf_set_z(result.value, intresult.value)
+        elif isinstance(result, Rational):
+            ratresult = result
+            result = Real(prec)
+            c_mpf_set_q(result.value, ratresult.value)
+        assert isinstance(result, Real)
+        value = result.value
+        for arg in reals:
+            assert isinstance(arg, Real)
+            c_mpf_add(value, value, arg.value)
+
+    assert result is not None
     return result

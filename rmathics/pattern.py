@@ -1,4 +1,7 @@
+import itertools
+
 from rmathics.expression import Atom, Symbol, Expression
+from rmathics.rpython_util import all
 
 
 def match(expr, pattern, definitions):
@@ -133,9 +136,18 @@ def _match_seq(exprs, patts, definitions):
             patti = i
             break
     if patti >= 0:
+        patt = patts[patti]
         for match_len in range(1, len(exprs)+1):
             # begin looking for length 1 matches
             for start_pos in range(len(exprs)+1-match_len):
+                if len(patt.leaves) == 0:
+                    pass
+                elif len(patt.leaves) == 1:
+                    if not all([expr.head.same(patt.leaves[0]) for expr in
+                                exprs[start_pos:start_pos+match_len]]):
+                        continue
+                else:
+                    raise ValueError
                 match0, mapping0 = _match_seq(
                     exprs[:start_pos], patts[:patti], definitions)
                 match1, mapping1 = _match_seq(
@@ -162,11 +174,20 @@ def _match_seq(exprs, patts, definitions):
             name2, patt2 = patt.leaves
             name = name2.get_name()
             assert patt2.head.same(Symbol('System`BlankNullSequence'))
+            patt = patt2
     else:
         assert patt.head.same(Symbol('System`BlankNullSequence'))
     for match_len in range(0, len(exprs)+1):
         # begin looking for length 0 matches
         for start_pos in range(len(exprs)+1-match_len):
+            if len(patt.leaves) == 0:
+                pass
+            elif len(patt.leaves) == 1:
+                if not all([expr.head.same(patt.leaves[0]) for expr in
+                            exprs[start_pos:start_pos+match_len]]):
+                    continue
+            else:
+                raise ValueError
             match0, mapping0 = _match_seq(
                 exprs[:start_pos], patts[:patti], definitions)
             match1, mapping1 = _match_seq(

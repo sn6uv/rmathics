@@ -69,6 +69,10 @@ c_mpq_get_str = rffi.llexternal(
     compilation_info=info)
 c_mpq_get_d = rffi.llexternal(
     '__gmpq_get_d', [MPQ_PTR], rffi.DOUBLE, compilation_info=info)
+c_mpq_set_z = rffi.llexternal(
+    '__gmpq_set_z', [MPQ_PTR, MPZ_PTR], lltype.Void, compilation_info=info)
+c_mpq_add = rffi.llexternal(
+    '__gmpq_add', [MPQ_PTR, MPQ_PTR, MPQ_PTR], lltype.Void, compilation_info=info)
 
 
 ## MPF
@@ -96,3 +100,9 @@ c_mpf_get_str = rffi.llexternal(
 c_mpf_eq = rffi.llexternal(
     '__gmpf_eq', [MPF_PTR, MPF_PTR, MPF_BITCNT_T], rffi.INT,
     compilation_info=info)
+c_mpf_set_z = rffi.llexternal(
+    '__gmpf_set_z', [MPF_PTR, MPZ_PTR], lltype.Void, compilation_info=info)
+c_mpf_set_q = rffi.llexternal(
+    '__gmpf_set_q', [MPF_PTR, MPQ_PTR], lltype.Void, compilation_info=info)
+c_mpf_add = rffi.llexternal(
+    '__gmpf_add', [MPF_PTR, MPF_PTR, MPF_PTR], lltype.Void, compilation_info=info)
