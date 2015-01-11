@@ -23,9 +23,33 @@ if rpython:
             if l is not True:
                 result = False
         return result
+
+    def permutations(pool):
+        n = len(pool)
+        indices = range(n)
+        cycles = range(n, 0, -1)
+        yield pool
+        while n:
+            for i in range(n-1, -1, -1):
+                cycles[i] -= 1
+                if cycles[i] == 0:
+                    num = indices[i]
+                    for k in range(i, n-1):
+                        indices[k] = indices[k+1]
+                    indices[n-1] = num
+                    cycles[i] = n-i
+                else:
+                    j = cycles[i]
+                    indices[i], indices[-j] = indices[-j], indices[i]
+                    yield [pool[i] for i in indices]
+                    break
+            else:
+                return
 else:
+    import itertools
     all = all
     zip = zip
+    permutations = itertools.permutations
 
 
 def replace(string, match, replace):

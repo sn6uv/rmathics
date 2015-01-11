@@ -26,6 +26,8 @@ class Definitions(object):
         self.add_definition('System`$ContextPath', Definition())
         self.set_context('Global`')
         self.set_context_path(['System`', 'Global'])
+        # FIXME
+        self.set_attributes('System`Plus', ['Orderless'])
 
     def get_context(self):
         """

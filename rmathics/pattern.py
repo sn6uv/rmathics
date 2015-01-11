@@ -1,7 +1,5 @@
-import itertools
-
 from rmathics.expression import Atom, Symbol, Expression
-from rmathics.rpython_util import all
+from rmathics.rpython_util import all, permutations
 
 
 def match(expr, pattern, definitions):
@@ -44,6 +42,13 @@ def match(expr, pattern, definitions):
             # TODO message p.head::argt
             return False, {}
     elif phead.same(expr.head):
+        head_attributes = definitions.get_attributes(phead.get_name())
+        if 'Orderless' in head_attributes:
+            for leaves in permutations(expr.leaves):
+                match0, mapping = _match_seq(leaves, pattern.leaves, definitions)
+                if match0:
+                    return match0, mapping
+            return False, {}
         return _match_seq(expr.leaves, pattern.leaves, definitions)
     return False, {}
 
@@ -106,6 +111,8 @@ def _match_seq(exprs, patts, definitions):
             break
     if patti >= 0:       # everything else
         patt = patts[patti]
+        if patt.head.same(Symbol('System`Pattern')):
+            patt = patt.leaves[0]
         for expri, expr in enumerate(exprs):
             match0, mapping0 = match(expr, patt, definitions)
             if match0:
@@ -137,6 +144,8 @@ def _match_seq(exprs, patts, definitions):
             break
     if patti >= 0:
         patt = patts[patti]
+        if patt.head.same(Symbol('System`Pattern')):
+            patt = patt.leaves[1]
         for match_len in range(1, len(exprs)+1):
             # begin looking for length 1 matches
             for start_pos in range(len(exprs)+1-match_len):
