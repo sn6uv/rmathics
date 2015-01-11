@@ -1,7 +1,7 @@
 from rmathics.expression import Atom, Symbol, Expression
 
 
-def match(expr, pattern):
+def match(expr, pattern, definitions):
     """
     determine whether the expr matches the pattern
     if it doesn't match return (False, {})
@@ -20,7 +20,7 @@ def match(expr, pattern):
             return False, {}
         name, patt = pattern.leaves
         name = name.get_name()
-        doesmatch, mapping = match(expr, patt)
+        doesmatch, mapping = match(expr, patt, definitions)
         if doesmatch:
             if name in mapping.keys():
                 # a recursive name can never match e.g. x:_^x_
@@ -41,7 +41,7 @@ def match(expr, pattern):
             # TODO message p.head::argt
             return False, {}
     elif phead.same(expr.head):
-        return _match_seq(expr.leaves, pattern.leaves)
+        return _match_seq(expr.leaves, pattern.leaves, definitions)
     return False, {}
 
 
@@ -63,7 +63,7 @@ def _merge_dicts(dict1, dict2):
     return result
 
 
-def _match_seq(exprs, patts):
+def _match_seq(exprs, patts, definitions):
     """
     matches a list of expressions against a list of patterns
 
@@ -104,14 +104,16 @@ def _match_seq(exprs, patts):
     if patti >= 0:       # everything else
         patt = patts[patti]
         for expri, expr in enumerate(exprs):
-            if match(expr, patt):
-                match0, mapping0 = _match_seq(
-                    exprs[:expri], patts[:patti])
+            match0, mapping0 = match(expr, patt, definitions)
+            if match0:
                 match1, mapping1 = _match_seq(
-                    exprs[expri+1:], patts[patti+1:])
+                    exprs[:expri], patts[:patti], definitions)
+                match2, mapping2 = _match_seq(
+                    exprs[expri+1:], patts[patti+1:], definitions)
                 try:
-                    mapping = _merge_dicts(mapping0, mapping1)
-                    if match0 and match1:
+                    if match1 and match2:
+                        mapping = _merge_dicts(mapping1, mapping2)
+                        mapping = _merge_dicts(mapping, mapping0)
                         if name is not None:
                             mapping = _merge_dicts(mapping, {name: expr})
                         return True, mapping
@@ -135,9 +137,9 @@ def _match_seq(exprs, patts):
             # begin looking for length 1 matches
             for start_pos in range(len(exprs)+1-match_len):
                 match0, mapping0 = _match_seq(
-                    exprs[:start_pos], patts[:patti])
+                    exprs[:start_pos], patts[:patti], definitions)
                 match1, mapping1 = _match_seq(
-                    exprs[start_pos+match_len:], patts[patti+1:])
+                    exprs[start_pos+match_len:], patts[patti+1:], definitions)
                 expr = Expression(Symbol('System`Sequence'))
                 expr.leaves = exprs[start_pos:start_pos+match_len]
                 try:
@@ -166,9 +168,9 @@ def _match_seq(exprs, patts):
         # begin looking for length 0 matches
         for start_pos in range(len(exprs)+1-match_len):
             match0, mapping0 = _match_seq(
-                exprs[:start_pos], patts[:patti])
+                exprs[:start_pos], patts[:patti], definitions)
             match1, mapping1 = _match_seq(
-                exprs[start_pos+match_len:], patts[patti+1:])
+                exprs[start_pos+match_len:], patts[patti+1:], definitions)
             expr = Expression(Symbol('System`Sequence'))
             expr.leaves = exprs[start_pos:start_pos+match_len]
             try:

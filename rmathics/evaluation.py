@@ -1,7 +1,15 @@
 from rmathics.expression import Expression, Atom, Symbol
 from rmathics.definitions import Definitions
 from rmathics.transformations import flatten, thread, sort
+from rmathics.definitions import builtins
+from rmathics.pattern import match
 
+def _builtin_evaluate(expr, definitions):
+    for patt, func in builtins:
+        does_match, mappings = match(expr, patt, definitions)
+        if does_match:
+            return func(mappings)
+    return expr
 
 def evaluate(expr, definitions=Definitions()):
     messages = []
@@ -46,6 +54,7 @@ def evaluate(expr, definitions=Definitions()):
         result = expr
 
     if expr.same(result):
+        result = _builtin_evaluate(expr, definitions)
         return (result, messages)
     else:
         result, result_messages = evaluate(result, definitions)

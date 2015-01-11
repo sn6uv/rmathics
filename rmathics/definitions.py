@@ -1,8 +1,12 @@
 # from __future__ import unicode_literals
 
 from rmathics.expression import (
-    BaseExpression, Expression, Symbol, String, fully_qualified_symbol_name)
+    BaseExpression, Expression, Symbol, String, fully_qualified_symbol_name,
+    Integer,
+)
 from rmathics.rpython_util import all
+from rmathics.convert import int2Integer
+from rmathics.gmp import c_mpz_add
 
 known_attributes = (
     'Orderless', 'Flat', 'OneIdentity', 'Listable', 'Constant',
@@ -214,3 +218,23 @@ class Definition(object):
             'downvalues: %s, formats: %s, attributes: %s>') % (
                 self.downvalues, self.formatvalues, self.attributes)
         return s.encode('unicode_escape')
+
+builtins = []
+def builtin(patt):
+    assert isinstance(patt, BaseExpression)
+    def wrapper(func):
+        builtins.append((patt, func))
+        return func
+    return wrapper
+
+
+@builtin(Expression(Symbol('System`Plus'), Expression(Symbol('System`Pattern'), Symbol('x0'), Expression(Symbol('System`BlankNullSequence')))))
+def plus(mappings):
+    x = mappings['x0']
+    assert x.head.same(Symbol('System`Sequence'))
+    args = x.leaves
+    result = int2Integer(0)
+    for arg in args:
+        if isinstance(arg, Integer):
+            c_mpz_add(result.value, result.value, arg.value)
+    return result
