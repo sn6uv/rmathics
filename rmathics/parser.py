@@ -261,18 +261,33 @@ def prelex(s, messages):
     for start, stop, rep in reversed(replacements):
         s = s[:start] + rep + s[stop:]
 
-    while True:
-        comment_start = s.find('(*', 0)
-        if comment_start == -1:
-            break
-        assert comment_start >= 0
-        comment_end = s.find('*)', comment_start) + 2
-        if comment_end == 1:
-            raise WaitInputError
-        assert comment_end >= 0
-        assert s[comment_start:comment_end].startswith('(*')
-        assert s[comment_start:comment_end].endswith('*)')
-        s = s[:comment_start] + s[comment_end:]
+
+    if '(*' not in s:
+        return s
+
+    # find comments
+    count = 0
+    instring = False
+    tostrip = []
+    start = 0
+    for i, char in enumerate(s):
+        if char == '"' and count == 0:
+            instring ^= True
+        if not instring:
+            if s[i:i+2] == '(*':
+                if count == 0:
+                    start = i
+                count += 1
+            if s[i:i+2] == '*)':
+                count -= 1
+                if count == 0:
+                    tostrip.append((start, i+2))
+    if instring or count > 0:
+        raise WaitInputError
+
+    # strip comments
+    for start,end in reversed(tostrip):
+        s = s[:start] + s[end:]
     return s
 
 
