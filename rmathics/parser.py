@@ -22,8 +22,22 @@ BaseBox._attrs_ = ['head', 'leaves', 'parenthesized']
 base_symb = r'((?![0-9])([0-9${0}{1}])+)'.format(letters, letterlikes)
 full_symb = r'(`?{0}(`{0})*)'.format(base_symb)
 
+# Correctly parsing numbers is a pain
+digits = r'([0-9]+((`[0-9]*)?))'
+digitsdigits = r'(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)((`[0-9]*)?))'.format(digits)
+base = digits
+otherrange = 'r[0-9a-zA-Z]'
+basedigits = r'({0}\^\^{1}+)'.format(base, otherrange)
+basedigitsdigits = r'({0}\^\^({1}+\.{1}*|{1}*\.{1}+))'.format(base, otherrange)
+mantissa = r'({0}|{1})'.format(digits, digitsdigits)
+sci = r'{0}\*\^\d+'.format(mantissa)
+basesci = r'{0}\^\^{1}'.format(base, sci)
+number_patterns = [ # order matters here
+    basesci, sci, basedigitsdigits, basedigits, digitsdigits, digits]
+number = r'|'.join(number_patterns)
+
 tokens = (
-    ('number', r'((\d+\^\^([a-zA-Z0-9]+\.?[a-zA-Z0-9]*|[a-zA-Z0-9]*\.?[a-zA-Z0-9]+))|(\d+\.?\d*|\d*\.?\d+))(``?(\+|-)?(\d+\.?\d*|\d*\.?\d+)|`)?(\*\^(\+|-)?\d+)?'),
+    ('number', number),
     ('string', r'"([^\\"]|\\\\|\\"|\\n|\\r|\\r\\n)*"'),
     ('blanks', r'{0}?_(__?)?{0}?'.format(full_symb)),
     ('blankdefault', r'{0}?_\.'.format(full_symb)),
@@ -497,7 +511,9 @@ def main(state, p):
 @pg.production('expr : number')
 def number(state, p):
     value = p[0].getstr()
-    if '.' in value:
+    if '^^' in value:
+        pass
+    elif '.' in value:
         # TODO precision
         return str2Real(value, 53)
     else:
