@@ -201,6 +201,7 @@ class Real(Number):
         if 1 <= exp <= 6:
             pos = exp
             exp = ''
+            result = result + (pos-len(result)) * '0'
         elif -4 <= exp <= 0:
             pos = 1
             result = '0' * (1-exp) + result

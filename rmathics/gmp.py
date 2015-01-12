@@ -31,6 +31,10 @@ c_mpz_cmp = rffi.llexternal(
     '__gmpz_cmp', [MPZ_PTR, MPZ_PTR], rffi.INT, compilation_info=info)
 c_mpz_add = rffi.llexternal(
     '__gmpz_add', [MPZ_PTR, MPZ_PTR, MPZ_PTR], lltype.Void, compilation_info=info)
+c_mpz_mul = rffi.llexternal(
+    '__gmpz_mul', [MPZ_PTR, MPZ_PTR, MPZ_PTR], lltype.Void, compilation_info=info)
+c_mpz_ui_pow_ui = rffi.llexternal(
+    '__gmpz_ui_pow_ui', [MPZ_PTR, rffi.ULONG, rffi.ULONG], lltype.Void, compilation_info=info)
 
 
 ## MPQ

@@ -6,7 +6,7 @@ from rmathics.expression import (
     BaseExpression, Expression, Integer, Symbol, String, Rational)
 from rmathics.characters import letters, letterlikes, named_characters
 from rmathics.rpython_util import replace
-from rmathics.convert import int2Integer, str2Integer, str2Real
+from rmathics.convert import int2Integer, str2Integer, str2Real, _mul_pow
 
 try:
     import rpython
@@ -23,17 +23,19 @@ base_symb = r'((?![0-9])([0-9${0}{1}])+)'.format(letters, letterlikes)
 full_symb = r'(`?{0}(`{0})*)'.format(base_symb)
 
 # Correctly parsing numbers is a pain
-digits = r'([0-9]+((`[0-9]*)?))'
-digitsdigits = r'(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)((`[0-9]*)?))'.format(digits)
-base = digits
-otherrange = 'r[0-9a-zA-Z]'
-basedigits = r'({0}\^\^{1}+)'.format(base, otherrange)
-basedigitsdigits = r'({0}\^\^({1}+\.{1}*|{1}*\.{1}+))'.format(base, otherrange)
+prec = r'((`[0-9]*)?)'
+base = r'[0-9]+'
+otherrange = r'[0-9a-zA-Z]'
+
+digits = r'([0-9]+{0})'.format(prec)
+digitsdigits = r'(([0-9]+\.[0-9]*|[0-9]*\.[0-9]+){1})'.format(digits, prec)
+basedigits = r'({0}\^\^{1}+{2})'.format(base, otherrange, prec)
+basedigitsdigits = r'(({0}\^\^({1}+\.{1}*|{1}*\.{1}+)){2})'.format(base, otherrange, prec)
 mantissa = r'({0}|{1})'.format(digits, digitsdigits)
 sci = r'{0}\*\^\d+'.format(mantissa)
 basesci = r'{0}\^\^{1}'.format(base, sci)
 number_patterns = [ # order matters here
-    basesci, sci, basedigitsdigits, basedigits, digitsdigits, digits]
+    basesci, basedigitsdigits, basedigits, sci, digitsdigits, digits]
 number = r'|'.join(number_patterns)
 
 tokens = (
@@ -512,12 +514,41 @@ def main(state, p):
 def number(state, p):
     value = p[0].getstr()
     if '^^' in value:
-        pass
-    elif '.' in value:
-        # TODO precision
-        return str2Real(value, 53)
+        base, value = value.split('^^')
+        base = int(base)
+        if not 2 <= base <= 36:
+            state.messages.append(('General', 'base'))
+            raise ParseError(p[0])
     else:
-        return str2Integer(value)
+        base = 10
+
+    if '*^' in value:
+        value, exp = value.split('*^')
+    else:
+        exp = '0'
+
+    if '`' in value:
+        value, prec = value.split('`')
+        if prec == '':
+            prec = 53
+        else:
+            prec = int(prec)
+        isint = False
+    else:
+        prec = 53
+        isint = True
+
+    if '.' in value:
+        isint = False
+
+    if isint:
+        result = str2Integer(value, base)
+        if exp != '0':
+            _mul_pow(result.value, base, int(exp))
+        return result
+    else:
+        value = value + '@' + exp
+        return str2Real(value, prec, base)
 
 @pg.production('expr : string')
 def string(state, p):

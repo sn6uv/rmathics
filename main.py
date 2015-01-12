@@ -37,6 +37,7 @@ def run(fp):
         result, messages = evaluate(expr, definitions)
         for message in messages:
             print(message)
+        print(">>> " + line)
         print(result.repr())
 
 def entry_point(argv):
