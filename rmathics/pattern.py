@@ -1,3 +1,7 @@
+"""
+A collection of pattern matching functions
+"""
+
 from rmathics.expression import Atom, Symbol, Expression
 from rmathics.rpython_util import all, permutations
 

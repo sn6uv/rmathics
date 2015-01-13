@@ -1,3 +1,7 @@
+"""
+functions for evaluating expression trees
+"""
+
 from rmathics.expression import Expression, Atom, Symbol
 from rmathics.definitions import Definitions
 from rmathics.transformations import flatten, thread, sort

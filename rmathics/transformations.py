@@ -1,3 +1,7 @@
+"""
+A collection of functions for transforming expression trees
+"""
+
 from rmathics.expression import BaseExpression, Expression, Symbol
 from rmathics.rpython_util import all
 

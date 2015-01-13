@@ -1,3 +1,7 @@
+"""
+rffi interface to the GNU multiple precision arithmetic library GMP.
+"""
+
 from rpython.translator.tool.cbuild import ExternalCompilationInfo
 from rpython.rtyper.lltypesystem import rffi, lltype
 

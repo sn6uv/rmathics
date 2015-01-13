@@ -1,3 +1,7 @@
+"""
+A collection of functions for converting between atomic types
+"""
+
 from rpython.rtyper.lltypesystem import rffi
 
 from rmathics import Integer, Rational, Real

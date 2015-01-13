@@ -1,4 +1,6 @@
 """
+Expression trees.
+
 The structure of things:
 
 - BaseExpression
@@ -11,6 +13,10 @@ The structure of things:
       - Rational
       - Real
       - Complex
+
+Every `BaseExpression` has attributes `head` and `leaves`:
+  - `head` is itself a `BaseExpression` instances.
+  - `leaves` is a list of `BaseExpression` instances. For atoms it is empty.
 """
 from rply.token import BaseBox
 from rmathics.rpython_util import zip, all
@@ -30,6 +36,7 @@ from rpython.rtyper.lltypesystem import rffi, lltype
 class BaseExpression(BaseBox):
     def __init__(self, *args):
         self.parenthesized = False
+        self.leaves = []
 
     def get_precision(self):
         return None
@@ -88,7 +95,6 @@ class Atom(BaseExpression):
     def __init__(self):
         BaseExpression.__init__(self)
         self.head = Symbol('System`%s' % self.__class__.__name__)
-        self.leaves = []
 
     def is_atom(self):
         return True

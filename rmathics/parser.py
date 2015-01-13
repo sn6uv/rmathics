@@ -1,3 +1,7 @@
+"""
+A parser written with rply
+"""
+
 from rply import ParserGenerator, LexerGenerator, DirectoryCache
 from rply.token import BaseBox, Token
 from math import log10
