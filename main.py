@@ -30,6 +30,7 @@ def run(fp):
             except StopIteration:
                 expr, messages = None, [('Syntax', 'sntup')]
                 break
+        print(">>> " + line)
         for message in messages:
             print(message)
         if expr is None:
@@ -37,7 +38,6 @@ def run(fp):
         result, messages = evaluate(expr, definitions)
         for message in messages:
             print(message)
-        print(">>> " + line)
         print(result.repr())
 
 def entry_point(argv):
