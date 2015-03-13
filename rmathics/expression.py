@@ -35,7 +35,6 @@ from rpython.rtyper.lltypesystem import rffi, lltype
 
 class BaseExpression(BaseBox):
     def __init__(self, *args):
-        self.parenthesized = False
         self.leaves = []
 
     def get_precision(self):

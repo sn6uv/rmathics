@@ -19,7 +19,7 @@ except:
     rpython = None
 
 # monkey patching of BaseBox required for RPython
-BaseBox._attrs_ = ['head', 'leaves', 'parenthesized']
+BaseBox._attrs_ = ['head', 'leaves']
 
 
 # Symbols can be any letters
@@ -728,7 +728,6 @@ def error_handler(state, token):
 @pg.production('expr : RawLeftParenthesis expr RawRightParenthesis')
 def parenthesis(state, p):
     expr = p[1]
-    expr.parenthesized = True
     return expr
 
 class SequenceBox(BaseBox):
@@ -739,14 +738,12 @@ class SequenceBox(BaseBox):
 def call(state, p):
     expr = Expression(p[0])
     expr.leaves = p[1].leaves
-    expr.parenthesized = True  # to handle e.g. Power[a,b]^c correctly
     return expr
 
 @pg.production('expr : expr position', precedence='PART')
 def part(state, p):
     expr = Expression(Symbol('System`Part'))
     expr.leaves = [p[0]] + p[1].leaves
-    expr.parenthesized = True  # to handle e.g. Power[a,b]^c correctly
     return expr
 
 @pg.production('args : RawLeftBracket sequence RawRightBracket')
