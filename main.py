@@ -13,7 +13,6 @@ def run(fp):
         if len(read) == 0:
             break
         program_contents += read
-    os.close(fp)
 
     definitions = Definitions()
     lines = iter(program_contents.split('\n'))
@@ -41,12 +40,13 @@ def run(fp):
         print(result.repr())
 
 def entry_point(argv):
-    try:
-        filename = argv[1]
-    except IndexError:
-        print("You must supply a filename")
-        return 1
-    run(os.open(filename, os.O_RDONLY, 0o777))
+    if len(argv) == 1:
+        run(0)  # read from stdin
+    else:
+        for filename in argv[1:]:
+            fp = os.open(filename, os.O_RDONLY, 0o777)
+            run(fp)
+            os.close(fp)
     return 0
 
 
