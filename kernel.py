@@ -1,7 +1,7 @@
 import os
 import sys
 
-from rzmq import zmq_init, zmq_socket, zmq_connect, ZMQ_REP, ZMQ_ROUTER, ZMQ_PUB, zmsg_t, zmq_msg_init, zmq_msg_recv, zmq_msg_close
+from rzmq import zmq_init, zmq_socket, zmq_bind, ZMQ_REP, ZMQ_ROUTER, ZMQ_PUB, zmsg_t, zmq_msg_init, zmq_msg_recv, zmq_msg_close
 from rpython.rtyper.lltypesystem import rffi
 
 
@@ -78,23 +78,23 @@ class Connection(object):
         base_endpoint = self.transport + '://' + self.ip + ':'
 
         self.hb = zmq_socket(self.ctx, ZMQ_REP)
-        rc = zmq_connect(self.hb, base_endpoint + '%s' % self.hb_port)
+        rc = zmq_bind(self.hb, base_endpoint + '%s' % self.hb_port)
         assert rc == 0
 
         self.shell = zmq_socket(self.ctx, ZMQ_ROUTER)
-        rc = zmq_connect(self.shell, base_endpoint + '%s' % self.shell_port)
+        rc = zmq_bind(self.shell, base_endpoint + '%s' % self.shell_port)
         assert rc == 0
 
         self.control = zmq_socket(self.ctx, ZMQ_ROUTER)
-        rc = zmq_connect(self.control, base_endpoint + '%s' % self.control_port)
+        rc = zmq_bind(self.control, base_endpoint + '%s' % self.control_port)
         assert rc == 0
 
         self.stdin = zmq_socket(self.ctx, ZMQ_ROUTER)
-        rc = zmq_connect(self.stdin, base_endpoint + '%s' % self.stdin_port)
+        rc = zmq_bind(self.stdin, base_endpoint + '%s' % self.stdin_port)
         assert rc == 0
 
         self.iopub = zmq_socket(self.ctx, ZMQ_PUB)
-        rc = zmq_connect(self.iopub, base_endpoint + '%s' % self.iopub_port)
+        rc = zmq_bind(self.iopub, base_endpoint + '%s' % self.iopub_port)
         assert rc == 0
 
     @staticmethod

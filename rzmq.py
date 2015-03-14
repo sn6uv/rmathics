@@ -14,7 +14,7 @@ zmq_socket = rffi.llexternal("zmq_socket",
                              rffi.VOIDP,
                              compilation_info=info)
 
-zmq_connect = rffi.llexternal("zmq_connect",
+zmq_bind = rffi.llexternal("zmq_bind",
                               [rffi.VOIDP, rffi.CCHARP],
                               rffi.INT,
                               compilation_info=info)
