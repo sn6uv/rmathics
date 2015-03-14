@@ -1,6 +1,9 @@
 import os
 import sys
 
+from rzmq import zmq_init, zmq_socket, zmq_connect, ZMQ_REP, ZMQ_ROUTER, ZMQ_PUB, zmsg_t, zmq_msg_init, zmq_msg_recv, zmq_msg_close
+from rpython.rtyper.lltypesystem import rffi
+
 
 def read_contents(filename):
     fp = os.open(filename, os.O_RDONLY, 0o777)
@@ -70,6 +73,52 @@ class Connection(object):
               self.signature_scheme, self.stdin_port, self.hb_port, self.ip,
               self.iopub_port, self.key)
 
+    def bind(self):
+        self.ctx = zmq_init(1)
+        base_endpoint = self.transport + '://' + self.ip + ':'
+
+        self.hb = zmq_socket(self.ctx, ZMQ_REP)
+        rc = zmq_connect(self.hb, base_endpoint + '%s' % self.hb_port)
+        assert rc == 0
+
+        self.shell = zmq_socket(self.ctx, ZMQ_ROUTER)
+        rc = zmq_connect(self.shell, base_endpoint + '%s' % self.shell_port)
+        assert rc == 0
+
+        self.control = zmq_socket(self.ctx, ZMQ_ROUTER)
+        rc = zmq_connect(self.control, base_endpoint + '%s' % self.control_port)
+        assert rc == 0
+
+        self.stdin = zmq_socket(self.ctx, ZMQ_ROUTER)
+        rc = zmq_connect(self.stdin, base_endpoint + '%s' % self.stdin_port)
+        assert rc == 0
+
+        self.iopub = zmq_socket(self.ctx, ZMQ_PUB)
+        rc = zmq_connect(self.iopub, base_endpoint + '%s' % self.iopub_port)
+        assert rc == 0
+
+    @staticmethod
+    def msg_recv(socket):
+        msg = rffi.lltype.malloc(zmsg_t.TO, flavor='raw')
+        rc = zmq_msg_init(msg)
+        assert rc == 0
+
+        msg_size = zmq_msg_recv(msg, socket, 0)
+        assert msg_size != -1
+
+        rc = zmq_msg_close(msg)
+        assert rc == 0
+
+    @staticmethod
+    def msg_send(socket, s):
+        msg = rffi.lltype.malloc(zmsg_t.TO, flavor='raw')
+        rc = zmq_msg_init_size(msg, len(s))
+        assert rc == 0
+
+        rffi.c_memcpy(zmq_msg_data(msg), s, len(s))
+        msg_size = zmq_msg_send(msg, socket, 0)
+        assert msg_size == len(s)
+
 
 def entry_point(argv):
     if len(argv) != 2:
@@ -79,6 +128,7 @@ def entry_point(argv):
     except ValueError:
         return 1
     connection.debug()
+    connection.bind()
     return 0
 
 
