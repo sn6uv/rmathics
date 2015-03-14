@@ -51,7 +51,12 @@ zmq_msg_data = rffi.llexternal("zmq_msg_data",
                                rffi.CCHARP,
                                compilation_info=info)
 
-# it would be better to get these from the #define s
+zmq_getsockopt = rffi.llexternal("zmq_getsockopt",
+                               [rffi.VOIDP, rffi.INT, rffi.VOIDP, rffi.VOIDP],
+                               rffi.INT,
+                               compilation_info=info)
+
+# it would be better to get these from the #define statements
 ZMQ_PAIR = 0
 ZMQ_PUB = 1
 ZMQ_SUB = 2
@@ -64,6 +69,8 @@ ZMQ_PUSH = 8
 ZMQ_XPUB = 9
 ZMQ_XSUB = 10
 ZMQ_STREAM = 11
+
+ZMQ_RCVMORE = 13
 
 # def main(argv):
 #     ctx = zmq_init(1)

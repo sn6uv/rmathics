@@ -1,7 +1,7 @@
 import os
 import sys
 
-from rzmq import zmq_init, zmq_socket, zmq_bind, ZMQ_REP, ZMQ_ROUTER, ZMQ_PUB, zmsg_t, zmq_msg_init, zmq_msg_recv, zmq_msg_close
+from rzmq import zmq_init, zmq_socket, zmq_bind, ZMQ_REP, ZMQ_ROUTER, ZMQ_PUB, zmsg_t, zmq_msg_init, zmq_msg_recv, zmq_msg_close, zmq_msg_data, zmq_getsockopt, ZMQ_RCVMORE
 from rpython.rtyper.lltypesystem import rffi
 
 
@@ -99,15 +99,30 @@ class Connection(object):
 
     @staticmethod
     def msg_recv(socket):
-        msg = rffi.lltype.malloc(zmsg_t.TO, flavor='raw')
-        rc = zmq_msg_init(msg)
-        assert rc == 0
+        result = []
+        morep = rffi.lltype.malloc(rffi.INTP.TO, 1, flavor='raw')
+        morep[0] = rffi.r_int(1)
 
-        msg_size = zmq_msg_recv(msg, socket, 0)
-        assert msg_size != -1
+        more_sizep = rffi.lltype.malloc(rffi.UINTP.TO, 1, flavor='raw')
+        more_sizep[0] = rffi.r_uint(rffi.sizeof(rffi.INT))
 
-        rc = zmq_msg_close(msg)
-        assert rc == 0
+        while int(morep[0]):
+            part = rffi.lltype.malloc(zmsg_t.TO, flavor='raw')
+            rc = zmq_msg_init(part)
+            assert rc == 0
+
+            msg_size = zmq_msg_recv(part, socket, 0)
+            assert msg_size != -1
+
+            result.append(rffi.charpsize2str(zmq_msg_data(part), msg_size))
+
+            rc = zmq_getsockopt(socket, ZMQ_RCVMORE, morep, more_sizep)
+            assert rc == 0
+
+            rc = zmq_msg_close(part)
+            assert rc == 0
+
+        return result
 
     @staticmethod
     def msg_send(socket, s):
@@ -129,6 +144,7 @@ def entry_point(argv):
         return 1
     connection.debug()
     connection.bind()
+    print(connection.msg_recv(connection.shell))
     return 0
 
 
