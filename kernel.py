@@ -5,6 +5,10 @@ from rzmq import zmq_init, zmq_socket, zmq_bind, ZMQ_REP, ZMQ_ROUTER, ZMQ_PUB, z
 from rpython.rtyper.lltypesystem import rffi
 import rjson
 
+from rmathics.parser import parse, WaitInputError
+from rmathics.evaluation import evaluate
+from rmathics.definitions import Definitions
+
 
 def read_contents(filename):
     fp = os.open(filename, os.O_RDONLY, 0o777)
@@ -58,6 +62,8 @@ class Connection(object):
                     raise ValueError("Unknown int field %s" % field)
             else:
                 raise ValueError("Unknown value type %s" % value)
+        self.execution_count = 1
+        self.definitions = Definitions()
 
     @staticmethod
     def lrstrip1(s):
@@ -153,10 +159,54 @@ class Connection(object):
             elif msg_type == 'execute_request':
                 content = rjson.loads(request[6])
                 code = content['code']._str
-                response = self.construct_message(request[0], request[3],
-                                                  self.execute(code),
-                                                  'execute_reply')
-                self.msg_send(self.shell, response)
+
+                # Parse
+                try:
+                    expr, messages = parse(code, self.definitions)
+                except WaitInputError:
+                    expr, messages = None, [('Syntax', 'sntup')]
+
+                for message in messages:
+                    error = rjson.JDict({       # FIXME
+                        "ename": rjson.JStr(message[0]),
+                        "evalue": rjson.JStr(message[1]),
+                        "traceback": rjson.JList([]),
+                    }).dumps()
+                    error_response = self.construct_message(
+                        request[0], request[3], error, 'error')
+                    self.msg_send(self.iopub, error_response)
+
+                # Evaluate
+                if expr is not None:
+                    result, messages = evaluate(expr, self.definitions)
+                    for message in messages:
+                        error = rjson.JDict({       # FIXME
+                            "ename": rjson.JStr(message[0]),
+                            "evalue": rjson.JStr(message[1]),
+                            "traceback": rjson.JList([]),
+                        }).dumps()
+                        error_response = self.construct_message(
+                            request[0], request[3], error, 'error')
+                        self.msg_send(self.iopub, error_response)
+                    self.execution_count += 1
+
+                    execute_result = rjson.JDict({
+                        "execution_count": rjson.JInt(self.execution_count),
+                        "data": rjson.JDict({'text/plain': rjson.JStr(result.repr())}),
+                        "metadata": rjson.JDict({}),
+                    }).dumps()
+                    result_response = self.construct_message(
+                        request[0], request[3], execute_result, 'execute_result')
+                    self.msg_send(self.iopub, result_response)
+
+                    execute_reply = rjson.JDict({
+                        "status": rjson.JStr("ok"),
+                        "execution_count": rjson.JInt(self.execution_count),
+                        "user_expressions": rjson.JDict({}),
+                    }).dumps()
+                    reply_response = self.construct_message(
+                        request[0], request[3], execute_reply, 'execute_reply')
+                    self.msg_send(self.shell, reply_response)
             else:
                 print("Ignoring msg %s" % msg_type)
 
@@ -200,10 +250,6 @@ class Connection(object):
             'banner': rjson.JStr('RPYTHON MATHICS'),
         })
         return content.dumps()
-
-    @staticmethod
-    def execute(code):
-        return '{"status":"abort","execution_count":1}'
 
 
 def entry_point(argv):
