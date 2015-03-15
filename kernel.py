@@ -148,7 +148,11 @@ class Connection(object):
 
     def eventloop(self):
         while True:
-            request = self.msg_recv(self.shell)
+            request = self.msg_recv(self.shell)     # block until message recieved
+
+            self.msg_send(self.iopub, self.construct_message(   # report kernel busy
+                request[0], request[3], '{"execution_state":"busy"}', 'status'))
+
             header = rjson.loads(request[3])
             msg_type = header['msg_type']._str
             if msg_type == 'kernel_info_request':
@@ -188,7 +192,6 @@ class Connection(object):
                         error_response = self.construct_message(
                             request[0], request[3], error, 'error')
                         self.msg_send(self.iopub, error_response)
-                    self.execution_count += 1
 
                     execute_result = rjson.JDict({
                         "execution_count": rjson.JInt(self.execution_count),
@@ -203,12 +206,17 @@ class Connection(object):
                         "status": rjson.JStr("ok"),
                         "execution_count": rjson.JInt(self.execution_count),
                         "user_expressions": rjson.JDict({}),
+                        "payload": rjson.JList([]),
                     }).dumps()
                     reply_response = self.construct_message(
                         request[0], request[3], execute_reply, 'execute_reply')
                     self.msg_send(self.shell, reply_response)
+                    self.execution_count += 1
             else:
                 print("Ignoring msg %s" % msg_type)
+
+            self.msg_send(self.iopub, self.construct_message(   # report kernel idle
+                request[0], request[3], '{"execution_state":"idle"}', 'status'))
 
     def construct_message(self, zmq_identity, parent, content, msg_type):
         header = rjson.JDict({
