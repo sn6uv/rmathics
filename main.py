@@ -39,6 +39,7 @@ def run(fp):
             print(message)
         print(result.repr())
 
+
 def entry_point(argv):
     if len(argv) == 1:
         run(0)  # read from stdin

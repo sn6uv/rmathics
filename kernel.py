@@ -188,8 +188,7 @@ class Connection(object):
             'protocol_version': rjson.JStr('5.0'),
             'implementation': rjson.JStr('rmathics'),
             'implementation_version': rjson.JStr('0.0.1'),
-            'language_info': rjson.JDict(
-            {
+            'language_info': rjson.JDict({
                 'name': rjson.JStr('mathics'),
                 'version': rjson.JStr('1.0.0'),
                 'mimetype': rjson.JStr('application/mathics'),
@@ -205,6 +204,7 @@ class Connection(object):
     @staticmethod
     def execute(code):
         return '{"status":"abort","execution_count":1}'
+
 
 def entry_point(argv):
     if len(argv) != 2:
