@@ -3,6 +3,7 @@ import sys
 
 from rzmq import zmq_init, zmq_socket, zmq_bind, ZMQ_REP, ZMQ_ROUTER, ZMQ_PUB, zmsg_t, zmq_msg_init, zmq_msg_recv, zmq_msg_close, zmq_msg_data, zmq_getsockopt, ZMQ_RCVMORE, zmq_msg_init_size, zmq_msg_send, ZMQ_SNDMORE
 from rpython.rtyper.lltypesystem import rffi
+import rjson
 
 
 def read_contents(filename):
@@ -139,35 +140,10 @@ class Connection(object):
                 msg_size = zmq_msg_send(msg, socket, 0)
             assert msg_size == len(part)
 
-    def parse_str_dict(self, s):
-        d = {}
-        s = s.strip()
-        assert s[0] == '{' and s[-1] == '}'
-        for entry in self.lrstrip1(s).split(','):
-            field, value = entry.split(':', 1)
-            field = field.strip()
-            value = value.strip()
-            assert field[0] == field[-1] == '"'
-            field = self.lrstrip1(field)
-            assert value[0] == value[-1] == '"'
-            value = self.lrstrip1(value)
-            d[field] = value
-        return d
-
-    def dump_str_dict(self, d):
-        lines = []
-        for key in d:
-            value = d[key]
-            if value[0] == '{' and value[-1] == '}':
-                lines.append('"' + key + '":' + value)
-            else:
-                lines.append('"' + key + '":"' + value + '"')
-        return '{' + ','.join(lines) + '}'
-
     def eventloop(self):
         while True:
             request = self.msg_recv(self.shell)
-            header = self.parse_str_dict(request[3])
+            header = rjson.loads(request[3])
             msg_type = header['msg_type']
             if msg_type == 'kernel_info_request':
                 response = self.construct_message(request[0], request[3],
@@ -175,7 +151,7 @@ class Connection(object):
                                                   'kernel_info_reply')
                 self.msg_send(self.shell, response)
             elif msg_type == 'execute_request':
-                content = self.parse_str_dict(request[6])
+                content = rjson.loads(request[6])
                 code = content['code']
                 response = self.construct_message(request[0], request[3],
                                                   self.execute(code),
@@ -185,7 +161,7 @@ class Connection(object):
                 print("Ignoring msg %s" % msg_type)
 
     def construct_message(self, zmq_identity, parent, content, msg_type):
-        header = self.dump_str_dict({
+        header = rjson.dumps({
             'msg_id': '8fdb7d8e-8be3-44c6-9579-3f1d646bb097',
             'username': 'angus',
             'session': zmq_identity,
@@ -221,10 +197,10 @@ class Connection(object):
             'protocol_version': '5.0',
             'implementation': 'rmathics',
             'implementation_version': '0.0.1',
-            'language_info': self.dump_str_dict(language_info),
+            'language_info': rjson.dumps(language_info),
             'banner': 'RPYTHON MATHICS',
         }
-        return self.dump_str_dict(content)
+        return rjson.dumps(content)
 
     @staticmethod
     def execute(code):
