@@ -171,8 +171,15 @@ class Connection(object):
             msg_type = header['msg_type']
             if msg_type == 'kernel_info_request':
                 response = self.construct_message(request[0], request[3],
-                                                  self.kernel_info_reply(),
+                                                  self.kernel_info(),
                                                   'kernel_info_reply')
+                self.msg_send(self.shell, response)
+            elif msg_type == 'execute_request':
+                content = self.parse_str_dict(request[6])
+                code = content['code']
+                response = self.construct_message(request[0], request[3],
+                                                  self.execute(code),
+                                                  'execute_reply')
                 self.msg_send(self.shell, response)
             else:
                 print("Ignoring msg %s" % msg_type)
@@ -199,7 +206,7 @@ class Connection(object):
         ]
         return response
 
-    def kernel_info_reply(self):
+    def kernel_info(self):
         language_info = {
             'name': 'mathics',
             'version': '1.0.0',
@@ -218,6 +225,10 @@ class Connection(object):
             'banner': 'RPYTHON MATHICS',
         }
         return self.dump_str_dict(content)
+
+    @staticmethod
+    def execute(code):
+        return '{"status":"abort","execution_count":1}'
 
 def entry_point(argv):
     if len(argv) != 2:
