@@ -71,6 +71,7 @@ ZMQ_XSUB = 10
 ZMQ_STREAM = 11
 
 ZMQ_RCVMORE = 13
+ZMQ_SNDMORE = 2
 
 # def main(argv):
 #     ctx = zmq_init(1)

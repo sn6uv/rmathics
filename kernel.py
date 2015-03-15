@@ -1,7 +1,7 @@
 import os
 import sys
 
-from rzmq import zmq_init, zmq_socket, zmq_bind, ZMQ_REP, ZMQ_ROUTER, ZMQ_PUB, zmsg_t, zmq_msg_init, zmq_msg_recv, zmq_msg_close, zmq_msg_data, zmq_getsockopt, ZMQ_RCVMORE
+from rzmq import zmq_init, zmq_socket, zmq_bind, ZMQ_REP, ZMQ_ROUTER, ZMQ_PUB, zmsg_t, zmq_msg_init, zmq_msg_recv, zmq_msg_close, zmq_msg_data, zmq_getsockopt, ZMQ_RCVMORE, zmq_msg_init_size, zmq_msg_send, ZMQ_SNDMORE
 from rpython.rtyper.lltypesystem import rffi
 
 
@@ -23,7 +23,7 @@ class Connection(object):
         if not (contents[0] == '{' and contents[-1] == '}'):
             raise ValueError("Invalid enclosing {}")
         for entry in self.lrstrip1(contents).split(','):
-            field, value = entry.split(':')
+            field, value = entry.split(':', 1)
             field = field.strip()
             value = value.strip()
             if not (field[0] == field[-1] == '"'):
@@ -125,15 +125,86 @@ class Connection(object):
         return result
 
     @staticmethod
-    def msg_send(socket, s):
-        msg = rffi.lltype.malloc(zmsg_t.TO, flavor='raw')
-        rc = zmq_msg_init_size(msg, len(s))
-        assert rc == 0
+    def msg_send(socket, parts):
+        for i, part in enumerate(parts):
+            msg = rffi.lltype.malloc(zmsg_t.TO, flavor='raw')
+            rc = zmq_msg_init_size(msg, len(part))
+            assert rc == 0
 
-        rffi.c_memcpy(zmq_msg_data(msg), s, len(s))
-        msg_size = zmq_msg_send(msg, socket, 0)
-        assert msg_size == len(s)
+            rffi.c_memcpy(zmq_msg_data(msg), part, len(part))
 
+            if i < len(parts) - 1:
+                msg_size = zmq_msg_send(msg, socket, ZMQ_SNDMORE)
+            else:
+                msg_size = zmq_msg_send(msg, socket, 0)
+            assert msg_size == len(part)
+
+    def parse_str_dict(self, s):
+        d = {}
+        s = s.strip()
+        assert s[0] == '{' and s[-1] == '}'
+        for entry in self.lrstrip1(s).split(','):
+            field, value = entry.split(':', 1)
+            field = field.strip()
+            value = value.strip()
+            assert field[0] == field[-1] == '"'
+            field = self.lrstrip1(field)
+            assert value[0] == value[-1] == '"'
+            value = self.lrstrip1(value)
+            d[field] = value
+        return d
+
+    def dump_str_dict(self, d):
+        lines = ['  "' + key + '": "' + d[key] + '",' for key in d]
+        return '{\n' + ',\n'.join(lines) + '\n}'
+
+    def eventloop(self):
+        while True:
+            request = self.msg_recv(self.shell)
+            header = self.parse_str_dict(request[3])
+            msg_type = header['msg_type']
+            print('\n'.join(request))
+            if msg_type == 'kernel_info_request':
+                response = self.construct_message(request[0], request[3],
+                                                  self.kernel_info_reply())
+                self.msg_send(self.shell, response)
+            else:
+                print("Ignoring msg %s" % msg_type)
+
+    def construct_message(self, zmq_identity, parent_header, content):
+        header = ''     # TODO
+        sig = ''        # TODO
+        response = [
+            zmq_identity,       # zmq identity(ies)
+            '<IDS|MSG>',        # delimiter
+            sig,                # HMAC signature
+            header,             # header
+            parent_header,      # parent_header
+            '{}',               # serialized metadata dict
+            content,            # serialized content dict
+            '{}',               # extra eaw data buffer(s)
+        ]
+        return response
+
+    def kernel_info_reply(self):
+        language_info = {
+            'name': 'mathics',
+            'version': '1.0.0',
+            'mimetype': 'application/mathics',
+            'file_extension': 'm',
+            # 'pygarments_lexer': '???',
+            # 'codemirror_code': '???',
+            # 'nbconvert_exporter': '???',
+        }
+
+        content = {
+            'protocol_version': '5.0',
+            'implementation': 'rmathics',
+            'implementation_version': '0.0.1',
+            'language_info': self.dump_str_dict(language_info),
+            'banner': 'RPYTHON MATHICS',
+        }
+        return self.dump_str_dict(content)
 
 def entry_point(argv):
     if len(argv) != 2:
@@ -142,9 +213,8 @@ def entry_point(argv):
         connection = Connection(read_contents(argv[1]))
     except ValueError:
         return 1
-    connection.debug()
     connection.bind()
-    print(connection.msg_recv(connection.shell))
+    connection.eventloop()
     return 0
 
 
