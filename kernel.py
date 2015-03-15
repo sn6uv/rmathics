@@ -144,7 +144,7 @@ class Connection(object):
         while True:
             request = self.msg_recv(self.shell)
             header = rjson.loads(request[3])
-            msg_type = header['msg_type']
+            msg_type = header['msg_type']._str
             if msg_type == 'kernel_info_request':
                 response = self.construct_message(request[0], request[3],
                                                   self.kernel_info(),
@@ -152,7 +152,7 @@ class Connection(object):
                 self.msg_send(self.shell, response)
             elif msg_type == 'execute_request':
                 content = rjson.loads(request[6])
-                code = content['code']
+                code = content['code']._str
                 response = self.construct_message(request[0], request[3],
                                                   self.execute(code),
                                                   'execute_reply')
@@ -161,12 +161,12 @@ class Connection(object):
                 print("Ignoring msg %s" % msg_type)
 
     def construct_message(self, zmq_identity, parent, content, msg_type):
-        header = rjson.dumps({
-            'msg_id': '8fdb7d8e-8be3-44c6-9579-3f1d646bb097',
-            'username': 'angus',
-            'session': zmq_identity,
-            'msg_type': msg_type,
-            'version': '5.0',
+        header = rjson.JDict({
+            'msg_id': rjson.JStr('8fdb7d8e-8be3-44c6-9579-3f1d646bb097'),
+            'username': rjson.JStr('angus'),
+            'session': rjson.JStr(zmq_identity),
+            'msg_type': rjson.JStr(msg_type),
+            'version': rjson.JStr('5.0'),
         })
         metadata = '{}'
         sig = ''        # TODO
@@ -174,7 +174,7 @@ class Connection(object):
             zmq_identity,       # zmq identity(ies)
             '<IDS|MSG>',        # delimiter
             sig,                # HMAC signature
-            header,             # header
+            header.dumps(),     # header
             parent,             # parent_header
             metadata,           # serialized metadata dict
             content,            # serialized content dict
@@ -183,24 +183,24 @@ class Connection(object):
         return response
 
     def kernel_info(self):
-        language_info = {
-            'name': 'mathics',
-            'version': '1.0.0',
-            'mimetype': 'application/mathics',
-            'file_extension': 'm',
-            # 'pygarments_lexer': '???',
-            # 'codemirror_code': '???',
-            # 'nbconvert_exporter': '???',
-        }
 
-        content = {
-            'protocol_version': '5.0',
-            'implementation': 'rmathics',
-            'implementation_version': '0.0.1',
-            'language_info': rjson.dumps(language_info),
-            'banner': 'RPYTHON MATHICS',
-        }
-        return rjson.dumps(content)
+        content = rjson.JDict({
+            'protocol_version': rjson.JStr('5.0'),
+            'implementation': rjson.JStr('rmathics'),
+            'implementation_version': rjson.JStr('0.0.1'),
+            'language_info': rjson.JDict(
+            {
+                'name': rjson.JStr('mathics'),
+                'version': rjson.JStr('1.0.0'),
+                'mimetype': rjson.JStr('application/mathics'),
+                'file_extension': rjson.JStr('m'),
+                # 'pygarments_lexer': rjson.JStr('???'),
+                # 'codemirror_code': rjson.JStr('???'),
+                # 'nbconvert_exporter': rjson.JStr('???'),
+            }),
+            'banner': rjson.JStr('RPYTHON MATHICS'),
+        })
+        return content.dumps()
 
     @staticmethod
     def execute(code):
