@@ -155,32 +155,45 @@ class Connection(object):
         return d
 
     def dump_str_dict(self, d):
-        lines = ['  "' + key + '": "' + d[key] + '",' for key in d]
-        return '{\n' + ',\n'.join(lines) + '\n}'
+        lines = []
+        for key in d:
+            value = d[key]
+            if value[0] == '{' and value[-1] == '}':
+                lines.append('"' + key + '":' + value)
+            else:
+                lines.append('"' + key + '":"' + value + '"')
+        return '{' + ','.join(lines) + '}'
 
     def eventloop(self):
         while True:
             request = self.msg_recv(self.shell)
             header = self.parse_str_dict(request[3])
             msg_type = header['msg_type']
-            print('\n'.join(request))
             if msg_type == 'kernel_info_request':
                 response = self.construct_message(request[0], request[3],
-                                                  self.kernel_info_reply())
+                                                  self.kernel_info_reply(),
+                                                  'kernel_info_reply')
                 self.msg_send(self.shell, response)
             else:
                 print("Ignoring msg %s" % msg_type)
 
-    def construct_message(self, zmq_identity, parent_header, content):
-        header = ''     # TODO
+    def construct_message(self, zmq_identity, parent, content, msg_type):
+        header = self.dump_str_dict({
+            'msg_id': '8fdb7d8e-8be3-44c6-9579-3f1d646bb097',
+            'username': 'angus',
+            'session': zmq_identity,
+            'msg_type': msg_type,
+            'version': '5.0',
+        })
+        metadata = '{}'
         sig = ''        # TODO
         response = [
             zmq_identity,       # zmq identity(ies)
             '<IDS|MSG>',        # delimiter
             sig,                # HMAC signature
             header,             # header
-            parent_header,      # parent_header
-            '{}',               # serialized metadata dict
+            parent,             # parent_header
+            metadata,           # serialized metadata dict
             content,            # serialized content dict
             '{}',               # extra eaw data buffer(s)
         ]
