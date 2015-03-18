@@ -1,3 +1,4 @@
 *.pyc
+*.pyo
 bin/
 docs/_build/
