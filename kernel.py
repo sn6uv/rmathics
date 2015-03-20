@@ -6,7 +6,10 @@ from rpython.rtyper.lltypesystem import rffi
 from rmathics.parser import parse, WaitInputError
 from rmathics.evaluation import evaluate
 from rmathics.definitions import Definitions
-from rmathics.kernel import rzmq, rjson
+from rmathics.kernel import rzmq, rjson, rlogging
+
+
+rlogging.basicConfig(level=rlogging.DEBUG)
 
 
 def read_contents(filename):
@@ -74,12 +77,8 @@ class Connection(object):
         assert istop >= 1
         return s[istart:istop]
 
-    def debug(self):
-        print(self.control_port, self.shell_port, self.transport,
-              self.signature_scheme, self.stdin_port, self.hb_port, self.ip,
-              self.iopub_port, self.key)
-
     def bind(self):
+        rlogging.info('binding sockets')
         self.ctx = rzmq.init(1)
         base_endpoint = self.transport + '://' + self.ip + ':'
 
@@ -212,12 +211,13 @@ class Connection(object):
                     self.msg_send(self.shell, reply_response)
                     self.execution_count += 1
             else:
-                print("Ignoring msg %s" % msg_type)
+                rlogging.warn("Ignoring msg %s" % msg_type)
 
             self.msg_send(self.iopub, self.construct_message(   # report kernel idle
                 request[0], request[3], '{"execution_state":"idle"}', 'status'))
 
     def construct_message(self, zmq_identity, parent, content, msg_type):
+        rlogging.debug('construct_message(' +' ,'.join([zmq_identity, parent, content, msg_type]) + ')')
         header = rjson.JDict({
             'msg_id': rjson.JStr('8fdb7d8e-8be3-44c6-9579-3f1d646bb097'),
             'username': rjson.JStr('angus'),
@@ -240,7 +240,6 @@ class Connection(object):
         return response
 
     def kernel_info(self):
-
         content = rjson.JDict({
             'protocol_version': rjson.JStr('5.0'),
             'implementation': rjson.JStr('rmathics'),
@@ -267,6 +266,12 @@ def entry_point(argv):
     except ValueError:
         return 1
     connection.bind()
+
+    rlogging.info((
+        connection.control_port, connection.shell_port, connection.transport,
+        connection.signature_scheme, connection.stdin_port, connection.hb_port,
+        connection.ip, connection.iopub_port, connection.key))
+
     connection.eventloop()
     return 0
 
