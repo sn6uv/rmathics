@@ -15,8 +15,7 @@ _name = 'root'
 
 
 def _log(msg):
-    outmsg = str(msg)
-    print(outmsg)
+    print(msg)
 
 
 def warn(msg):

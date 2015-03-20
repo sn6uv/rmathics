@@ -9,7 +9,7 @@ from rmathics.definitions import Definitions
 from rmathics.kernel import rzmq, rjson, rlogging
 
 
-rlogging.basicConfig(level=rlogging.DEBUG)
+rlogging.basicConfig(level=rlogging.INFO)
 
 
 def read_contents(filename):
@@ -146,28 +146,47 @@ class Connection(object):
 
     def eventloop(self):
         while True:
-            request = self.msg_recv(self.shell)     # block until message recieved
+            request = self.msg_recv(self.shell)
 
             self.msg_send(self.iopub, self.construct_message(   # report kernel busy
                 request[0], request[3], '{"execution_state":"busy"}', 'status'))
 
-            header = rjson.loads(request[3])
-            msg_type = header['msg_type']._str
-            if msg_type == 'kernel_info_request':
-                response = self.construct_message(request[0], request[3],
-                                                  self.kernel_info(),
-                                                  'kernel_info_reply')
-                self.msg_send(self.shell, response)
-            elif msg_type == 'execute_request':
-                content = rjson.loads(request[6])
-                code = content['code']._str
+            self.shell_msg(request)
 
-                # Parse
-                try:
-                    expr, messages = parse(code, self.definitions)
-                except WaitInputError:
-                    expr, messages = None, [('Syntax', 'sntup')]
+            self.msg_send(self.iopub, self.construct_message(   # report kernel idle
+                request[0], request[3], '{"execution_state":"idle"}', 'status'))
 
+    def shell_msg(self, request):
+        header = rjson.loads(request[3])
+        msg_type = header['msg_type']._str
+        if msg_type == 'kernel_info_request':
+            response = self.construct_message(request[0], request[3],
+                                              self.kernel_info(),
+                                              'kernel_info_reply')
+            self.msg_send(self.shell, response)
+        elif msg_type == 'execute_request':
+            content = rjson.loads(request[6])
+            code = content['code']._str
+
+            # Parse
+            try:
+                expr, messages = parse(code, self.definitions)
+            except WaitInputError:
+                expr, messages = None, [('Syntax', 'sntup')]
+
+            for message in messages:
+                error = rjson.JDict({       # FIXME
+                    "ename": rjson.JStr(message[0]),
+                    "evalue": rjson.JStr(message[1]),
+                    "traceback": rjson.JList([]),
+                }).dumps()
+                error_response = self.construct_message(
+                    request[0], request[3], error, 'error')
+                self.msg_send(self.iopub, error_response)
+
+            # Evaluate
+            if expr is not None:
+                result, messages = evaluate(expr, self.definitions)
                 for message in messages:
                     error = rjson.JDict({       # FIXME
                         "ename": rjson.JStr(message[0]),
@@ -178,43 +197,27 @@ class Connection(object):
                         request[0], request[3], error, 'error')
                     self.msg_send(self.iopub, error_response)
 
-                # Evaluate
-                if expr is not None:
-                    result, messages = evaluate(expr, self.definitions)
-                    for message in messages:
-                        error = rjson.JDict({       # FIXME
-                            "ename": rjson.JStr(message[0]),
-                            "evalue": rjson.JStr(message[1]),
-                            "traceback": rjson.JList([]),
-                        }).dumps()
-                        error_response = self.construct_message(
-                            request[0], request[3], error, 'error')
-                        self.msg_send(self.iopub, error_response)
+                execute_result = rjson.JDict({
+                    "execution_count": rjson.JInt(self.execution_count),
+                    "data": rjson.JDict({'text/plain': rjson.JStr(result.repr())}),
+                    "metadata": rjson.JDict({}),
+                }).dumps()
+                result_response = self.construct_message(
+                    request[0], request[3], execute_result, 'execute_result')
+                self.msg_send(self.iopub, result_response)
 
-                    execute_result = rjson.JDict({
-                        "execution_count": rjson.JInt(self.execution_count),
-                        "data": rjson.JDict({'text/plain': rjson.JStr(result.repr())}),
-                        "metadata": rjson.JDict({}),
-                    }).dumps()
-                    result_response = self.construct_message(
-                        request[0], request[3], execute_result, 'execute_result')
-                    self.msg_send(self.iopub, result_response)
-
-                    execute_reply = rjson.JDict({
-                        "status": rjson.JStr("ok"),
-                        "execution_count": rjson.JInt(self.execution_count),
-                        "user_expressions": rjson.JDict({}),
-                        "payload": rjson.JList([]),
-                    }).dumps()
-                    reply_response = self.construct_message(
-                        request[0], request[3], execute_reply, 'execute_reply')
-                    self.msg_send(self.shell, reply_response)
-                    self.execution_count += 1
-            else:
-                rlogging.warn("Ignoring msg %s" % msg_type)
-
-            self.msg_send(self.iopub, self.construct_message(   # report kernel idle
-                request[0], request[3], '{"execution_state":"idle"}', 'status'))
+                execute_reply = rjson.JDict({
+                    "status": rjson.JStr("ok"),
+                    "execution_count": rjson.JInt(self.execution_count),
+                    "user_expressions": rjson.JDict({}),
+                    "payload": rjson.JList([]),
+                }).dumps()
+                reply_response = self.construct_message(
+                    request[0], request[3], execute_reply, 'execute_reply')
+                self.msg_send(self.shell, reply_response)
+                self.execution_count += 1
+        else:
+            rlogging.warn("Ignoring msg %s" % msg_type)
 
     def construct_message(self, zmq_identity, parent, content, msg_type):
         rlogging.debug('construct_message(' +' ,'.join([zmq_identity, parent, content, msg_type]) + ')')
@@ -267,10 +270,10 @@ def entry_point(argv):
         return 1
     connection.bind()
 
-    rlogging.info((
+    rlogging.info(str((
         connection.control_port, connection.shell_port, connection.transport,
         connection.signature_scheme, connection.stdin_port, connection.hb_port,
-        connection.ip, connection.iopub_port, connection.key))
+        connection.ip, connection.iopub_port, connection.key)))
 
     connection.eventloop()
     return 0
