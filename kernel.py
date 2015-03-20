@@ -1,13 +1,12 @@
 import os
 import sys
 
-import rzmq as zmq
 from rpython.rtyper.lltypesystem import rffi
-import rjson
 
 from rmathics.parser import parse, WaitInputError
 from rmathics.evaluation import evaluate
 from rmathics.definitions import Definitions
+from rmathics.kernel import rzmq, rjson
 
 
 def read_contents(filename):
@@ -81,27 +80,27 @@ class Connection(object):
               self.iopub_port, self.key)
 
     def bind(self):
-        self.ctx = zmq.init(1)
+        self.ctx = rzmq.init(1)
         base_endpoint = self.transport + '://' + self.ip + ':'
 
-        self.hb = zmq.socket(self.ctx, zmq.REP)
-        rc = zmq.bind(self.hb, base_endpoint + '%s' % self.hb_port)
+        self.hb = rzmq.socket(self.ctx, rzmq.REP)
+        rc = rzmq.bind(self.hb, base_endpoint + '%s' % self.hb_port)
         assert rc == 0
 
-        self.shell = zmq.socket(self.ctx, zmq.ROUTER)
-        rc = zmq.bind(self.shell, base_endpoint + '%s' % self.shell_port)
+        self.shell = rzmq.socket(self.ctx, rzmq.ROUTER)
+        rc = rzmq.bind(self.shell, base_endpoint + '%s' % self.shell_port)
         assert rc == 0
 
-        self.control = zmq.socket(self.ctx, zmq.ROUTER)
-        rc = zmq.bind(self.control, base_endpoint + '%s' % self.control_port)
+        self.control = rzmq.socket(self.ctx, rzmq.ROUTER)
+        rc = rzmq.bind(self.control, base_endpoint + '%s' % self.control_port)
         assert rc == 0
 
-        self.stdin = zmq.socket(self.ctx, zmq.ROUTER)
-        rc = zmq.bind(self.stdin, base_endpoint + '%s' % self.stdin_port)
+        self.stdin = rzmq.socket(self.ctx, rzmq.ROUTER)
+        rc = rzmq.bind(self.stdin, base_endpoint + '%s' % self.stdin_port)
         assert rc == 0
 
-        self.iopub = zmq.socket(self.ctx, zmq.PUB)
-        rc = zmq.bind(self.iopub, base_endpoint + '%s' % self.iopub_port)
+        self.iopub = rzmq.socket(self.ctx, rzmq.PUB)
+        rc = rzmq.bind(self.iopub, base_endpoint + '%s' % self.iopub_port)
         assert rc == 0
 
     @staticmethod
@@ -114,19 +113,19 @@ class Connection(object):
         more_sizep[0] = rffi.r_uint(rffi.sizeof(rffi.INT))
 
         while int(morep[0]):
-            part = rffi.lltype.malloc(zmq.zmsg_t.TO, flavor='raw')
-            rc = zmq.msg_init(part)
+            part = rffi.lltype.malloc(rzmq.zmsg_t.TO, flavor='raw')
+            rc = rzmq.msg_init(part)
             assert rc == 0
 
-            msg_size = zmq.msg_recv(part, socket, 0)
+            msg_size = rzmq.msg_recv(part, socket, 0)
             assert msg_size != -1
 
-            result.append(rffi.charpsize2str(zmq.msg_data(part), msg_size))
+            result.append(rffi.charpsize2str(rzmq.msg_data(part), msg_size))
 
-            rc = zmq.getsockopt(socket, zmq.RCVMORE, morep, more_sizep)
+            rc = rzmq.getsockopt(socket, rzmq.RCVMORE, morep, more_sizep)
             assert rc == 0
 
-            rc = zmq.msg_close(part)
+            rc = rzmq.msg_close(part)
             assert rc == 0
 
         return result
@@ -134,16 +133,16 @@ class Connection(object):
     @staticmethod
     def msg_send(socket, parts):
         for i, part in enumerate(parts):
-            msg = rffi.lltype.malloc(zmq.zmsg_t.TO, flavor='raw')
-            rc = zmq.msg_init_size(msg, len(part))
+            msg = rffi.lltype.malloc(rzmq.zmsg_t.TO, flavor='raw')
+            rc = rzmq.msg_init_size(msg, len(part))
             assert rc == 0
 
-            rffi.c_memcpy(zmq.msg_data(msg), part, len(part))
+            rffi.c_memcpy(rzmq.msg_data(msg), part, len(part))
 
             if i < len(parts) - 1:
-                msg_size = zmq.msg_send(msg, socket, zmq.SNDMORE)
+                msg_size = rzmq.msg_send(msg, socket, rzmq.SNDMORE)
             else:
-                msg_size = zmq.msg_send(msg, socket, 0)
+                msg_size = rzmq.msg_send(msg, socket, 0)
             assert msg_size == len(part)
 
     def eventloop(self):
