@@ -4,71 +4,71 @@ from rpython.rtyper.lltypesystem import rffi, lltype
 
 info = ExternalCompilationInfo(includes=['zmq.h'], libraries=['zmq'])
 
-zmq_init = rffi.llexternal("zmq_init",
+init = rffi.llexternal("zmq_init",
                            [rffi.INT],
                            rffi.VOIDP,
                            compilation_info=info)
 
-zmq_socket = rffi.llexternal("zmq_socket",
+socket = rffi.llexternal("zmq_socket",
                              [rffi.VOIDP, rffi.INT],
                              rffi.VOIDP,
                              compilation_info=info)
 
-zmq_bind = rffi.llexternal("zmq_bind",
+bind = rffi.llexternal("zmq_bind",
                            [rffi.VOIDP, rffi.CCHARP],
                            rffi.INT,
                            compilation_info=info)
 
 zmsg_t = rffi.COpaquePtr('zmq_msg_t', compilation_info=info)
 
-zmq_msg_send = rffi.llexternal("zmq_msg_send",
+msg_send = rffi.llexternal("zmq_msg_send",
                                [zmsg_t, rffi.VOIDP, rffi.INT],
                                rffi.INT,
                                compilation_info=info)
 
-zmq_msg_recv = rffi.llexternal("zmq_msg_recv",
+msg_recv = rffi.llexternal("zmq_msg_recv",
                                [zmsg_t, rffi.VOIDP, rffi.INT],
                                rffi.INT,
                                compilation_info=info)
 
-zmq_msg_init_size = rffi.llexternal("zmq_msg_init_size",
+msg_init_size = rffi.llexternal("zmq_msg_init_size",
                                     [zmsg_t, rffi.SIZE_T],
                                     rffi.SIZE_T,
                                     compilation_info=info)
 
-zmq_msg_init = rffi.llexternal("zmq_msg_init",
+msg_init = rffi.llexternal("zmq_msg_init",
                                [zmsg_t],
                                rffi.INT,
                                compilation_info=info)
 
-zmq_msg_close = rffi.llexternal("zmq_msg_close",
+msg_close = rffi.llexternal("zmq_msg_close",
                                 [zmsg_t],
                                 rffi.INT,
                                 compilation_info=info)
 
-zmq_msg_data = rffi.llexternal("zmq_msg_data",
+msg_data = rffi.llexternal("zmq_msg_data",
                                [zmsg_t],
                                rffi.CCHARP,
                                compilation_info=info)
 
-zmq_getsockopt = rffi.llexternal("zmq_getsockopt",
+getsockopt = rffi.llexternal("zmq_getsockopt",
                                  [rffi.VOIDP, rffi.INT, rffi.VOIDP, rffi.VOIDP],
                                  rffi.INT,
                                  compilation_info=info)
 
 # it would be better to get these from the #define statements
-ZMQ_PAIR = 0
-ZMQ_PUB = 1
-ZMQ_SUB = 2
-ZMQ_REQ = 3
-ZMQ_REP = 4
-ZMQ_DEALER = 5
-ZMQ_ROUTER = 6
-ZMQ_PULL = 7
-ZMQ_PUSH = 8
-ZMQ_XPUB = 9
-ZMQ_XSUB = 10
-ZMQ_STREAM = 11
+PAIR = 0
+PUB = 1
+SUB = 2
+REQ = 3
+REP = 4
+DEALER = 5
+ROUTER = 6
+PULL = 7
+PUSH = 8
+XPUB = 9
+XSUB = 10
+STREAM = 11
 
-ZMQ_RCVMORE = 13
-ZMQ_SNDMORE = 2
+RCVMORE = 13
+SNDMORE = 2
