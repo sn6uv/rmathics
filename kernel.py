@@ -112,7 +112,7 @@ class Connection(object):
         more_sizep[0] = rffi.r_uint(rffi.sizeof(rffi.INT))
 
         while int(morep[0]):
-            part = rffi.lltype.malloc(rzmq.zmsg_t.TO, flavor='raw')
+            part = rffi.lltype.malloc(rzmq.msg_t.TO, flavor='raw')
             rc = rzmq.msg_init(part)
             assert rc == 0
 
@@ -132,7 +132,7 @@ class Connection(object):
     @staticmethod
     def msg_send(socket, parts):
         for i, part in enumerate(parts):
-            msg = rffi.lltype.malloc(rzmq.zmsg_t.TO, flavor='raw')
+            msg = rffi.lltype.malloc(rzmq.msg_t.TO, flavor='raw')
             rc = rzmq.msg_init_size(msg, len(part))
             assert rc == 0
 
@@ -146,15 +146,48 @@ class Connection(object):
 
     def eventloop(self):
         while True:
-            request = self.msg_recv(self.shell)
+            pollitem = rffi.lltype.malloc(rzmq.pollitem_t, flavor='raw')
 
-            self.msg_send(self.iopub, self.construct_message(   # report kernel busy
-                request[0], request[3], '{"execution_state":"busy"}', 'status'))
+            # Shell
+            pollitem.c_socket = self.shell
+            pollitem.c_events = rffi.r_short(rzmq.POLLIN)
+            rc = rzmq.poll(pollitem, rffi.r_int(1), rffi.r_long(100))
+            if rc > 0:
+                rlogging.debug('shell message')
+                request = self.msg_recv(self.shell)
 
-            self.shell_msg(request)
+                self.msg_send(self.iopub, self.construct_message(   # report kernel busy
+                    request[0], request[3], '{"execution_state":"busy"}', 'status'))
 
-            self.msg_send(self.iopub, self.construct_message(   # report kernel idle
-                request[0], request[3], '{"execution_state":"idle"}', 'status'))
+                self.shell_msg(request)
+
+                self.msg_send(self.iopub, self.construct_message(   # report kernel idle
+                    request[0], request[3], '{"execution_state":"idle"}', 'status'))
+
+            # Control
+            pollitem.c_socket = self.control
+            rc = rzmq.poll(pollitem, rffi.r_int(1), rffi.r_long(1))
+            if rc > 0:
+                rlogging.debug('control message')
+                request = self.msg_recv(self.control)
+                self.control_msg(request)
+
+            # HB
+            pollitem.c_socket = self.hb
+            rc = rzmq.poll(pollitem, rffi.r_int(1), rffi.r_long(1))
+            if rc > 0:
+                rlogging.debug('hearbeat message')
+                request = self.msg_recv(self.hb)
+                self.hb_msg(request)
+
+
+    def control_msg(self, request):
+        header = rjson.loads(request[3])
+        msg_type = header['msg_type']._str
+        rlogging.warn("Ignoring msg %s" % msg_type)
+
+    def hb_msg(self, request):
+        self.msg_send(self.hb, request)
 
     def shell_msg(self, request):
         header = rjson.loads(request[3])
