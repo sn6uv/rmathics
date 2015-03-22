@@ -219,7 +219,7 @@ def prelex(s, messages):
 
     Also strips (possibly multiline) comments.
     """
-    s = str(s)
+    s = string_escape(str(s))
     assert isinstance(s, str)
     hexdigits = '0123456789abcdefABCDEF'
     replacements = []
