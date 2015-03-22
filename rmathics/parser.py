@@ -1,6 +1,7 @@
 """
 A parser written with rply
 """
+import os
 
 from rply import ParserGenerator, LexerGenerator, DirectoryCache
 from rply.token import BaseBox, Token
@@ -518,7 +519,9 @@ precedence = (
 pg = ParserGenerator(
     [token[0] for token in tokens] + ['Function'],
     precedence=precedence,
-    cache=DirectoryCache(cache_id="mathics", cache_dir="/home/angus/prog/rmathics/rmathics/cache/parser/")
+    cache=DirectoryCache(
+        cache_id="mathics",
+        cache_dir=os.path.dirname(os.path.abspath(__file__)) + "/cache/parser/")
 )
 
 @pg.production('main : expr')
