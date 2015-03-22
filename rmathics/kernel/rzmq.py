@@ -10,10 +10,19 @@ class CConfig(object):
     pollitem_t = rffi_platform.Struct(
         'zmq_pollitem_t',
         [('socket', rffi.VOIDP), ('fd', rffi.INT), ('events', rffi.SHORT), ('revents', rffi.SHORT)])
+    REP = rffi_platform.DefinedConstantInteger('ZMQ_REP')
+    ROUTER = rffi_platform.DefinedConstantInteger('ZMQ_ROUTER')
+    PUB = rffi_platform.DefinedConstantInteger('ZMQ_PUB')
+
+    RCVMORE = rffi_platform.DefinedConstantInteger('ZMQ_RCVMORE')
+    SNDMORE = rffi_platform.DefinedConstantInteger('ZMQ_SNDMORE')
+
+    POLLIN =  rffi_platform.DefinedConstantInteger('ZMQ_POLLIN')
+    # POLLOUT = rffi_platform.DefinedConstantInteger('ZMQ_POLLOUT')
+    # POLLERR = rffi_platform.DefinedConstantInteger('ZMQ_POLLERR')
 
 
 globals().update(rffi_platform.configure(CConfig))
-
 
 init = rffi.llexternal("zmq_init",
                        [rffi.INT],
@@ -71,24 +80,3 @@ poll = rffi.llexternal("zmq_poll",
                        [rffi.lltype.Ptr(pollitem_t), rffi.INT, rffi.LONG],
                        rffi.INT,
                        compilation_info=info)
-
-# it would be better to get these from the #define statements
-PAIR = 0
-PUB = 1
-SUB = 2
-REQ = 3
-REP = 4
-DEALER = 5
-ROUTER = 6
-PULL = 7
-PUSH = 8
-XPUB = 9
-XSUB = 10
-STREAM = 11
-
-RCVMORE = 13
-SNDMORE = 2
-
-POLLIN = 1
-POLLOUT = 2
-POLLERR = 3
