@@ -145,12 +145,15 @@ class Connection(object):
             assert msg_size == len(part)
 
     def eventloop(self):
+        '''
+        Poll each socket in turn and respond to any messages.
+        For long running evaluations the heartbeat message may be sent too late
+        '''
+        pollitem = rffi.lltype.malloc(rzmq.pollitem_t, flavor='raw')
+        pollitem.c_events = rffi.r_short(rzmq.POLLIN)
         while True:
-            pollitem = rffi.lltype.malloc(rzmq.pollitem_t, flavor='raw')
-
             # Shell
             pollitem.c_socket = self.shell
-            pollitem.c_events = rffi.r_short(rzmq.POLLIN)
             rc = rzmq.poll(pollitem, rffi.r_int(1), rffi.r_long(100))
             if rc > 0:
                 rlogging.debug('shell message')
@@ -166,20 +169,17 @@ class Connection(object):
 
             # Control
             pollitem.c_socket = self.control
-            rc = rzmq.poll(pollitem, rffi.r_int(1), rffi.r_long(1))
-            if rc > 0:
+            while rzmq.poll(pollitem, rffi.r_int(1), rffi.r_long(1)) > 0:
                 rlogging.debug('control message')
                 request = self.msg_recv(self.control)
                 self.control_msg(request)
 
             # HB
             pollitem.c_socket = self.hb
-            rc = rzmq.poll(pollitem, rffi.r_int(1), rffi.r_long(1))
-            if rc > 0:
+            while rzmq.poll(pollitem, rffi.r_int(1), rffi.r_long(1)) > 0:
                 rlogging.debug('hearbeat message')
                 request = self.msg_recv(self.hb)
                 self.hb_msg(request)
-
 
     def control_msg(self, request):
         header = rjson.loads(request[3])
